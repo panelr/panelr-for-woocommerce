@@ -15,7 +15,7 @@ Connect your [Panelr](https://panelr.app) IPTV management platform to WooCommerc
 
 ## Installation
 
-1. Upload the `panelr-woocommerce` folder to `/wp-content/plugins/`
+1. Upload the `panelr-for-woocommerce` folder to `/wp-content/plugins/`
 2. Activate the plugin from **Plugins → Installed Plugins**
 3. Go to **Settings → Panelr** and enter your API URL and API key
 4. Click **Test Connection** to verify
@@ -219,7 +219,7 @@ Set the trial product under Settings → Panelr → Free Trials → Trial Produc
 If a customer has no entries in `activation_bouquets`, Panelr treats this as all channels active. This is correct behaviour for editor-managed lines.
 
 **How do I link customers to the upgrade page with their trial code pre-filled?**
-Include the trial code as a URL parameter: `https://yoursite.com/upgrade-trial/?t=TRIALCODE`
+Include the trial code as a URL parameter: `https://yoursite.com/upgrade-trial/?panelr_t=TRIALCODE`
 
 **What happens if a manual payment order is never paid?**
 The work order remains in `pending_payment` status in Panelr. You can cancel or delete it from the Panelr admin.
