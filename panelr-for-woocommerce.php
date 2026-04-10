@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name:       Panelr for WooCommerce
- * Plugin URI:        https://panelr.app
+ * Plugin URI:        https://github.com/panelr/panelr-for-woocommerce
  * Description:       Connect your Panelr IPTV management platform to WooCommerce. Handles new activations, renewals, free trials, trial upgrades, and customer self-service.
  * Version:           1.0.0
  * Requires at least: 6.0
