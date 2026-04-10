@@ -1,0 +1,492 @@
+/* ── Panelr Dark Theme ────────────────────────────────────────────────── */
+
+:root {
+    --panelr-bg:              #1e2130;
+    --panelr-bg-secondary:    #262b3d;
+    --panelr-bg-tertiary:     #2e3348;
+    --panelr-border:          rgba(255,255,255,0.10);
+    --panelr-border-focus:    #818cf8;
+    --panelr-text:            rgba(255,255,255,0.92);
+    --panelr-text-muted:      rgba(255,255,255,0.50);
+    --panelr-text-inverse:    #1e2130;
+    --panelr-accent:          #818cf8;
+    --panelr-accent-hover:    #6366f1;
+    --panelr-accent-light:    rgba(129,140,248,0.14);
+    --panelr-success:         #4ade80;
+    --panelr-success-bg:      rgba(74,222,128,0.12);
+    --panelr-error:           #f87171;
+    --panelr-error-bg:        rgba(248,113,113,0.12);
+    --panelr-danger:          #f87171;
+    --panelr-danger-hover:    #ef4444;
+    --panelr-radius:          8px;
+    --panelr-radius-sm:       5px;
+    --panelr-shadow:          0 1px 4px rgba(0,0,0,0.40);
+    --panelr-shadow-md:       0 4px 16px rgba(0,0,0,0.50);
+    --panelr-transition:      150ms ease;
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────── */
+
+.panelr-portal,
+.panelr-trial,
+.panelr-upgrade {
+    color: var(--panelr-text);
+    font-size: 16px;
+    max-width: 760px;
+}
+
+/* ── Cards ────────────────────────────────────────────────────────────── */
+
+.panelr-portal__section,
+.panelr-upgrade__account,
+.panelr-upgrade__products {
+    background: var(--panelr-bg);
+    border: 1px solid var(--panelr-border);
+    border-radius: var(--panelr-radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--panelr-shadow);
+}
+
+.panelr-portal__section h3,
+.panelr-upgrade__account h3,
+.panelr-upgrade__products h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--panelr-text);
+    margin: 0 0 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--panelr-border);
+}
+
+/* ── Tables ───────────────────────────────────────────────────────────── */
+
+.panelr-portal__table,
+.panelr-upgrade__table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.panelr-portal__table th,
+.panelr-upgrade__table th {
+    text-align: left;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--panelr-text-muted);
+    padding: 10px 16px 10px 0;
+    width: 180px;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.panelr-portal__table td,
+.panelr-upgrade__table td {
+    font-size: 15px;
+    padding: 10px 8px 10px 0;
+    color: var(--panelr-text);
+    vertical-align: middle;
+}
+
+.panelr-portal__table tr + tr th,
+.panelr-portal__table tr + tr td,
+.panelr-upgrade__table tr + tr th,
+.panelr-upgrade__table tr + tr td {
+    border-top: 1px solid var(--panelr-bg-tertiary);
+}
+
+/* ── Code ─────────────────────────────────────────────────────────────── */
+
+.panelr-portal__code {
+    font-family: monospace;
+    font-size: 14px;
+    background: var(--panelr-bg-tertiary);
+    padding: 4px 10px;
+    border-radius: var(--panelr-radius-sm);
+    color: var(--panelr-text);
+    word-break: break-all;
+    display: inline-block;
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────────── */
+
+.panelr-portal__tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--panelr-border);
+    margin-bottom: 0;
+    background: transparent;
+}
+
+.panelr-portal__tabs > * {
+    all: unset;
+    display: inline-block;
+    padding: 11px 20px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--panelr-text-muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: color 150ms ease, border-bottom-color 150ms ease;
+    box-sizing: border-box;
+    background: transparent;
+    font-family: inherit;
+}
+
+.panelr-portal__tabs > *:hover {
+    color: var(--panelr-text);
+    border-bottom-color: var(--panelr-border);
+}
+
+.panelr-portal__tabs > .panelr-tab-btn--active,
+.panelr-portal__tabs > [class*="panelr-tab-btn--active"] {
+    color: var(--panelr-accent) !important;
+    border-bottom-color: var(--panelr-accent) !important;
+    font-weight: 700;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────── */
+
+.panelr-portal .button,
+.panelr-trial .button,
+.panelr-upgrade .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 18px;
+    font-size: 14px !important;
+    font-weight: 500;
+    border-radius: var(--panelr-radius-sm);
+    border: 1px solid var(--panelr-border) !important;
+    background: var(--panelr-bg) !important;
+    color: var(--panelr-text) !important;
+    cursor: pointer;
+    transition: all var(--panelr-transition);
+    text-decoration: none;
+    line-height: 1.4;
+    box-shadow: var(--panelr-shadow);
+}
+
+.panelr-portal .button:hover,
+.panelr-trial .button:hover,
+.panelr-upgrade .button:hover {
+    border-color: var(--panelr-accent) !important;
+    color: var(--panelr-accent) !important;
+    background: var(--panelr-bg) !important;
+}
+
+/* Primary */
+.panelr-portal .panelr-renew-btn,
+.panelr-portal #panelr-save-bouquets-btn,
+.panelr-portal #panelr-save-account-btn,
+.panelr-portal #panelr-login-btn,
+.panelr-portal .panelr-wizard-next,
+.panelr-trial #panelr-trial-submit,
+.panelr-upgrade #panelr-upgrade-verify,
+.panelr-upgrade .panelr-upgrade-select {
+    background: var(--panelr-accent) !important;
+    border-color: var(--panelr-accent) !important;
+    color: var(--panelr-text-inverse) !important;
+    box-shadow: none;
+}
+
+.panelr-portal .panelr-renew-btn:hover,
+.panelr-portal #panelr-save-bouquets-btn:hover,
+.panelr-portal #panelr-save-account-btn:hover,
+.panelr-portal #panelr-login-btn:hover,
+.panelr-portal .panelr-wizard-next:hover,
+.panelr-trial #panelr-trial-submit:hover,
+.panelr-upgrade #panelr-upgrade-verify:hover,
+.panelr-upgrade .panelr-upgrade-select:hover {
+    background: var(--panelr-accent-hover) !important;
+    border-color: var(--panelr-accent-hover) !important;
+    color: var(--panelr-text-inverse) !important;
+}
+
+/* Sign Out */
+.panelr-portal #panelr-logout-btn {
+    background: transparent !important;
+    border-color: var(--panelr-danger) !important;
+    color: var(--panelr-danger) !important;
+    box-shadow: none;
+}
+
+.panelr-portal #panelr-logout-btn:hover {
+    background: var(--panelr-error-bg) !important;
+    border-color: var(--panelr-danger) !important;
+    color: var(--panelr-danger) !important;
+}
+
+/* Copy — compact */
+.panelr-copy-btn.button {
+    padding: 5px 10px !important;
+    font-size: 13px !important;
+}
+
+/* ── Inputs ───────────────────────────────────────────────────────────── */
+
+.panelr-portal .input-text,
+.panelr-trial .input-text,
+.panelr-upgrade .input-text {
+    width: 100%;
+    max-width: 420px;
+    padding: 10px 13px;
+    font-size: 15px;
+    border: 1px solid var(--panelr-border);
+    border-radius: var(--panelr-radius-sm);
+    background: var(--panelr-bg);
+    color: var(--panelr-text);
+    transition: border-color var(--panelr-transition), box-shadow var(--panelr-transition);
+    box-sizing: border-box;
+}
+
+.panelr-portal .input-text:focus,
+.panelr-trial .input-text:focus,
+.panelr-upgrade .input-text:focus {
+    outline: none;
+    border-color: var(--panelr-border-focus);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+}
+
+/* ── Form fields ──────────────────────────────────────────────────────── */
+
+.panelr-portal__field,
+.panelr-trial__field,
+.panelr-upgrade__field {
+    margin-bottom: 16px;
+}
+
+.panelr-portal__field label,
+.panelr-trial__field label,
+.panelr-upgrade__field label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--panelr-text-muted);
+    margin-bottom: 6px;
+}
+
+/* ── Status badges ────────────────────────────────────────────────────── */
+
+.panelr-portal__status {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.panelr-portal__status--active      { background: var(--panelr-success-bg); color: var(--panelr-success); }
+.panelr-portal__status--trial_active { background: rgba(99,102,241,0.15); color: #818cf8; }
+.panelr-portal__status--expired      { background: var(--panelr-error-bg); color: var(--panelr-error); }
+.panelr-portal__status--suspended    { background: rgba(251,146,60,0.12); color: #fb923c; }
+.panelr-portal__status--canceled     { background: var(--panelr-bg-tertiary); color: var(--panelr-text-muted); }
+
+/* ── Errors ───────────────────────────────────────────────────────────── */
+
+.panelr-portal__error,
+.panelr-trial__error,
+.panelr-upgrade__error {
+    background: var(--panelr-error-bg);
+    border-left: 3px solid var(--panelr-error);
+    color: var(--panelr-error);
+    padding: 11px 15px;
+    border-radius: var(--panelr-radius-sm);
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+/* ── Login ────────────────────────────────────────────────────────────── */
+
+.panelr-portal__login {
+    background: var(--panelr-bg);
+    border: 1px solid var(--panelr-border);
+    border-radius: var(--panelr-radius);
+    padding: 32px;
+    max-width: 420px;
+    box-shadow: var(--panelr-shadow-md);
+}
+
+.panelr-portal__subtitle {
+    color: var(--panelr-text-muted);
+    font-size: 15px;
+    margin-bottom: 20px;
+}
+
+/* ── Actions (edit/signout) ───────────────────────────────────────────── */
+
+.panelr-portal__actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+/* ── Bouquet list ─────────────────────────────────────────────────────── */
+
+.panelr-portal__bouquet-list {
+    list-style: none;
+    margin: 0 0 16px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 2px;
+}
+
+.panelr-portal__bouquet-list li label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    padding: 7px 9px;
+    border-radius: var(--panelr-radius-sm);
+    cursor: pointer;
+    transition: background var(--panelr-transition);
+}
+
+.panelr-portal__bouquet-list li label:hover {
+    background: var(--panelr-bg-secondary);
+}
+
+.panelr-portal__bouquet-list input[type="checkbox"],
+.panelr-portal__bouquet-list input[type="radio"] {
+    accent-color: var(--panelr-accent);
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+
+/* ── Wizard ───────────────────────────────────────────────────────────── */
+
+.panelr-wizard-step h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--panelr-text);
+    margin: 0 0 16px;
+}
+
+/* ── Renewal ──────────────────────────────────────────────────────────── */
+
+.panelr-portal__renewal .panelr-portal__table td {
+    padding: 12px 8px 12px 0;
+    font-size: 15px;
+}
+
+/* ── Thank you page ───────────────────────────────────────────────────── */
+
+.panelr-thankyou { max-width: 620px; }
+
+.panelr-reference-box {
+    background: var(--panelr-accent-light);
+    border: 2px solid var(--panelr-accent);
+    border-radius: var(--panelr-radius);
+    padding: 22px;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.panelr-reference-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--panelr-accent);
+    font-weight: 700;
+    margin: 0 0 7px;
+}
+
+.panelr-reference-code {
+    font-family: monospace;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--panelr-text);
+    margin: 0 0 7px;
+}
+
+.panelr-reference-note {
+    font-size: 14px;
+    color: var(--panelr-text-muted);
+    margin: 0;
+}
+
+.panelr-payment-instructions {
+    border-left: 3px solid var(--panelr-accent);
+    padding: 16px 20px;
+    background: var(--panelr-bg-secondary);
+    border-radius: 0 var(--panelr-radius) var(--panelr-radius) 0;
+    margin-bottom: 22px;
+}
+
+.panelr-instructions-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--panelr-text-muted);
+    margin: 0 0 10px;
+}
+
+.panelr-instructions-list {
+    margin: 0 0 12px;
+    padding-left: 18px;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.panelr-copy-list { list-style: none; margin: 10px 0 0; padding: 0; }
+
+.panelr-copy-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.panelr-copy-label {
+    color: var(--panelr-text-muted);
+    min-width: 130px;
+    font-size: 13px;
+}
+
+.panelr-copy-value { font-family: monospace; font-size: 14px; }
+
+.panelr-amount-due { font-size: 17px; font-weight: 600; margin-bottom: 20px; }
+.panelr-amount { color: var(--panelr-accent); }
+
+.panelr-payment-form .input-text {
+    width: 100%;
+    padding: 10px 13px;
+    font-size: 15px;
+    border: 1px solid var(--panelr-border);
+    border-radius: var(--panelr-radius-sm);
+    background: var(--panelr-bg);
+    color: var(--panelr-text);
+    box-sizing: border-box;
+    margin-top: 5px;
+}
+
+.panelr-payment-success {
+    background: var(--panelr-success-bg);
+    border: 1px solid var(--panelr-success);
+    border-radius: var(--panelr-radius);
+    padding: 14px 18px;
+    color: var(--panelr-success);
+    font-size: 15px;
+    margin-top: 16px;
+}
+
+.panelr-qr-label { font-size: 14px; color: var(--panelr-text-muted); margin-bottom: 8px; }
+
+/* ── Active tab — must come last to override all WC button styles ─────── */
+.panelr-portal__tabs > .panelr-tab-btn--active {
+    color: var(--panelr-accent) !important;
+    border-bottom: 3px solid var(--panelr-accent) !important;
+    font-weight: 700 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+}
