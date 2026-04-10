@@ -1,0 +1,169 @@
+/* ── Panelr for WooCommerce — Admin Settings ──────────────────────────── */
+
+.panelr-settings-wrap {
+    max-width: 860px;
+    margin-right: 20px;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────── */
+.panelr-settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    padding: 18px 24px;
+    border-radius: 8px;
+    margin: 16px 0 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.panelr-settings-logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+}
+
+.panelr-settings-logo:hover {
+    opacity: 0.85;
+}
+
+.panelr-logo-img {
+    height: 36px;
+    width: auto;
+    display: block;
+}
+
+.panelr-logo-text {
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.02em;
+}
+
+.panelr-settings-version {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    font-family: monospace;
+    background: rgba(255,255,255,0.06);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* ── Sections ────────────────────────────────────────────────────────── */
+.panelr-settings-section {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.panelr-settings-section h2 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 6px;
+    padding: 0;
+    border: none;
+}
+
+.panelr-section-desc {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0 0 18px;
+    line-height: 1.5;
+}
+
+.panelr-subsection {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.panelr-subsection h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 6px;
+}
+
+/* ── Form elements ───────────────────────────────────────────────────── */
+.panelr-settings-section .form-table th {
+    font-size: 13px;
+    color: #374151;
+    font-weight: 500;
+    padding: 10px 20px 10px 0;
+    width: 200px;
+}
+
+.panelr-settings-section .form-table td {
+    padding: 10px 0;
+}
+
+.panelr-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.panelr-inline-result {
+    font-size: 12px;
+    font-style: italic;
+    color: #64748b;
+}
+
+.panelr-last-sync {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-left: 10px;
+}
+
+/* ── Products table ──────────────────────────────────────────────────── */
+.panelr-products-table {
+    margin-top: 14px;
+    max-width: 680px;
+    font-size: 13px;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.panelr-products-table thead th {
+    background: #f8fafc;
+    color: #374151;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 8px 12px;
+}
+
+.panelr-products-table tbody td {
+    padding: 8px 12px;
+    border-top: 1px solid #f1f5f9;
+    font-size: 13px;
+}
+
+/* ── Shortcode badge ──────────────────────────────────────────────────── */
+.panelr-shortcode {
+    display: inline-block;
+    font-family: monospace;
+    font-size: 11px;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+    font-weight: normal;
+    margin-top: 3px;
+}
+
+/* ── Submit button override in sections ───────────────────────────────── */
+.panelr-settings-section .submit {
+    padding: 12px 0 0;
+    margin: 0;
+    border: none;
+}
