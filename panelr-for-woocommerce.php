@@ -4,7 +4,7 @@
  * Plugin Name:       Panelr for WooCommerce
  * Plugin URI:        https://github.com/panelr/panelr-for-woocommerce
  * Description:       Connect your Panelr IPTV management platform to WooCommerce. Handles new activations, renewals, free trials, trial upgrades, and customer self-service.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            Panelr
@@ -13,6 +13,7 @@
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       panelr-for-woocommerce
  * Domain Path:       /languages
+ * Requires Plugins:  woocommerce
  * WC requires at least: 7.0
  * WC tested up to:      9.0
  */
