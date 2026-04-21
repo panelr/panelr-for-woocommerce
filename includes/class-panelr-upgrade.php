@@ -108,6 +108,16 @@ class Panelr_Upgrade
 		// via email link from an external source and is used only to pre-fill a form field.
 		$token = sanitize_text_field(wp_unslash($_GET['panelr_t'] ?? ''));
 
+		if ($token) {
+			wp_add_inline_script(
+				'panelr-upgrade',
+				'jQuery(function($){' .
+					'$("#panelr-upgrade-code").val(' . wp_json_encode(strtoupper($token)) . ');' .
+					'$("#panelr-upgrade-verify").trigger("click");' .
+					'});'
+			);
+		}
+
 		ob_start();
 ?>
 		<div class="panelr-upgrade" id="panelr-upgrade-wrap">
@@ -160,16 +170,6 @@ class Panelr_Upgrade
 			</div>
 
 		</div>
-		<?php if ($token): ?>
-			<script>
-				document.addEventListener('DOMContentLoaded', function() {
-					if (typeof jQuery !== 'undefined') {
-						jQuery('#panelr-upgrade-code').val('<?php echo esc_js(strtoupper($token)); ?>');
-						jQuery('#panelr-upgrade-verify').trigger('click');
-					}
-				});
-			</script>
-		<?php endif; ?>
 <?php
 		return ob_get_clean();
 	}

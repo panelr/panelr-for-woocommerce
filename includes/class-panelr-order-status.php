@@ -171,6 +171,31 @@ class Panelr_Order_Status
 			}
 		}
 
+		// ── Enqueue payment form JS (only when manual payment form is shown) ──
+		if ($status === 'pending_payment' && $pm && !$pm['is_automated']) {
+			wp_enqueue_script(
+				'panelr-order-status',
+				PANELR_PLUGIN_URL . 'assets/js/order-status.js',
+				['jquery'],
+				PANELR_VERSION,
+				true
+			);
+			wp_localize_script('panelr-order-status', 'panelrOrderStatus', [
+				'ajaxurl' => admin_url('admin-ajax.php'),
+				'nonce'   => $nonce,
+				'ref'     => $ref,
+				'token'   => $token ?? '',
+				'email'   => $email ?? $cust_email,
+				'amount'  => $amount_due,
+				'i18n'    => [
+					'enter_txid'     => __('Please enter your transaction ID.', 'panelr-for-woocommerce'),
+					'submitting'     => __('Submitting…', 'panelr-for-woocommerce'),
+					'generic_error'  => __('An error occurred. Please try again.', 'panelr-for-woocommerce'),
+					'request_failed' => __('Request failed. Please try again.', 'panelr-for-woocommerce'),
+				],
+			]);
+		}
+
 		ob_start();
 ?>
 		<div class="panelr-order-status" id="panelr-os-wrap">
@@ -405,54 +430,6 @@ class Panelr_Order_Status
 			<?php endif; ?>
 
 		</div>
-
-		<?php if ($status === 'pending_payment' && $pm && !$pm['is_automated']): ?>
-			<script>
-				jQuery(function($) {
-					$('#panelr-os-submit').on('click', function() {
-						var btn = $(this);
-						var txid = $('#panelr-os-txid').val().trim();
-						var note = $('#panelr-os-note').val().trim();
-						var error = $('#panelr-os-error');
-						var result = $('#panelr-os-result');
-
-						if (!txid) {
-							error.text('<?php echo esc_js(__('Please enter your transaction ID.', 'panelr-for-woocommerce')); ?>').show();
-							return;
-						}
-						error.hide();
-						btn.prop('disabled', true);
-						result.text('<?php echo esc_js(__('Submitting…', 'panelr-for-woocommerce')); ?>');
-
-						$.post('<?php echo esc_js(admin_url('admin-ajax.php')); ?>', {
-								action: 'panelr_order_status_submit',
-								nonce: '<?php echo esc_js($nonce); ?>',
-								ref: '<?php echo esc_js($ref); ?>',
-								token: '<?php echo esc_js($token ?? ''); ?>',
-								email: '<?php echo esc_js($email ?? $cust_email); ?>',
-								amount: '<?php echo esc_js($amount_due); ?>',
-								transaction_id: txid,
-								customer_note: note,
-							})
-							.done(function(res) {
-								if (res.success) {
-									$('#panelr-os-payment-form').hide();
-									$('#panelr-os-success').show();
-								} else {
-									error.text(res.data.message || '<?php echo esc_js(__('An error occurred. Please try again.', 'panelr-for-woocommerce')); ?>').show();
-									btn.prop('disabled', false);
-									result.text('');
-								}
-							})
-							.fail(function() {
-								error.text('<?php echo esc_js(__('Request failed. Please try again.', 'panelr-for-woocommerce')); ?>').show();
-								btn.prop('disabled', false);
-								result.text('');
-							});
-					});
-				});
-			</script>
-		<?php endif; ?>
 
 		<?php
 		// ── Balance pay — add custom cart item and redirect to WC checkout ────
