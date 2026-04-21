@@ -4,7 +4,7 @@ Tags: iptv, woocommerce, panelr, subscription, streaming
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -91,6 +91,11 @@ Include the trial code as a URL parameter: `https://yoursite.com/upgrade-trial/?
 
 == Changelog ==
 
+= 1.0.1 =
+* Replaced inline `<script>` blocks with `wp_enqueue_script()`, `wp_localize_script()`, and `wp_add_inline_script()` for improved performance and CSP compliance
+* Extracted order status payment form JS into `assets/js/order-status.js`
+* Added `Requires Plugins: woocommerce` header for WordPress 6.5+ dependency management
+
 = 1.0.0 =
 * Initial release
 * New activation, renewal, and trial upgrade order flows
@@ -103,5 +108,5 @@ Include the trial code as a URL parameter: `https://yoursite.com/upgrade-trial/?
 
 == Upgrade Notice ==
 
-= 1.0.0 =
-Initial release.
+= 1.0.1 =
+Current release.
