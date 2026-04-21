@@ -228,6 +228,11 @@ The work order remains in `pending_payment` status in Panelr. You can cancel or 
 
 ## Changelog
 
+### 1.0.1
+- Replaced inline `<script>` blocks with `wp_enqueue_script()`, `wp_localize_script()`, and `wp_add_inline_script()` for improved performance and CSP compliance
+- Extracted order status payment form JS into `assets/js/order-status.js`
+- Added `Requires Plugins: woocommerce` header for WordPress 6.5+ dependency management
+
 ### 1.0.0
 - Initial release
 - New activation, renewal, trial upgrade order flows
@@ -236,3 +241,4 @@ The work order remains in `pending_payment` status in Panelr. You can cancel or 
 - Trial upgrade shortcode
 - Manual and automatic payment gateway support
 - Panelr Light and Dark themes
+ 
