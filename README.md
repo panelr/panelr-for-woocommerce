@@ -1,19 +1,26 @@
 # Panelr for WooCommerce
 
-Connect your [Panelr](https://panelr.app) IPTV management platform to WooCommerce. This plugin provides a complete customer-facing storefront for your IPTV service — handling new activations, renewals, free trials, trial upgrades, and customer self-service.
+Connect your WooCommerce store to Panelr — an IPTV middleware platform for automation, billing, and subscriber management.
 
-Panelr is an IPTV middleware platform that automates activations, billing, and subscriber management.
+This plugin provides a complete customer-facing storefront for your IPTV service, handling:
+- New activations  
+- Renewals  
+- Free trials  
+- Trial upgrades  
+- Customer self-service  
 
-Website: https://panelr.app
-Docs: https://panelr.app/developers.php
 ---
 
-## Requirements
+## What is Panelr?
 
-- WordPress 6.0+
-- WooCommerce 7.0+
-- PHP 8.0+
-- An active Panelr installation with API access
+Panelr connects your IPTV panel, editor, and payment systems to automate:
+- Activations  
+- Renewals  
+- Trials  
+- Subscriber management  
+
+Website: https://panelr.app  
+Developer Docs: https://panelr.app/developers.php  
 
 ---
 
