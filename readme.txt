@@ -2,44 +2,42 @@
 Contributors: panelr
 Tags: iptv, woocommerce, panelr, subscription, streaming
 Requires at least: 6.0
-Tested up to: 6.9
+Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.0.1
+Stable tag: 2.0.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Connect your Panelr IPTV management platform to WooCommerce to sell, manage, and renew IPTV subscriptions.
+Connect your Panelr installation to WooCommerce: plans from every service, member accounts, renewals, trials, credits, coupons, support and apps.
 
 == Description ==
 
-Panelr for WooCommerce connects your [Panelr](https://panelr.app) IPTV management installation to your WooCommerce store, providing a complete customer-facing storefront for your IPTV service.
+Panelr for WooCommerce connects your [Panelr](https://panelr.app) installation to your WooCommerce store.
 
-**This plugin requires an active Panelr installation.** Panelr is a paid SaaS platform for IPTV service management. Learn more at [panelr.app](https://panelr.app).
+**This plugin requires a Panelr installation.** Panelr is a paid platform for subscription management. Learn more at [panelr.app](https://panelr.app).
 
 = Features =
 
-* **New activations** — Customers purchase subscriptions through WooCommerce checkout
-* **Renewals** — Customers renew existing lines from the customer portal
-* **Free trials** — Customers request free trials via a shortcode form with built-in anti-abuse protection
-* **Trial upgrades** — Trial customers upgrade to paid plans via a dedicated page
-* **Customer portal** — Self-service page for credentials, connection details, channel management, and renewals
-* **Manual payments** — Full support for Venmo, Zelle, Cash App, and other manual payment methods with payment instructions, QR codes, and transaction ID submission
-* **Automatic payments** — Stripe, PayPal, and other automatic gateways trigger immediate provisioning
-* **Channel management** — Allow customers to select their active channel groups (bouquets) from the portal
-* **Themes** — Optional pre-built Light and Dark themes, fully customizable via CSS variables
+* **Several services** — every plan on every service becomes a product, in a category per service; customers can add another service from a product page
+* **Member area** — sign in with email and password, see every connection, rename it, renew it, choose channel packages, reveal connection details, see orders, use credits, open support tickets, download apps
+* **Orders** — created in Panelr the moment WooCommerce creates them; automatic methods provision at once, manual methods show Panelr's instructions and an "I've paid" form; held and retried when Panelr is unreachable
+* **Credits and invite codes** — invite links, sign-up credits, "Pay with credits"
+* **Coupons** — WooCommerce's or Panelr's, never both
+* **Free trials** — per service, screened by Panelr, with Cloudflare Turnstile
+* **Themes** — optional light and dark looks, or your own styles on stable class names; every block is a template you can override
 
 = Third Party Services =
 
-This plugin communicates with your Panelr installation via its REST API. All API calls are made to the URL you configure in the plugin settings — this is your own Panelr server, not a shared service.
-
-By using this plugin, you agree to be bound by Panelr's [Terms of Service](https://panelr.app/terms) and [Privacy Policy](https://panelr.app/privacy).
+This plugin talks only to the Panelr installation you configure. When Cloudflare Turnstile keys are set, trial requests are also checked with Cloudflare (https://challenges.cloudflare.com), subject to Cloudflare's terms and privacy policy.
 
 = Shortcodes =
 
-* `[panelr_portal]` — Customer self-service portal
-* `[panelr_trial]` — Free trial request form
-* `[panelr_upgrade]` — Trial-to-paid upgrade page
-* `[panelr_order_status]` — Order status and payment submission page
+* `[panelr_portal]` — member area
+* `[panelr_trial]` — free trial form
+* `[panelr_upgrade]` — trial upgrade
+* `[panelr_order_status]` — order status, payment confirmation, bot hand-off
+* `[panelr_support]` — support tickets
+* `[panelr_apps]` — app downloads
 
 = Bundled Libraries =
 
@@ -47,66 +45,46 @@ By using this plugin, you agree to be bound by Panelr's [Terms of Service](https
 
 == Installation ==
 
-1. Upload the `panelr-for-woocommerce` folder to `/wp-content/plugins/`
-2. Activate the plugin from **Plugins → Installed Plugins**
-3. Go to **Settings → Panelr** and enter your Panelr API URL and API key
-4. Click **Test Connection** to verify the connection
-5. Click **Sync Products** to import your Panelr products into WooCommerce
-6. Click **Create Pages Automatically** to create the portal, trial, upgrade, and order status pages
-7. Map your WooCommerce payment gateways to Panelr payment methods under **Payment Methods**
+1. Upload the `panelr-for-woocommerce` folder to `/wp-content/plugins/` and activate it
+2. Go to **Panelr → Connection**, enter your Panelr address and API key, press **Test connection**
+3. **Panelr → Services & Products**: press **Sync from Panelr**
+4. **Panelr → Pages**: press **Create the missing pages**
+5. **Panelr → Payments**: map your WooCommerce payment methods to Panelr's
 
 == Frequently Asked Questions ==
 
 = Does this plugin work without Panelr? =
 
-No. This plugin is an interface for the Panelr IPTV management platform. An active Panelr installation is required.
+No. It is an interface for the Panelr platform.
 
 = Where do I find my API key? =
 
-In your Panelr admin, go to Settings → API. Copy the API key and paste it into the plugin settings.
+In your Panelr admin under Settings → API.
 
 = What payment methods are supported? =
 
-Any WooCommerce payment gateway can be mapped to a Panelr payment method. Automatic gateways (Stripe, PayPal) provision immediately after payment. Manual gateways (Venmo, Zelle, Cash App) display payment instructions and require the customer to submit a transaction ID.
-
-= How do I style the portal to match my theme? =
-
-Set **Frontend Theme** to **None** in the plugin settings and add your own CSS targeting the `.panelr-portal`, `.panelr-trial`, `.panelr-upgrade`, and `.panelr-thankyou` classes. Full class reference is in the plugin README.
+Any WooCommerce payment method can be mapped to a Panelr one. Automatic methods provision as soon as payment is confirmed; manual methods show Panelr's payment instructions and wait for the customer's confirmation.
 
 = Is customer data stored in WordPress? =
 
-No customer IPTV data is stored in WordPress. The plugin retrieves data from your Panelr installation on demand and stores it temporarily in the WooCommerce session. WooCommerce order meta stores order references needed to track manual payment status.
+Account details are held in the WooCommerce session while a member is signed in. Connection passwords are fetched only when a member asks to see them and are never stored. WooCommerce orders keep a reference to the matching Panelr order.
 
-= How do I link customers to the upgrade page with their trial code pre-filled? =
+= I am upgrading from 1.x. What changes? =
 
-Include the trial code as a URL parameter: `https://yoursite.com/upgrade-trial/?panelr_t=TRIALCODE`
-
-== Screenshots ==
-
-1. Plugin settings page
-2. Customer portal — connection details
-3. Customer portal — channel management
-4. Thank you page with payment instructions
-5. Free trial request form
+Everything keeps working. Members now sign in with their email and password (connection details still work as a door and offer account set-up); manual orders reach Panelr before the thank-you page; payment instructions come from Panelr. Full list in README.md.
 
 == Changelog ==
 
+= 2.0.0 =
+* Rebuilt for Panelr 2.0: several services, member accounts, credits and invite codes, coupons, support tickets, apps, per-service trials, channel packages, connection labels, bot hand-off confirm page, order polling, held-order retries, templates, top-level settings menu. See CHANGELOG.md.
+
 = 1.0.1 =
-* Replaced inline `<script>` blocks with `wp_enqueue_script()`, `wp_localize_script()`, and `wp_add_inline_script()` for improved performance and CSP compliance
-* Extracted order status payment form JS into `assets/js/order-status.js`
-* Added `Requires Plugins: woocommerce` header for WordPress 6.5+ dependency management
+* Replaced inline scripts with enqueued files; `Requires Plugins: woocommerce`.
 
 = 1.0.0 =
-* Initial release
-* New activation, renewal, and trial upgrade order flows
-* Customer portal with credentials, channel management, and renewals
-* Free trial request shortcode with anti-abuse checks
-* Trial upgrade shortcode with token-based auto-verification
-* Manual and automatic payment gateway support
-* Payment instructions with QR code on order confirmation page
-* Panelr Light and Dark frontend themes
+* Initial release.
 
 == Upgrade Notice ==
 
-= 1.0.1 =
-Current release.
+= 2.0.0 =
+Members sign in with email and password now; anyone signed in with connection details will sign in again. Old manual orders that never reached Panelr are listed under Panelr → Orders with a Send button.

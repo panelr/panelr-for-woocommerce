@@ -1,229 +1,117 @@
+/* Panelr for WooCommerce — admin */
 jQuery(function ($) {
+	'use strict';
+	if (typeof panelrAdmin === 'undefined') return;
 
-    // ── Utility ───────────────────────────────────────────────────────────
-    function escHtml(str) {
-        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
+	var i18n = panelrAdmin.i18n || {};
 
-    // ── Show / hide API key ────────────────────────────────────────────────
-    $('#panelr-toggle-key').on('click', function () {
-        var field = $('#panelr_api_key');
-        var isPass = field.attr('type') === 'password';
-        field.attr('type', isPass ? 'text' : 'password');
-        $(this).text(isPass ? 'Hide' : 'Show');
-    });
+	function esc(str) {
+		return String(str === undefined || str === null ? '' : str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+	}
 
-    // ── Test connection ────────────────────────────────────────────────────
-    $('#panelr-test-connection').on('click', function () {
-        var btn = $(this), result = $('#panelr-test-result');
-        btn.prop('disabled', true);
-        result.text('Testing…').css('color', '');
-        $.post(panelrAdmin.ajaxurl, { action: 'panelr_test_connection', nonce: panelrAdmin.nonce })
-            .done(function (res) {
-                result.text(res.success ? '✓ ' + res.data.message : '✗ ' + res.data.message)
-                      .css('color', res.success ? 'green' : 'red');
-            })
-            .fail(function () { result.text('✗ Request failed.').css('color', 'red'); })
-            .always(function () { btn.prop('disabled', false); });
-    });
+	function show($el, msg, ok) {
+		$el.text(msg).css('color', ok ? '#008a20' : '#d63638');
+	}
 
-    // ── Create pages ───────────────────────────────────────────────────────
-    $('#panelr-create-pages').on('click', function () {
-        var btn = $(this), result = $('#panelr-create-pages-result');
-        if (!confirm('This will create three new WordPress pages (My Account, Free Trial, Upgrade Trial). Continue?')) return;
-        btn.prop('disabled', true);
-        result.text('Creating…').css('color', '');
-        $.post(panelrAdmin.ajaxurl, { action: 'panelr_create_pages', nonce: panelrAdmin.nonce })
-            .done(function (res) {
-                if (res.success) {
-                    var pages = res.data.pages;
-                    var msg = [];
-                    $.each(pages, function (key, p) {
-                        var $sel = $('#panelr-page-' + key);
-                        if ($sel.find('option[value="' + p.id + '"]').length === 0) {
-                            $sel.append('<option value="' + p.id + '">' + p.title + '</option>');
-                        }
-                        $sel.val(p.id);
-                        msg.push(p.title + ' (' + p.status + ')');
-                    });
-                    result.text('✓ ' + msg.join(', ')).css('color', 'green');
-                } else {
-                    result.text('✗ ' + res.data.message).css('color', 'red');
-                }
-            })
-            .fail(function () { result.text('✗ Request failed.').css('color', 'red'); })
-            .always(function () { btn.prop('disabled', false); });
-    });
+	function call($btn, $result, data, done) {
+		var orig = $btn.text();
+		$btn.prop('disabled', true);
+		show($result, i18n.working, true);
+		data.nonce = panelrAdmin.nonce;
+		$.post(panelrAdmin.ajaxurl, data)
+			.done(function (res) {
+				if (res.success) { show($result, (res.data && res.data.message) || i18n.done, true); if (done) done(res.data || {}); }
+				else show($result, (res.data && res.data.message) || i18n.request_failed, false);
+			})
+			.fail(function () { show($result, i18n.request_failed, false); })
+			.always(function () { $btn.prop('disabled', false).text(orig); });
+	}
 
-    // ── Save page assignments ──────────────────────────────────────────────
-    $('#panelr-save-pages').on('click', function () {
-        var btn = $(this), result = $('#panelr-save-pages-result');
-        btn.prop('disabled', true);
-        result.text('Saving…').css('color', '');
-        $.post(panelrAdmin.ajaxurl, {
-            action:             'panelr_save_pages',
-            nonce:              panelrAdmin.nonce,
-            portal:             $('#panelr-page-portal').val(),
-            trial:              $('#panelr-page-trial').val(),
-            upgrade:            $('#panelr-page-upgrade').val(),
-            order_status:       $('#panelr-page-order_status').val(),
-        })
-        .done(function (res) {
-            result.text(res.success ? '✓ ' + res.data.message : '✗ ' + res.data.message)
-                  .css('color', res.success ? 'green' : 'red');
-        })
-        .fail(function () { result.text('✗ Request failed.').css('color', 'red'); })
-        .always(function () { btn.prop('disabled', false); });
-    });
+	// Connection
+	$('#panelr-test-connection').on('click', function () {
+		call($(this), $('#panelr-test-result'), { action: 'panelr_test_connection' });
+	});
+	$('#panelr-refresh-cache').on('click', function () {
+		call($(this), $('#panelr-test-result'), { action: 'panelr_refresh_cache' }, function () { setTimeout(function () { location.reload(); }, 800); });
+	});
 
-    // ── Load / refresh payment methods ─────────────────────────────────────
-    $('#panelr-refresh-pm').on('click', function () {
-        var btn = $(this), result = $('#panelr-refresh-pm-result'), wrap = $('#panelr-pm-mapping-wrap');
-        btn.prop('disabled', true);
-        result.text('Loading…').css('color', '');
-        wrap.html('');
-        $('#panelr-save-pm-wrap').hide();
+	// Sync
+	$('#panelr-sync-products').on('click', function () {
+		call($(this), $('#panelr-sync-result'), { action: 'panelr_sync_products' }, function () { setTimeout(function () { location.reload(); }, 1200); });
+	});
 
-        $.post(panelrAdmin.ajaxurl, { action: 'panelr_refresh_payment_methods', nonce: panelrAdmin.nonce })
-            .done(function (res) {
-                if (!res.success) {
-                    result.text('✗ ' + res.data.message).css('color', 'red');
-                    return;
-                }
+	// Pages
+	$('#panelr-create-pages').on('click', function () {
+		var missing = [];
+		$('.panelr-page-select').each(function () { if (!parseInt($(this).val(), 10)) missing.push($(this).data('key')); });
+		if (!missing.length) { show($('#panelr-create-pages-result'), i18n.done, true); return; }
+		call($(this), $('#panelr-create-pages-result'), { action: 'panelr_create_pages', pages: missing }, function (data) {
+			$.each(data.pages || {}, function (key, p) {
+				var $sel = $('#panelr-page-' + key);
+				if (!$sel.find('option[value="' + p.id + '"]').length) $sel.append('<option value="' + p.id + '">' + esc(p.title) + '</option>');
+				$sel.val(p.id);
+			});
+			$('.panelr-page-select').first().closest('form').trigger('submit');
+		});
+	});
 
-                result.text('').css('color', '');
-                var panelrMethods = res.data.methods;
-                var wcGateways    = res.data.gateways;
-                var currentMap    = res.data.map;
+	// Orders: check now / send
+	$(document).on('click', '.panelr-check-order', function () {
+		var $btn = $(this);
+		var $box = $btn.closest('[data-order-id]');
+		call($btn, $box.find('.panelr-order-box__result').first(), { action: 'panelr_admin_check_order', order_id: $box.data('order-id') }, function (data) {
+			$box.find('.panelr-order-box__status').first().text(data.label);
+			show($box.find('.panelr-order-box__result').first(), data.label, true);
+		});
+	});
+	$(document).on('click', '.panelr-send-order', function () {
+		var $btn = $(this);
+		var $box = $btn.closest('[data-order-id]');
+		call($btn, $box.find('.panelr-order-box__result').first(), { action: 'panelr_admin_send_order', order_id: $box.data('order-id') }, function () {
+			setTimeout(function () { location.reload(); }, 900);
+		});
+	});
 
-                if (!wcGateways.length) {
-                    wrap.html('<p>No active WooCommerce payment gateways found.</p>');
-                    return;
-                }
+	// Products: filter by service, switch a plan on or off
+	$(document).on('click', '.panelr-chip', function () {
+		var service = String($(this).data('service'));
+		$('.panelr-chip').removeClass('is-active');
+		$(this).addClass('is-active');
+		$('#panelr-products-table tbody tr').each(function () {
+			$(this).toggle(service === 'all' || String($(this).data('service')) === service);
+		});
+	});
+	$(document).on('change', '.panelr-product-toggle', function () {
+		var $cb = $(this);
+		var $row = $cb.closest('tr');
+		var $label = $cb.siblings('.panelr-switch__label');
+		var on = $cb.is(':checked');
+		$cb.prop('disabled', true);
+		$.post(panelrAdmin.ajaxurl, { action: 'panelr_toggle_product', nonce: panelrAdmin.nonce, product_id: $row.data('product-id'), on: on ? '1' : '0' })
+			.done(function (res) {
+				if (res.success) { $label.text(res.data.label); }
+				else { $cb.prop('checked', !on); alert(res.data.message || i18n.request_failed); }
+			})
+			.fail(function () { $cb.prop('checked', !on); alert(i18n.request_failed); })
+			.always(function () { $cb.prop('disabled', false); });
+	});
 
-                var html = '<table class="widefat striped" style="max-width:600px;margin-top:8px;">';
-                html += '<thead><tr><th>WooCommerce Gateway</th><th>Panelr Payment Method</th></tr></thead><tbody>';
-                $.each(wcGateways, function (i, gw) {
-                    html += '<tr><td>' + escHtml(gw.title) + ' <code style="font-size:11px">' + escHtml(gw.id) + '</code></td>';
-                    html += '<td><select class="panelr-pm-map" data-gateway="' + escHtml(gw.id) + '">';
-                    html += '<option value="">— Not mapped —</option>';
-                    $.each(panelrMethods, function (j, pm) {
-                        var label    = pm.display_label || pm.name;
-                        var selected = (currentMap[gw.id] && parseInt(currentMap[gw.id]) === pm.id) ? ' selected' : '';
-                        html += '<option value="' + pm.id + '"' + selected + '>' + escHtml(label) + ' (' + escHtml(pm.type) + ')</option>';
-                    });
-                    html += '</select></td></tr>';
-                });
-                html += '</tbody></table>';
-                wrap.html(html);
-                $('#panelr-save-pm-wrap').show();
-            })
-            .fail(function () { result.text('✗ Request failed.').css('color', 'red'); })
-            .always(function () { btn.prop('disabled', false); });
-    });
+	// Copy a shortcode
+	$(document).on('click', '.panelr-copy-admin', function () {
+		var $btn = $(this), text = $btn.data('copy'), orig = $btn.text();
+		var done = function () { $btn.text(i18n.done); setTimeout(function () { $btn.text(orig); }, 1200); };
+		if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done);
+		else { var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); }
+	});
 
-    // ── Save payment mapping ───────────────────────────────────────────────
-    $('#panelr-save-pm').on('click', function () {
-        var btn = $(this), result = $('#panelr-save-pm-result');
-        var map = {};
-        $('.panelr-pm-map').each(function () {
-            var gw  = $(this).data('gateway');
-            var val = $(this).val();
-            if (val) map[gw] = val;
-        });
-        btn.prop('disabled', true);
-        result.text('Saving…').css('color', '');
-        $.post(panelrAdmin.ajaxurl, {
-            action:      'panelr_save_payment_map',
-            nonce:       panelrAdmin.nonce,
-            payment_map: map,
-        })
-        .done(function (res) {
-            result.text(res.success ? '✓ ' + res.data.message : '✗ ' + res.data.message)
-                  .css('color', res.success ? 'green' : 'red');
-        })
-        .fail(function () { result.text('✗ Request failed.').css('color', 'red'); })
-        .always(function () { btn.prop('disabled', false); });
-    });
+	// Help icons: click to open the explanation under the option, click again to close.
+	$(document).on('click', '.panelr-help', function () {
+		var $text = $(this).next('.panelr-help__text');
+		$text.prop('hidden', !$text.prop('hidden'));
+	});
 
-    // ── Auto-load payment methods on page open ────────────────────────────
-    if ($('#panelr-pm-mapping-wrap').length) {
-        $('#panelr-refresh-pm').trigger('click');
-    }
-
-    // ── Sync products ──────────────────────────────────────────────────────
-    $('#panelr-sync-products').on('click', function () {
-        var btn = $(this), result = $('#panelr-sync-result');
-        btn.prop('disabled', true);
-        result.text('Syncing…').css('color', '');
-        $.post(panelrAdmin.ajaxurl, { action: 'panelr_sync_products', nonce: panelrAdmin.nonce })
-            .done(function (res) {
-                if (res.success) {
-                    result.text('✓ ' + res.data.message).css('color', 'green');
-                    setTimeout(function () { location.reload(); }, 1500);
-                } else {
-                    result.text('✗ ' + res.data.message).css('color', 'red');
-                }
-            })
-            .fail(function () { result.text('✗ Request failed.').css('color', 'red'); })
-            .always(function () { btn.prop('disabled', false); });
-    });
-
-
-    // ── Save trial product ─────────────────────────────────────────────────
-    $('#panelr-save-trial-product').on('click', function () {
-        var btn = $(this), result = $('#panelr-trial-product-result');
-        btn.prop('disabled', true);
-        result.text('Saving…').css('color', '');
-        $.post(panelrAdmin.ajaxurl, {
-            action:            'panelr_save_trial_product',
-            nonce:             panelrAdmin.nonce,
-            panelr_product_id: $('#panelr-trial-product').val(),
-        })
-        .done(function (res) {
-            result.text(res.success ? '✓ ' + res.data.message : '✗ ' + res.data.message)
-                  .css('color', res.success ? 'green' : 'red');
-        })
-        .fail(function () { result.text('✗ Request failed.').css('color', 'red'); })
-        .always(function () { btn.prop('disabled', false); });
-    });
-
-
-    // ── Save trial settings ────────────────────────────────────────────────
-    $('#panelr-save-trial-settings').on('click', function () {
-        var btn = $(this), result = $('#panelr-trial-settings-result');
-        btn.prop('disabled', true);
-        result.text('Saving…').css('color', '');
-        $.post(panelrAdmin.ajaxurl, {
-            action:          'panelr_save_trial_settings',
-            nonce:           panelrAdmin.nonce,
-            trials_enabled:  $('#panelr-trials-enabled').is(':checked') ? '1' : '0',
-        })
-        .done(function (res) {
-            result.text(res.success ? '✓ ' + res.data.message : '✗ ' + res.data.message)
-                  .css('color', res.success ? 'green' : 'red');
-        })
-        .fail(function () { result.text('✗ Request failed.').css('color', 'red'); })
-        .always(function () { btn.prop('disabled', false); });
-    });
-
-    // ── Save portal settings ───────────────────────────────────────────────
-    $('#panelr-save-portal-settings').on('click', function () {
-        var btn = $(this), result = $('#panelr-portal-settings-result');
-        btn.prop('disabled', true);
-        result.text('Saving…').css('color', '');
-        $.post(panelrAdmin.ajaxurl, {
-            action:          'panelr_save_portal_settings',
-            nonce:           panelrAdmin.nonce,
-            allow_bouquets:  $('#panelr-allow-bouquets').is(':checked') ? '1' : '0',
-            theme:           $('#panelr-theme').val(),
-        })
-        .done(function (res) {
-            result.text(res.success ? '✓ ' + res.data.message : '✗ ' + res.data.message)
-                  .css('color', res.success ? 'green' : 'red');
-        })
-        .fail(function () { result.text('✗ Request failed.').css('color', 'red'); })
-        .always(function () { btn.prop('disabled', false); });
-    });
-
+	// Dismissible notices
+	$(document).on('click', '.panelr-upgrade-notice .notice-dismiss', function () {
+		$.post(panelrAdmin.ajaxurl, { action: 'panelr_dismiss_notice', nonce: panelrAdmin.nonce, notice: $(this).closest('.panelr-upgrade-notice').data('panelr-notice') });
+	});
 });

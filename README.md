@@ -1,255 +1,189 @@
 # Panelr for WooCommerce
 
-Connect your WooCommerce store to Panelr — an IPTV middleware platform for automation, billing, and subscriber management.
-
-This plugin provides a complete customer-facing storefront for your IPTV service, handling:
-- New activations  
-- Renewals  
-- Free trials  
-- Trial upgrades  
-- Customer self-service  
+Connect your [Panelr](https://panelr.app) installation to WooCommerce. Version 2 covers everything Panelr does: several services per store, member accounts, invite codes and credits, coupons, support tickets, the apps page, per-service trials, channel packages, connection labels, and the Telegram / Discord bots that hand customers to the store.
 
 ---
 
-## What is Panelr?
+## Requirements
 
-Panelr connects your IPTV panel, editor, and payment systems to automate:
-- Activations  
-- Renewals  
-- Trials  
-- Subscriber management  
-
-Website: https://panelr.app  
-Developer Docs: https://panelr.app/developers.php  
+- WordPress 6.0+
+- WooCommerce 7.2+ (Action Scheduler ships with it)
+- PHP 8.0+
+- A Panelr 2.0 installation with API access
 
 ---
 
-## Installation
+## Setup
 
-1. Upload the `panelr-for-woocommerce` folder to `/wp-content/plugins/`
-2. Activate the plugin from **Plugins → Installed Plugins**
-3. Go to **Settings → Panelr** and enter your API URL and API key
-4. Click **Test Connection** to verify
-5. Click **Sync Products** to import your Panelr products into WooCommerce
-6. Click **Create Pages Automatically** to create the required pages
-7. Map your WooCommerce payment gateways to Panelr payment methods
+1. Upload the `panelr-for-woocommerce` folder to `/wp-content/plugins/` and activate it.
+2. **Panelr → Connection**: enter your Panelr address and API key. Press **Test connection**.
+3. **Panelr → Services & Products**: press **Sync from Panelr**. Every plan on every service becomes a WooCommerce product. Trial plans are kept private.
+4. **Panelr → Pages**: press **Create the missing pages**.
+5. **Panelr → Payments**: map each WooCommerce payment method to a Panelr one. Automatic methods (cards, PayPal, crypto gateways) provision at once; manual methods (Venmo, Zelle, Cash App, bank transfer) show payment instructions and wait for the customer's confirmation.
+6. **Panelr → Trials**, **Member Area**, **Support**, **Bots**: switch on what you use.
+
+The API key can also live in `wp-config.php`:
+
+```php
+define('PANELR_API_URL', 'https://your-panelr.example');
+define('PANELR_API_KEY', 'your-key');
+```
+
+When defined there, the settings page shows the fields as read-only.
 
 ---
 
 ## Settings
 
-All settings are found under **Settings → Panelr** in the WordPress admin.
-
-### Connection
-| Setting | Description |
-|---------|-------------|
-| API URL | Base URL of your Panelr installation. No trailing slash. |
-| API Key | Found in your Panelr admin under Settings → API. |
-
-### Products
-Syncs Panelr products to WooCommerce as simple virtual products. Run sync any time products change in Panelr. Existing products are matched by Panelr ID and updated in place.
-
-### Pages
-Assign WordPress pages to each shortcode. Use **Create Pages Automatically** to generate all three pages with the correct shortcodes pre-inserted.
-
-| Page | Shortcode | Purpose |
-|------|-----------|---------|
-| Customer Portal | `[panelr_portal]` | Customer login, credentials, channels, renewals |
-| Free Trial | `[panelr_trial]` | Free trial request form |
-| Trial Upgrade | `[panelr_upgrade]` | Trial-to-paid upgrade page |
-| Order Status | `[panelr_order_status]` | Order status and payment submission page |
-
-### Payment Methods
-Maps each WooCommerce payment gateway to a Panelr payment method. This determines how orders are processed — automatic gateways (Stripe, PayPal) trigger immediate provisioning; manual gateways (Venmo, Zelle, Cash App) create a pending work order and display payment instructions on the order confirmation page.
-
-### Free Trials
-| Setting | Description |
-|---------|-------------|
-| Enable Free Trials | Show/hide the trial request form. When disabled, `[panelr_trial]` displays a "not available" message. |
-| Trial Product | The WooCommerce product used for free trial activations. This product is hidden from the shop. |
-
-### Customer Portal
-| Setting | Description |
-|---------|-------------|
-| Frontend Theme | Apply a pre-built stylesheet. Options: None, Panelr Light, Panelr Dark. |
-| Channel Management | Allow customers to manage their bouquet/channel selection from the portal. |
+| Tab | What it holds |
+|-----|---------------|
+| Connection | Panelr address, API key, Test connection, Refresh from Panelr, last error |
+| Services & Products | The services Panelr offers, the synced plans, Sync, "Sync overwrites my edits", per-service product categories |
+| Pages | Which page holds each shortcode, Create the missing pages |
+| Payments | WooCommerce → Panelr payment method map, where discount codes come from (WooCommerce or Panelr), auto-complete orders |
+| Trials | Show the trial form, Cloudflare Turnstile keys |
+| Member Area | Look (theme), channel packages, sign customers in to WordPress too, session length, invite code on sign-up |
+| Support | Support pages on Panelr or on this site |
+| Apps | Where the apps page is offered (from Panelr) and which page holds it |
+| Bots | Telegram bot link, Discord invite, footer buttons |
+| Advanced | Behind a proxy or Cloudflare (and which header), draft plans on uninstall, log |
 
 ---
 
 ## Shortcodes
 
-### `[panelr_portal]`
-The main customer self-service portal. Customers log in with their IPTV credentials (xtream or editor username/password).
+| Shortcode | Page |
+|-----------|------|
+| `[panelr_portal]` | Member area: sign in, connections, orders, credits, support, apps, account |
+| `[panelr_trial]` | Free trial form (service picker when more than one service offers trials) |
+| `[panelr_upgrade]` | Trial upgrade: `?panelr_t=<trial code>` or `?t=<token>` prefill the code |
+| `[panelr_order_status]` | Order status by reference and email, Panelr's emailed links, and the bot hand-off confirm page |
+| `[panelr_support]` | Support tickets (when "Support pages: This site") |
+| `[panelr_apps]` | App downloads |
+| `[panelr_checkout]` | Receives an order started on Panelr's own checkout and takes payment for it |
+| `[panelr_plans service="Demo Service"]` | That service's plans as a pricing grid with Add-to-cart buttons; attributes `service` (name or id), `columns` (1–4), `heading` (yes/no), `ids` (Panelr plan ids). Without `service`, every service, grouped |
+| `[panelr_services]` | The services as a list linking to each one's product category |
 
-**Features:**
-- View account status, expiration date, name, email
-- Edit name and email
-- View connection details: host URL, username, password (toggle), M3U URL, EPG URL
-- Manage channel selections (if enabled in settings)
-- Renew service — adds product to cart with renewal intent
-- Sign out
-
-**Note:** Editor credentials are always shown when configured. Xtream credentials are never exposed if editor credentials exist.
-
----
-
-### `[panelr_trial]`
-Free trial request form. Customers enter their name and email. The plugin collects their IP address and user agent server-side for Panelr's anti-abuse checks.
-
-**Responses:**
-- **Approved** — Trial is active immediately. Customer sees confirmation message.
-- **Pending** — Trial requires manual approval in Panelr admin. Customer sees pending message.
-
-Requires **Enable Free Trials** to be on in settings.
+No attributes are needed.
 
 ---
 
-### `[panelr_upgrade]`
-Trial-to-paid upgrade page. Accepts a trial code via form entry or `?panelr_t=TRIALCODE` URL parameter (auto-submits).
+## How orders flow
 
-**Flow:**
-1. Customer enters or arrives with trial code
-2. Portal verifies the code and displays their account info
-3. Customer selects a plan and is sent to checkout
-4. Order is processed with `trial_upgrade` intent
+**When WooCommerce creates the order**, the mapped Panelr method's mode decides:
 
----
+- **Manual** → the Panelr order is created right then, the customer gets Panelr's payment instructions by email, and the order-received page shows the reference, the instructions, the amount, and an "I've paid" form.
+- **Automatic** → when WooCommerce confirms payment, the order is completed in Panelr and provisioned. The order-received page shows "Being set up" and updates to "Ready" on its own.
+- **Credits** → a member whose credits cover the whole cart sees one payment method, "Pay with credits"; the order completes in Panelr with no money.
 
-## Order Flow
+If Panelr cannot be reached at that moment the order is **held** and retried every 5 minutes for an hour; it never turns a card order into a manual one. Panelr never calls the site: the plugin checks each order at +1, +2, +5, +15 and +60 minutes until it is ready, then marks the WooCommerce order Completed (setting).
 
-### Automatic Payment Gateways (Stripe, PayPal, etc.)
-1. Customer places order
-2. Payment is collected by WooCommerce
-3. On payment confirmation, plugin calls Panelr `complete_order`
-4. Panelr provisions the activation/renewal asynchronously via webhook
-
-### Manual Payment Gateways (Venmo, Zelle, Cash App, etc.)
-1. Customer places order
-2. Plugin calls Panelr `create_work_order` to create a pending work order
-3. Plugin calls Panelr `send_payment_instructions` to email the customer their payment details
-4. Order confirmation page shows payment instructions, reference code, QR code (if applicable), and a transaction ID submission form
-5. Customer sends payment and submits their transaction ID
-6. Admin receives email notification
-7. Admin verifies and activates the order in Panelr
+**Panelr → Orders** lists every order with Panelr plans, its Panelr status, anything never sent (with a Send button), and Check now.
 
 ---
 
-## Order Types
+## Orders that start on Panelr and are paid here
 
-The plugin supports three order intents, set automatically based on context:
+The plugin also works alongside Panelr's own storefront. In Panelr → Settings → Website, switch E-Commerce on and choose **Checkout only** (Full replacement is the mode where the store takes over every customer page); put the address of the store page holding `[panelr_checkout]` into Checkout. Then in Panelr → Settings → Payments, set a payment method's Checkout to "On the connected store". A customer who builds an order on Panelr and picks that method is sent to the store with the order's reference and token. The plugin rebuilds the cart from the order (same plan ids, Panelr's prices, its coupon and fee), fills in their details, offers only the WooCommerce methods mapped to the method they chose, and on payment marks the existing Panelr order paid. No sign-in is involved; the token opens that one order. Names and descriptions shown on the store are the store's own.
 
-| Intent | Source | Description |
-|--------|--------|-------------|
-| `new_activation` | Shop checkout | Standard new subscription |
-| `renewal` | Portal → Renew tab | Renews an existing activation |
-| `trial_upgrade` | Upgrade page | Converts trial to paid |
+---
 
-Order type and account username are shown in the WooCommerce order summary and order received page.
+## Rules the plugin mirrors
+
+- Every service is sold and renewed on its own. A renewal needs a plan on the connection's own service with at least as many connections; a trial upgrades to any plan on its service.
+- Trials are per service, screened by Panelr (daily cap, one per email / network, disposable addresses, VPNs). Panelr's message is shown as it comes.
+- One source of discount per order: WooCommerce coupons or Panelr coupons, never both.
+- Credits belong to an email login. Plain renewals never earn credits. All-credits orders need no payment method.
+- Dates from Panelr are UTC and shown in the site's timezone.
 
 ---
 
 ## Theming
 
-### Using a Pre-built Theme
-Select **Panelr Light** or **Panelr Dark** under Settings → Panelr → Customer Portal.
+Choose **Panelr light** or **Panelr dark** under Member Area → Look, or keep your theme's styles and target the class names below. Every block renders through `wc_get_template()`; copy any file from `templates/panelr/` to `your-theme/woocommerce/panelr/` to change the markup.
 
-### Custom Styling
-Set theme to **None** and target the following CSS classes in your theme's stylesheet:
-
-**Portal**
+**Member area**
 ```
-.panelr-portal                  Outer wrapper
-.panelr-portal__section         Card sections
-.panelr-portal__table           Data tables
-.panelr-portal__code            Monospace credential display
-.panelr-portal__tabs            Tab navigation
-.panelr-portal__status          Status badge
-.panelr-portal__status--active
-.panelr-portal__status--trial_active
-.panelr-portal__status--expired
-.panelr-portal__status--suspended
-.panelr-portal__status--canceled
-.panelr-portal__login           Login form wrapper
-.panelr-portal__actions         Edit/Sign Out button row
+.panelr-portal                  Outer wrapper (adds --member, --signed-out, --line-only)
+.panelr-portal__header          Name + Sign out
+.panelr-portal__tabs            Tab links (.panelr-tab-btn, --active)
+.panelr-portal__section         Card
+.panelr-portal__table           Data table
+.panelr-portal__code            Monospace value
+.panelr-portal__status          Badge (--active, --trial_active, --expired, --suspended, --canceled,
+                                --pending_payment, --completed, --open, --closed …)
+.panelr-portal__login           Sign-in card (.panelr-portal__view per form)
+.panelr-portal__field           Label + input
+.panelr-portal__error           Error message
+.panelr-portal__actions         Button row
+.panelr-line                    One connection (.panelr-line__head, __title, __actions, __panel,
+                                __details, __channels, __renew)
 .panelr-portal__bouquet-list    Channel list
-.panelr-wizard-step             Bouquet wizard step
-.panelr-wizard-review           Bouquet review step
+.panelr-wizard-step             Channel group (editor services)
+.panelr-order                   One order in the Orders tab
+.panelr-credits                 Credits tab blocks
+.panelr-ticket                  One support ticket
 ```
 
-**Trial**
+**Trial / upgrade**
 ```
-.panelr-trial                   Outer wrapper
-.panelr-trial__field            Form field wrapper
-.panelr-trial__error            Error message
-```
-
-**Upgrade**
-```
-.panelr-upgrade                 Outer wrapper
-.panelr-upgrade__account        Account info section
-.panelr-upgrade__products       Plan selection section
-.panelr-upgrade__table          Plans table
+.panelr-trial  .panelr-trial__field  .panelr-trial__error  .panelr-trial__services
+.panelr-upgrade  .panelr-upgrade__account  .panelr-upgrade__products  .panelr-upgrade__table
 ```
 
-**Thank You Page**
+**Order received / order status**
 ```
-.panelr-thankyou                Outer wrapper
-.panelr-reference-box           Order reference display
-.panelr-reference-code          Reference code (monospace)
-.panelr-payment-instructions    Payment instructions block
-.panelr-instructions-list       Instruction bullet list
-.panelr-copy-list               Copyable fields list
-.panelr-copy-item               Single copyable row
-.panelr-amount-due              Amount due display
-.panelr-payment-form            Transaction ID form
-.panelr-payment-success         Success confirmation
+.panelr-thankyou  .panelr-reference-box  .panelr-reference-code  .panelr-payment-instructions
+.panelr-copy-list  .panelr-copy-item  .panelr-amount-due  .panelr-payment-form
+.panelr-payment-success  .panelr-order-status  .panelr-handoff
 ```
 
-### CSS Custom Properties (when using a pre-built theme)
-Override variables in your theme's CSS after the plugin stylesheet loads:
-
-```css
-:root {
-    --panelr-accent:        #your-brand-color;
-    --panelr-accent-hover:  #your-brand-color-dark;
-    --panelr-radius:        4px;  /* sharper corners */
-}
+**Product page / cart**
 ```
+.panelr-product-service  .panelr-addons  .panelr-credits-buy  .panelr-coupon-row  .panelr-invited-row
+```
+
+**Apps**
+```
+.panelr-apps  .panelr-apps__section  .panelr-app  .panelr-app__logo  .panelr-app__download
+```
+
+CSS variables when a Panelr look is on: `--panelr-accent`, `--panelr-accent-hover`, `--panelr-radius`, and the rest listed at the top of `assets/css/theme-light.css`.
 
 ---
 
-## Frequently Asked Questions
+## Inbound links Panelr sends
 
-**Why aren't my payment gateways showing in the mapping?**
-Ensure your WooCommerce payment gateways are installed and enabled. Load the mapping by clicking **Load / Refresh Payment Methods** on the settings page.
+| Link | Lands on |
+|------|----------|
+| `?panelr_ref=…&panelr_token=…` | Order status page: the order, instructions, "I've paid" |
+| `?panelr_t=<trial code>` / `?t=<token>` | Trial upgrade page with the code filled in (press Continue) |
+| `?panelr_product_id=…&panelr_intent=…&panelr_email=…&panelr_first_name=…&panelr_last_name=…` | Order status page: a confirm page with the plan and details, then Continue to checkout |
+| `?ref=<invite code>` on any page | The code is kept for 30 days and attached to the account and orders |
 
-**Why is the trial product showing in my shop?**
-Set the trial product under Settings → Panelr → Free Trials → Trial Product and save. The plugin will automatically hide it from shop archives.
+---
 
-**Customers are seeing "all channels selected" when some are deselected — why?**
-If a customer has no entries in `activation_bouquets`, Panelr treats this as all channels active. This is correct behaviour for editor-managed lines.
+## What changed from version 1
 
-**How do I link customers to the upgrade page with their trial code pre-filled?**
-Include the trial code as a URL parameter: `https://yoursite.com/upgrade-trial/?panelr_t=TRIALCODE`
+Backward compatibility was the rule: a store on 1.0.1 keeps working the moment 2.0 is activated. All options, product and order meta, shortcodes, pages, inbound links and CSS class names are kept. An upgrade routine runs once and:
 
-**What happens if a manual payment order is never paid?**
-The work order remains in `pending_payment` status in Panelr. You can cancel or delete it from the Panelr admin.
+1. reads the old options as they are;
+2. removes the retired `panelr_payment_mode_map`;
+3. writes the service and plan details onto every synced product from one Panelr call; plans Panelr no longer offers are set to draft (never deleted) with a notice;
+4. creates nothing new — the support and apps pages are offered from Pages with one button;
+5. records `panelr_db_version`.
+
+Where compatibility could not hold:
+
+1. **Portal sign-in changes from line credentials to the customer account.** v1 signed a customer in with a line's IPTV username and password. v2's member area is the customer account, because credits, invite codes, several lines, labels, orders and support all belong to the account. What holds: a customer who only has line credentials can still sign in with them; when they have no login yet the plugin offers "Set up your account". What changes: a WooCommerce session from v1 is not carried over; anyone signed in when the plugin updates signs in again.
+2. **The manual-order flow moves off the thank-you page.** v1 created the Panelr work order when the customer reached the thank-you page. v2 creates it when WooCommerce creates the order. Old orders created under v1 that never reached Panelr cannot be repaired by the upgrade: the plugin lists them under Panelr → Orders as "Never sent to Panelr" with a Send button.
+3. **Payment-method deep links and QR codes.** v1 built Venmo / Cash App / PayPal.me links itself. v2 shows Panelr's own instructions and the method's details, in the site's currency, and keeps the QR only for methods with a payable address. Class names are kept; the deep links may differ.
+4. **The "Trial product" setting no longer decides anything.** Trials are per service in Panelr; the trial plan is Panelr's to hide from sale. v2 reads the old setting only during the upgrade to un-hide a product v1 made private, then ignores it, and the setting disappears from the page.
+5. **The "Balance due" hidden product stays** for partial payments; nothing changes.
+6. **Bot checkout links**: the same URL keeps working, but it no longer acts on a bare visit. The link lands on a page that shows the plan, the name and email it carries, and a Continue to checkout button; that button does what v1 did on arrival.
 
 ---
 
 ## Changelog
 
-### 1.0.1
-- Replaced inline `<script>` blocks with `wp_enqueue_script()`, `wp_localize_script()`, and `wp_add_inline_script()` for improved performance and CSP compliance
-- Extracted order status payment form JS into `assets/js/order-status.js`
-- Added `Requires Plugins: woocommerce` header for WordPress 6.5+ dependency management
-
-### 1.0.0
-- Initial release
-- New activation, renewal, trial upgrade order flows
-- Customer portal with credentials, channel management, renewal
-- Free trial request shortcode
-- Trial upgrade shortcode
-- Manual and automatic payment gateway support
-- Panelr Light and Dark themes
- 
+See `CHANGELOG.md`.

@@ -1,0 +1,2085 @@
+# Panelr for WooCommerce 2.0.0
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Panelr for WooCommerce 2.0.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: panelr-for-woocommerce\n"
+"Language: \n"
+
+#: includes/class-panelr-cart.php:507
+msgid "%1$s applied: %2$s"
+msgstr ""
+
+#: includes/class-panelr-helpers.php:360
+msgid "%d connection"
+msgid_plural "%d connections"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/panelr/order-status/order.php:58
+#: templates/panelr/order-status/order.php:83
+#: templates/panelr/portal/tab-credits.php:30
+msgid "%d credit"
+msgid_plural "%d credits"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/panelr/cart-extras.php:42
+msgid "%d credit will be used"
+msgid_plural "%d credits will be used"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/panelr/portal/tab-connections.php:54
+msgid "%d day left"
+msgid_plural "%d days left"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-panelr-helpers.php:364
+#: includes/class-panelr-settings.php:485
+msgid "%d month"
+msgid_plural "%d months"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-panelr-upgrade-runner.php:73
+msgid "%d product is no longer offered by Panelr and was set to draft."
+msgid_plural "%d products are no longer offered by Panelr and were set to draft."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-panelr-helpers.php:172
+msgid "%s discount"
+msgstr ""
+
+#: includes/class-panelr-helpers.php:170
+msgid "%s fee"
+msgstr ""
+
+#: includes/class-panelr-cart.php:299
+#: includes/class-panelr-portal.php:755
+msgid "A renewal needs a plan with at least %d connections."
+msgstr ""
+
+#: includes/class-panelr-settings.php:382
+msgid "API key"
+msgstr ""
+
+#: includes/class-panelr-portal.php:248
+msgid "Account"
+msgstr ""
+
+#: includes/class-panelr-helpers.php:330
+msgid "Active"
+msgstr ""
+
+#: templates/panelr/product-addons.php:13
+msgid "Add another service"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:390
+#: templates/panelr/thankyou/panel.php:102
+msgid "Add note"
+msgstr ""
+
+#: templates/panelr/product-addons.php:26
+msgid "Add · %s"
+msgstr ""
+
+#: includes/class-panelr-sync.php:286
+msgid "Added to your cart."
+msgstr ""
+
+#: includes/class-panelr-upgrade.php:35
+msgid "Adding…"
+msgstr ""
+
+#: includes/class-panelr-settings.php:38
+msgid "Advanced"
+msgstr ""
+
+#: templates/panelr/portal/bouquets.php:21
+msgid "All"
+msgstr ""
+
+#: includes/class-panelr-admin-orders.php:51
+msgid "All orders with Panelr plans"
+msgstr ""
+
+#: templates/panelr/support/ticket.php:14
+msgid "All tickets"
+msgstr ""
+
+#: includes/class-panelr-orders.php:248
+msgid "Already sent."
+msgstr ""
+
+#: templates/panelr/order-status/order.php:152
+msgid "Amount sent"
+msgstr ""
+
+#: templates/panelr/order-status/order.php:143
+#: templates/panelr/thankyou/panel.php:83
+msgid "Amount to send"
+msgstr ""
+
+#: includes/class-panelr-portal.php:430
+msgid "An invite code from a member is needed to create an account."
+msgstr ""
+
+#: templates/panelr/portal/tab-credits.php:45
+msgid "An invite for you"
+msgstr ""
+
+#: templates/panelr/apps-sign-in.php:11
+msgid "App downloads are for members."
+msgstr ""
+
+#: includes/class-panelr-apps.php:27
+msgid "App downloads are not available right now."
+msgstr ""
+
+#: includes/class-panelr-apps.php:38
+msgid "App downloads could not be loaded right now."
+msgstr ""
+
+#: includes/class-panelr-cart.php:52
+#: templates/panelr/cart-extras.php:23
+msgid "Apply"
+msgstr ""
+
+#: includes/class-panelr-portal.php:246
+#: includes/class-panelr-settings.php:36
+#: includes/class-panelr-settings.php:50
+msgid "Apps"
+msgstr ""
+
+#: includes/class-panelr-settings.php:721
+msgid "Apps page"
+msgstr ""
+
+#: templates/panelr/portal/sign-in.php:94
+msgid "Back to sign in"
+msgstr ""
+
+#: includes/class-panelr-order-status.php:284
+msgid "Balance due"
+msgstr ""
+
+#: includes/class-panelr-helpers.php:322
+msgid "Balance payment"
+msgstr ""
+
+#: includes/class-panelr-order-status.php:375
+msgid "Balance payment of %1$s recorded on Panelr order %2$s."
+msgstr ""
+
+#: includes/class-panelr-helpers.php:345
+#: includes/class-panelr-helpers.php:346
+#: templates/panelr/order-status/order.php:174
+msgid "Being set up"
+msgstr ""
+
+#: includes/class-panelr-settings.php:37
+#: includes/class-panelr-settings.php:740
+msgid "Bots"
+msgstr ""
+
+#: templates/panelr/portal/tab-connections.php:41
+#: templates/panelr/support/new.php:50
+msgid "Cancel"
+msgstr ""
+
+#: includes/class-panelr-helpers.php:334
+#: includes/class-panelr-helpers.php:349
+#: templates/panelr/order-status/order.php:196
+msgid "Canceled"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:453
+msgid "Cash App"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:454
+msgid "Cash App transaction id"
+msgstr ""
+
+#: includes/class-panelr-settings.php:507
+msgid "Categories"
+msgstr ""
+
+#: includes/class-panelr-settings.php:430
+msgid "Category"
+msgstr ""
+
+#: includes/class-panelr-settings.php:718
+msgid "Change in Panelr"
+msgstr ""
+
+#: templates/panelr/portal/tab-account.php:49
+msgid "Change password"
+msgstr ""
+
+#: includes/class-panelr-portal.php:637
+#: includes/class-panelr-portal.php:689
+msgid "Channel choices are not available for this connection."
+msgstr ""
+
+#: includes/class-panelr-settings.php:432
+#: includes/class-panelr-settings.php:655
+#: templates/panelr/portal/tab-connections.php:64
+msgid "Channels"
+msgstr ""
+
+#: includes/class-panelr-portal.php:731
+msgid "Channels saved."
+msgstr ""
+
+#: includes/class-panelr-admin-orders.php:93
+#: includes/class-panelr-orders.php:197
+msgid "Check now"
+msgstr ""
+
+#: includes/class-panelr-cart.php:51
+#: includes/class-panelr-upgrade.php:33
+msgid "Checking…"
+msgstr ""
+
+#: templates/panelr/portal/reset.php:12
+msgid "Choose a new password"
+msgstr ""
+
+#: templates/panelr/portal/line-only.php:25
+msgid "Choose a password for %s and you can renew, see every connection, and use credits from one place."
+msgstr ""
+
+#: templates/panelr/upgrade.php:48
+msgid "Choose a plan"
+msgstr ""
+
+#: includes/class-panelr-support.php:127
+msgid "Choose a topic and write a subject and a message."
+msgstr ""
+
+#: includes/class-panelr-portal.php:722
+msgid "Choose at least one package."
+msgstr ""
+
+#: includes/class-panelr-portal.php:841
+msgid "Choose email, Telegram or Discord."
+msgstr ""
+
+#: includes/class-panelr-settings.php:694
+#: includes/class-panelr-settings.php:725
+msgid "Choose or create it under Pages"
+msgstr ""
+
+#: templates/panelr/support/ticket.php:50
+msgid "Close ticket"
+msgstr ""
+
+#: templates/panelr/support/list.php:36
+msgid "Closed"
+msgstr ""
+
+#: templates/panelr/cart-extras.php:22
+msgid "Code"
+msgstr ""
+
+#: includes/class-panelr-cart.php:517
+msgid "Code removed."
+msgstr ""
+
+#: includes/class-panelr-cart.php:472
+msgid "Codes are handled by WooCommerce on this store."
+msgstr ""
+
+#: templates/panelr/thankyou/panel.php:51
+msgid "Complete your payment"
+msgstr ""
+
+#: templates/panelr/portal/dashboard.php:30
+msgid "Confirm your email address using the link we sent you."
+msgstr ""
+
+#: includes/class-panelr-portal.php:555
+msgid "Confirmation email sent."
+msgstr ""
+
+#: includes/class-panelr-settings.php:324
+msgid "Connected"
+msgstr ""
+
+#: includes/class-panelr-settings.php:260
+msgid "Connected to %s."
+msgstr ""
+
+#: includes/class-panelr-settings.php:261
+msgid "Connected."
+msgstr ""
+
+#: includes/class-panelr-cart.php:103
+#: includes/class-panelr-cart.php:200
+#: includes/class-panelr-cart.php:248
+msgid "Connection"
+msgstr ""
+
+#: templates/panelr/portal/line-only.php:60
+msgid "Connection details"
+msgstr ""
+
+#: includes/class-panelr-orders.php:190
+#: includes/class-panelr-portal.php:234
+#: includes/class-panelr-settings.php:472
+msgid "Connections"
+msgstr ""
+
+#: includes/class-panelr-orders.php:141
+msgid "Connections: %s"
+msgstr ""
+
+#: includes/class-panelr-upgrade.php:34
+#: templates/panelr/upgrade.php:26
+msgid "Continue"
+msgstr ""
+
+#: templates/panelr/order-status/handoff-confirm.php:53
+msgid "Continue to checkout · %s"
+msgstr ""
+
+#: panelr-for-woocommerce.php:123
+msgid "Copied"
+msgstr ""
+
+#: includes/class-panelr-portal.php:102
+#: panelr-for-woocommerce.php:124
+#: templates/panelr/apps.php:46
+msgid "Copy"
+msgstr ""
+
+#: templates/panelr/portal/tab-credits.php:42
+msgid "Copy link"
+msgstr ""
+
+#: includes/class-panelr-order-status.php:382
+msgid "Could not record the balance payment on Panelr order %1$s: %2$s"
+msgstr ""
+
+#: includes/class-panelr-cart.php:427
+#: templates/panelr/order-status/order.php:70
+#: templates/panelr/portal/tab-orders.php:46
+msgid "Coupon %s"
+msgstr ""
+
+#: templates/panelr/portal/sign-in.php:38
+#: templates/panelr/portal/sign-in.php:77
+msgid "Create account"
+msgstr ""
+
+#: templates/panelr/portal/line-only.php:48
+msgid "Create my account"
+msgstr ""
+
+#: includes/class-panelr-settings.php:523
+msgid "Create the missing pages"
+msgstr ""
+
+#: includes/class-panelr-settings.php:664
+msgid "Creating an account needs an invite code"
+msgstr ""
+
+#: includes/class-panelr-portal.php:236
+#: includes/class-panelr-settings.php:433
+#: includes/class-panelr-settings.php:475
+msgid "Credits"
+msgstr ""
+
+#: templates/panelr/portal/tab-account.php:37
+msgid "Current password"
+msgstr ""
+
+#: includes/class-panelr-admin-orders.php:69
+msgid "Customer"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:549
+msgid "Customer confirmed payment (%s)."
+msgstr ""
+
+#: includes/class-panelr-order-status.php:337
+msgid "Customer confirmed payment on the order status page (%s)."
+msgstr ""
+
+#: includes/class-panelr-checkout.php:526
+msgid "Customer note: %s"
+msgstr ""
+
+#: includes/class-panelr-settings.php:62
+#: includes/class-panelr-settings.php:803
+msgid "Customers"
+msgstr ""
+
+#: includes/class-panelr-settings.php:804
+msgid "Customers, their connections, credits and tickets live in Panelr."
+msgstr ""
+
+#: includes/class-panelr-admin-orders.php:68
+msgid "Date"
+msgstr ""
+
+#: templates/panelr/portal/tab-connections.php:66
+msgid "Details"
+msgstr ""
+
+#: includes/class-panelr-settings.php:746
+msgid "Discord invite link"
+msgstr ""
+
+#: templates/panelr/cart-extras.php:15
+msgid "Discount code"
+msgstr ""
+
+#: includes/class-panelr-settings.php:591
+msgid "Discount codes come from"
+msgstr ""
+
+#: includes/class-panelr-settings.php:185
+msgid "Done"
+msgstr ""
+
+#: templates/panelr/apps.php:42
+msgid "Download"
+msgstr ""
+
+#: templates/panelr/apps.php:45
+msgid "Downloader code"
+msgstr ""
+
+#: includes/class-panelr-settings.php:491
+msgid "Draft"
+msgstr ""
+
+#: includes/class-panelr-portal.php:100
+msgid "EPG link"
+msgstr ""
+
+#: includes/class-panelr-settings.php:494
+#: includes/class-panelr-settings.php:542
+msgid "Edit"
+msgstr ""
+
+#: templates/panelr/order-status/handoff-confirm.php:35
+#: templates/panelr/order-status/lookup-form.php:21
+#: templates/panelr/portal/sign-in.php:26
+msgid "Email"
+msgstr ""
+
+#: templates/panelr/portal/line-only.php:57
+#: templates/panelr/portal/tab-connections.php:52
+msgid "Ends"
+msgstr ""
+
+#: includes/class-panelr-cart.php:476
+#: includes/class-panelr-cart.php:50
+msgid "Enter a code first."
+msgstr ""
+
+#: includes/class-panelr-portal.php:414
+#: includes/class-panelr-trial.php:83
+msgid "Enter a valid email address."
+msgstr ""
+
+#: includes/class-panelr-order-status.php:160
+msgid "Enter the amount you sent."
+msgstr ""
+
+#: includes/class-panelr-checkout.php:387
+#: includes/class-panelr-order-status.php:159
+msgid "Enter the transaction id or reference from your payment."
+msgstr ""
+
+#: includes/class-panelr-portal.php:503
+#: includes/class-panelr-portal.php:86
+#: includes/class-panelr-trial.php:49
+msgid "Enter your email address."
+msgstr ""
+
+#: includes/class-panelr-portal.php:342
+msgid "Enter your email and password."
+msgstr ""
+
+#: includes/class-panelr-upgrade.php:32
+#: includes/class-panelr-upgrade.php:79
+msgid "Enter your trial code."
+msgstr ""
+
+#: includes/class-panelr-portal.php:371
+msgid "Enter your username and password."
+msgstr ""
+
+#: includes/class-panelr-settings.php:712
+msgid "Everyone"
+msgstr ""
+
+#: includes/class-panelr-helpers.php:332
+msgid "Expired"
+msgstr ""
+
+#: includes/class-panelr-portal.php:85
+msgid "Fill in every field."
+msgstr ""
+
+#: templates/panelr/order-status/lookup-form.php:25
+msgid "Find my order"
+msgstr ""
+
+#: includes/class-panelr-settings.php:476
+msgid "For sale"
+msgstr ""
+
+#: templates/panelr/portal/sign-in.php:37
+msgid "Forgot password"
+msgstr ""
+
+#: includes/class-panelr-settings.php:46
+msgid "Free Trial"
+msgstr ""
+
+#: includes/class-panelr-settings.php:46
+msgid "Free trial"
+msgstr ""
+
+#: includes/class-panelr-settings.php:613
+msgid "Free trials"
+msgstr ""
+
+#: includes/class-panelr-trial.php:74
+#: templates/panelr/trial-disabled.php:8
+msgid "Free trials are not available right now."
+msgstr ""
+
+#: templates/panelr/upgrade.php:23
+msgid "From your link"
+msgstr ""
+
+#: includes/class-panelr-bots.php:24
+msgid "Get messages in Discord"
+msgstr ""
+
+#: includes/class-panelr-bots.php:23
+msgid "Get messages in Telegram"
+msgstr ""
+
+#: includes/class-panelr-settings.php:776
+msgid "Header carrying the visitor address"
+msgstr ""
+
+#: includes/class-panelr-orders.php:215
+msgid "Held: Panelr could not be reached. Retrying."
+msgstr ""
+
+#: includes/class-panelr-portal.php:104
+#: panelr-for-woocommerce.php:126
+msgid "Hide"
+msgstr ""
+
+#: templates/panelr/portal/tab-credits.php:74
+msgid "History"
+msgstr ""
+
+#: includes/class-panelr-portal.php:96
+msgid "Host"
+msgstr ""
+
+#: templates/panelr/order-status/order.php:124
+#: templates/panelr/thankyou/panel.php:61
+msgid "How to pay"
+msgstr ""
+
+#: templates/panelr/portal/sign-in.php:79
+msgid "I already have an account"
+msgstr ""
+
+#: includes/class-panelr-portal.php:106
+#: includes/class-panelr-portal.php:501
+msgid "If that address has an account, a link to choose a new password is on its way."
+msgstr ""
+
+#: includes/class-panelr-settings.php:697
+#: includes/class-panelr-settings.php:715
+msgid "In Panelr"
+msgstr ""
+
+#: templates/panelr/thankyou/panel.php:56
+msgid "Include it in the note or memo of your payment."
+msgstr ""
+
+#: templates/panelr/cart-extras.php:32
+msgid "Invite"
+msgstr ""
+
+#: templates/panelr/portal/tab-credits.php:38
+msgid "Invite a friend"
+msgstr ""
+
+#: templates/panelr/portal/sign-in.php:72
+msgid "Invite code"
+msgstr ""
+
+#: templates/panelr/portal/sign-in.php:72
+msgid "Invite code (optional)"
+msgstr ""
+
+#: templates/panelr/cart-extras.php:33
+msgid "Invited by a member"
+msgstr ""
+
+#: templates/panelr/thankyou/panel.php:30
+msgid "It is being passed along and you will get an email as soon as your service is ready."
+msgstr ""
+
+#: templates/panelr/portal/tab-credits.php:44
+msgid "Join me here"
+msgstr ""
+
+#: templates/panelr/portal/tab-credits.php:18
+msgid "Join me here: %s"
+msgstr ""
+
+#: includes/class-panelr-settings.php:405
+msgid "Last error: %1$s at %2$s"
+msgstr ""
+
+#: includes/class-panelr-settings.php:228
+msgid "Last error: %1$s at %2$s."
+msgstr ""
+
+#: includes/class-panelr-settings.php:461
+msgid "Last sync: %s"
+msgstr ""
+
+#: templates/panelr/portal/tab-account.php:71
+msgid "Link your chat account"
+msgstr ""
+
+#: templates/panelr/portal/bouquets.php:17
+msgid "Live TV"
+msgstr ""
+
+#: includes/class-panelr-portal.php:94
+msgid "Loading…"
+msgstr ""
+
+#: includes/class-panelr-settings.php:786
+msgid "Log"
+msgstr ""
+
+#: includes/class-panelr-settings.php:648
+msgid "Look"
+msgstr ""
+
+#: includes/class-panelr-portal.php:99
+msgid "M3U link"
+msgstr ""
+
+#: includes/class-panelr-portal.php:101
+msgid "MAC address"
+msgstr ""
+
+#: includes/class-panelr-settings.php:596
+msgid "Mark the WooCommerce order Completed when Panelr has set the service up"
+msgstr ""
+
+#: includes/class-panelr-settings.php:34
+msgid "Member Area"
+msgstr ""
+
+#: includes/class-panelr-settings.php:45
+msgid "Member area"
+msgstr ""
+
+#: includes/class-panelr-settings.php:656
+msgid "Members can choose their channel packages"
+msgstr ""
+
+#: includes/class-panelr-settings.php:712
+msgid "Members only"
+msgstr ""
+
+#: includes/class-wc-gateway-panelr-credits.php:19
+msgid "Members pay with the credits they earned by inviting others. Shown only when the whole order can be paid with credits."
+msgstr ""
+
+#: includes/class-panelr-upgrade-runner.php:84
+msgid "Members sign in with their email and password now. Anyone who was signed in with connection details will sign in again."
+msgstr ""
+
+#: templates/panelr/support/new.php:45
+msgid "Message"
+msgstr ""
+
+#: templates/panelr/portal/bouquets.php:17
+msgid "Movies"
+msgstr ""
+
+#: includes/class-panelr-settings.php:45
+msgid "My Account"
+msgstr ""
+
+#: includes/class-panelr-settings.php:650
+msgid "My theme's styles"
+msgstr ""
+
+#: templates/panelr/order-status/handoff-confirm.php:33
+#: templates/panelr/portal/line-only.php:37
+#: templates/panelr/portal/sign-in.php:55
+msgid "Name"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:478
+msgid "Network"
+msgstr ""
+
+#: includes/class-panelr-admin-orders.php:45
+#: includes/class-panelr-orders.php:216
+#: includes/class-panelr-orders.php:221
+msgid "Never sent to Panelr"
+msgstr ""
+
+#: templates/panelr/portal/line-only.php:31
+#: templates/panelr/portal/sign-in.php:50
+msgid "New accounts start with %d credit."
+msgid_plural "New accounts start with %d credits."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-panelr-helpers.php:323
+msgid "New connection"
+msgstr ""
+
+#: templates/panelr/portal/reset.php:16
+#: templates/panelr/portal/tab-account.php:41
+msgid "New password"
+msgstr ""
+
+#: templates/panelr/portal/reset.php:20
+#: templates/panelr/portal/tab-account.php:45
+msgid "New password again"
+msgstr ""
+
+#: templates/panelr/support/list.php:15
+#: templates/panelr/support/new.php:16
+msgid "New ticket"
+msgstr ""
+
+#: includes/class-panelr-settings.php:668
+msgid "No"
+msgstr ""
+
+#: includes/class-panelr-orders.php:173
+msgid "No Panelr plans on this order."
+msgstr ""
+
+#: templates/panelr/apps.php:19
+msgid "No apps to show yet."
+msgstr ""
+
+#: includes/class-panelr-portal.php:105
+#: includes/class-panelr-portal.php:607
+#: includes/class-panelr-portal.php:623
+msgid "No connection details yet. Please try again shortly."
+msgstr ""
+
+#: templates/panelr/portal/tab-connections.php:14
+msgid "No connections on this account yet."
+msgstr ""
+
+#: includes/class-panelr-sync.php:136
+msgid "No longer offered by Panelr and set to draft: %s"
+msgstr ""
+
+#: templates/panelr/support/list.php:30
+msgid "No open tickets."
+msgstr ""
+
+#: includes/class-panelr-admin-orders.php:55
+#: templates/panelr/portal/tab-orders.php:16
+msgid "No orders yet."
+msgstr ""
+
+#: templates/panelr/upgrade.php:65
+msgid "No plans are available for this trial right now. Please contact us."
+msgstr ""
+
+#: includes/class-panelr-settings.php:622
+msgid "No service is offering a trial in Panelr right now."
+msgstr ""
+
+#: includes/class-panelr-settings.php:451
+msgid "No services yet. Connect to Panelr first."
+msgstr ""
+
+#: templates/panelr/portal/tab-credits.php:69
+msgid "Nobody yet. Share your link."
+msgstr ""
+
+#: templates/panelr/portal/bouquets.php:21
+msgid "None"
+msgstr ""
+
+#: templates/panelr/support/new.php:33
+msgid "Not about one connection"
+msgstr ""
+
+#: includes/class-panelr-settings.php:326
+msgid "Not connected"
+msgstr ""
+
+#: templates/panelr/portal/sign-in.php:105
+msgid "Not sure"
+msgstr ""
+
+#: templates/panelr/order-status/order.php:156
+#: templates/panelr/thankyou/panel.php:98
+msgid "Note"
+msgstr ""
+
+#: includes/class-panelr-portal.php:793
+msgid "Nothing changed."
+msgstr ""
+
+#: templates/panelr/portal/tab-credits.php:86
+msgid "Nothing yet."
+msgstr ""
+
+#: includes/class-panelr-settings.php:442
+#: includes/class-panelr-settings.php:443
+#: includes/class-panelr-settings.php:444
+msgid "Off"
+msgstr ""
+
+#: includes/class-panelr-settings.php:618
+msgid "Offering trials: %s"
+msgstr ""
+
+#: includes/class-panelr-settings.php:442
+#: includes/class-panelr-settings.php:444
+msgid "On"
+msgstr ""
+
+#: templates/panelr/support/list.php:18
+msgid "Open"
+msgstr ""
+
+#: includes/class-panelr-settings.php:215
+msgid "Open Connection"
+msgstr ""
+
+#: includes/class-panelr-settings.php:806
+msgid "Open Customers in Panelr"
+msgstr ""
+
+#: includes/class-panelr-upgrade-runner.php:160
+msgid "Open Panelr settings"
+msgstr ""
+
+#: includes/class-panelr-admin-orders.php:94
+#: includes/class-panelr-orders.php:198
+msgid "Open in Panelr"
+msgstr ""
+
+#: templates/panelr/thankyou/panel.php:123
+#: templates/panelr/upgrade.php:43
+msgid "Open my account"
+msgstr ""
+
+#: templates/panelr/support/elsewhere.php:12
+msgid "Open support"
+msgstr ""
+
+#: includes/class-panelr-settings.php:787
+msgid "Open the Panelr log"
+msgstr ""
+
+#: includes/class-panelr-admin-orders.php:67
+#: templates/panelr/order-status/order.php:34
+msgid "Order"
+msgstr ""
+
+#: includes/class-panelr-settings.php:48
+msgid "Order Status"
+msgstr ""
+
+#: includes/class-panelr-orders.php:231
+#: includes/class-panelr-orders.php:246
+msgid "Order not found."
+msgstr ""
+
+#: templates/panelr/order-status/lookup-form.php:17
+msgid "Order reference"
+msgstr ""
+
+#: includes/class-panelr-settings.php:48
+msgid "Order status"
+msgstr ""
+
+#: includes/class-panelr-cart.php:100
+#: includes/class-panelr-cart.php:189
+#: includes/class-panelr-cart.php:246
+msgid "Order type"
+msgstr ""
+
+#: includes/class-panelr-portal.php:234
+#: includes/class-panelr-settings.php:595
+#: includes/class-panelr-settings.php:61
+msgid "Orders"
+msgstr ""
+
+#: includes/class-panelr-settings.php:31
+msgid "Pages"
+msgstr ""
+
+#: includes/class-panelr-settings.php:303
+msgid "Pages are ready."
+msgstr ""
+
+#: templates/panelr/order-status/order.php:93
+msgid "Paid %s"
+msgstr ""
+
+#: templates/panelr/order-status/order.php:81
+#: templates/panelr/portal/tab-orders.php:54
+msgid "Paid with"
+msgstr ""
+
+#: includes/class-panelr-cart.php:111
+#: includes/class-panelr-cart.php:219
+msgid "Paid with %d credit"
+msgid_plural "Paid with %d credits"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-panelr-credits-gateway.php:95
+msgid "Paid with %d credit."
+msgid_plural "Paid with %d credits."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-panelr-admin-orders.php:71
+#: includes/class-panelr-orders.php:163
+#: includes/class-panelr-settings.php:213
+msgid "Panelr"
+msgstr ""
+
+#: includes/class-panelr-settings.php:373
+msgid "Panelr address"
+msgstr ""
+
+#: includes/class-panelr-api.php:187
+msgid "Panelr answered with something we could not read (HTTP %d)."
+msgstr ""
+
+#: includes/class-panelr-settings.php:225
+msgid "Panelr cannot be reached."
+msgstr ""
+
+#: includes/class-panelr-checkout.php:119
+#: includes/class-panelr-checkout.php:256
+msgid "Panelr could not be reached to read the payment methods."
+msgstr ""
+
+#: includes/class-panelr-api.php:200
+msgid "Panelr could not complete that request."
+msgstr ""
+
+#: includes/class-wc-gateway-panelr-credits.php:18
+msgid "Panelr credits"
+msgstr ""
+
+#: includes/class-panelr-settings.php:652
+msgid "Panelr dark"
+msgstr ""
+
+#: includes/class-panelr-orders.php:258
+msgid "Panelr did not accept the order. See the order notes."
+msgstr ""
+
+#: includes/class-panelr-sync.php:46
+msgid "Panelr did not answer. Check the connection and try again."
+msgstr ""
+
+#: includes/class-panelr-upgrade-runner.php:156
+msgid "Panelr for WooCommerce was updated."
+msgstr ""
+
+#: includes/class-panelr-api.php:137
+#: includes/class-panelr-api.php:181
+msgid "Panelr is asking us to slow down. Please try again in a few minutes."
+msgstr ""
+
+#: includes/class-panelr-api.php:133
+msgid "Panelr is not connected yet. Enter the address and key under Panelr → Connection."
+msgstr ""
+
+#: includes/class-panelr-settings.php:651
+msgid "Panelr light"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:222
+msgid "Panelr order %s created, waiting for payment."
+msgstr ""
+
+#: includes/class-panelr-checkout.php:304
+msgid "Panelr order %s is being set up."
+msgstr ""
+
+#: includes/class-panelr-admin-orders.php:41
+msgid "Panelr orders"
+msgstr ""
+
+#: includes/class-panelr-sync.php:298
+msgid "Panelr products"
+msgstr ""
+
+#: includes/class-panelr-credits-gateway.php:82
+msgid "Panelr refused the credits order: %s"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:200
+#: includes/class-panelr-checkout.php:279
+msgid "Panelr refused the order: %s"
+msgstr ""
+
+#: includes/class-panelr-orders.php:91
+msgid "Panelr set the service up."
+msgstr ""
+
+#: includes/class-panelr-settings.php:687
+msgid "Panelr's"
+msgstr ""
+
+#: includes/class-panelr-settings.php:565
+msgid "Panelr's payment methods could not be read. Check the connection."
+msgstr ""
+
+#: includes/class-panelr-orders.php:83
+msgid "Panelr: %s"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:156
+msgid "Panelr: order held — %s It will be retried every 5 minutes for an hour."
+msgstr ""
+
+#: includes/class-panelr-checkout.php:167
+msgid "Panelr: still unreachable after an hour. Use Send on the Panelr → Orders page once the connection is back."
+msgstr ""
+
+#: includes/class-panelr-checkout.php:125
+msgid "Panelr: the mapped payment method is no longer enabled in Panelr."
+msgstr ""
+
+#: includes/class-panelr-checkout.php:110
+msgid "Panelr: the payment method \"%s\" is not mapped to a Panelr payment method. Map it under Panelr → Payments and press Send."
+msgstr ""
+
+#: includes/class-panelr-portal.php:98
+#: templates/panelr/portal/line-only.php:41
+#: templates/panelr/portal/sign-in.php:117
+msgid "Password"
+msgstr ""
+
+#: templates/panelr/portal/line-only.php:45
+#: templates/panelr/portal/sign-in.php:67
+msgid "Password again"
+msgstr ""
+
+#: includes/class-panelr-portal.php:832
+msgid "Password changed."
+msgstr ""
+
+#: includes/class-panelr-settings.php:391
+msgid "Paste your key"
+msgstr ""
+
+#: templates/panelr/order-status/order.php:115
+msgid "Pay %1$s with %2$s"
+msgstr ""
+
+#: templates/panelr/portal/tab-orders.php:65
+msgid "Pay now"
+msgstr ""
+
+#: templates/panelr/credits-button.php:17
+#: templates/panelr/portal/tab-connections.php:88
+msgid "Pay with %d credit"
+msgid_plural "Pay with %d credits"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-wc-gateway-panelr-credits.php:20
+msgid "Pay with credits"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:461
+msgid "PayPal"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:466
+msgid "PayPal transaction id"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:463
+msgid "PayPal.me"
+msgstr ""
+
+#: includes/class-panelr-orders.php:220
+msgid "Paying with credits"
+msgstr ""
+
+#: includes/class-panelr-cart.php:109
+#: includes/class-panelr-cart.php:225
+msgid "Payment"
+msgstr ""
+
+#: includes/class-panelr-helpers.php:344
+#: templates/panelr/order-status/order.php:168
+#: templates/panelr/thankyou/panel.php:51
+msgid "Payment confirmation received"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:389
+#: includes/class-panelr-checkout.php:558
+#: includes/class-panelr-order-status.php:344
+msgid "Payment confirmation received. We will check it and set up your service shortly."
+msgstr ""
+
+#: includes/class-panelr-helpers.php:350
+#: templates/panelr/order-status/order.php:190
+msgid "Payment failed"
+msgstr ""
+
+#: includes/class-panelr-orders.php:217
+msgid "Payment method not mapped to Panelr"
+msgstr ""
+
+#: includes/class-panelr-settings.php:563
+msgid "Payment methods"
+msgstr ""
+
+#: includes/class-panelr-settings.php:32
+msgid "Payments"
+msgstr ""
+
+#: templates/panelr/portal/tab-credits.php:61
+msgid "People you invited"
+msgstr ""
+
+#: includes/class-panelr-settings.php:470
+#: templates/panelr/order-status/handoff-confirm.php:26
+#: templates/panelr/order-status/order.php:43
+msgid "Plan"
+msgstr ""
+
+#: includes/class-panelr-settings.php:434
+msgid "Plans"
+msgstr ""
+
+#: includes/class-panelr-upgrade.php:111
+msgid "Please check your trial code again."
+msgstr ""
+
+#: includes/class-panelr-trial.php:50
+msgid "Please complete the check below."
+msgstr ""
+
+#: templates/panelr/thankyou/panel.php:48
+msgid "Please contact us if you think this is a mistake."
+msgstr ""
+
+#: includes/class-panelr-portal.php:460
+#: includes/class-panelr-portal.php:51
+#: includes/class-panelr-support.php:111
+msgid "Please sign in again."
+msgstr ""
+
+#: includes/class-panelr-portal.php:541
+msgid "Please wait a few minutes before asking again."
+msgstr ""
+
+#: includes/class-panelr-settings.php:474
+#: templates/panelr/order-status/order.php:45
+msgid "Price"
+msgstr ""
+
+#: includes/class-panelr-settings.php:454
+msgid "Products"
+msgstr ""
+
+#: includes/class-panelr-upgrade-runner.php:78
+msgid "Products could not be matched with Panelr during the update. Open Panelr → Services & Products and press Sync now."
+msgstr ""
+
+#: includes/class-panelr-settings.php:508
+msgid "Put each service's plans in a product category named after the service"
+msgstr ""
+
+#: templates/panelr/order-status/order.php:44
+msgid "Qty"
+msgstr ""
+
+#: includes/class-panelr-helpers.php:347
+#: templates/panelr/order-status/order.php:180
+#: templates/panelr/thankyou/panel.php:110
+msgid "Ready"
+msgstr ""
+
+#: includes/class-panelr-admin-orders.php:72
+#: includes/class-panelr-checkout.php:489
+#: includes/class-panelr-orders.php:187
+msgid "Reference"
+msgstr ""
+
+#: includes/class-panelr-settings.php:399
+msgid "Refresh from Panelr"
+msgstr ""
+
+#: includes/class-panelr-settings.php:271
+msgid "Refreshed from Panelr."
+msgstr ""
+
+#: includes/class-panelr-orders.php:218
+msgid "Refused by Panelr"
+msgstr ""
+
+#: templates/panelr/cart-extras.php:19
+msgid "Remove"
+msgstr ""
+
+#: templates/panelr/portal/tab-connections.php:33
+msgid "Rename"
+msgstr ""
+
+#: templates/panelr/portal/line-only.php:61
+#: templates/panelr/portal/tab-connections.php:61
+msgid "Renew"
+msgstr ""
+
+#: templates/panelr/portal/line-only.php:74
+#: templates/panelr/portal/tab-connections.php:82
+msgid "Renew · %s"
+msgstr ""
+
+#: includes/class-panelr-helpers.php:320
+msgid "Renewal"
+msgstr ""
+
+#: templates/panelr/support/ticket.php:41
+msgid "Reopen with this reply"
+msgstr ""
+
+#: includes/class-panelr-settings.php:391
+#: includes/class-panelr-settings.php:631
+msgid "Replace key"
+msgstr ""
+
+#: templates/panelr/support/ticket.php:38
+msgid "Reply"
+msgstr ""
+
+#: includes/class-panelr-support.php:149
+msgid "Reply sent."
+msgstr ""
+
+#: templates/panelr/support/ticket.php:38
+msgid "Reply to reopen"
+msgstr ""
+
+#: templates/panelr/portal/dashboard.php:31
+msgid "Resend"
+msgstr ""
+
+#: includes/class-panelr-settings.php:666
+msgid "Same as Panelr (no)"
+msgstr ""
+
+#: includes/class-panelr-settings.php:666
+msgid "Same as Panelr (yes)"
+msgstr ""
+
+#: includes/class-panelr-portal.php:92
+#: includes/class-panelr-settings.php:412
+#: includes/class-panelr-settings.php:511
+msgid "Save"
+msgstr ""
+
+#: templates/panelr/portal/reset.php:24
+msgid "Save and sign in"
+msgstr ""
+
+#: templates/panelr/portal/bouquets.php:37
+msgid "Save channels"
+msgstr ""
+
+#: includes/class-panelr-portal.php:93
+#: includes/class-panelr-settings.php:389
+#: includes/class-panelr-settings.php:630
+msgid "Saved"
+msgstr ""
+
+#: includes/class-panelr-portal.php:803
+#: includes/class-panelr-portal.php:851
+msgid "Saved."
+msgstr ""
+
+#: includes/class-panelr-portal.php:802
+msgid "Saved. Your new address needs confirming — check your inbox."
+msgstr ""
+
+#: includes/class-panelr-portal.php:91
+msgid "Saving…"
+msgstr ""
+
+#: templates/panelr/order-status/order.php:139
+#: templates/panelr/thankyou/panel.php:79
+msgid "Scan to pay"
+msgstr ""
+
+#: includes/class-panelr-settings.php:237
+msgid "See orders"
+msgstr ""
+
+#: templates/panelr/portal/tab-connections.php:15
+msgid "See plans"
+msgstr ""
+
+#: includes/class-panelr-admin-orders.php:96
+#: templates/panelr/support/new.php:49
+msgid "Send"
+msgstr ""
+
+#: templates/panelr/portal/sign-in.php:92
+msgid "Send me a link"
+msgstr ""
+
+#: templates/panelr/support/ticket.php:41
+msgid "Send reply"
+msgstr ""
+
+#: includes/class-panelr-orders.php:205
+msgid "Send to Panelr"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:388
+#: includes/class-panelr-order-status.php:161
+#: includes/class-panelr-trial.php:51
+msgid "Sending…"
+msgstr ""
+
+#: includes/class-panelr-orders.php:253
+#: includes/class-panelr-settings.php:187
+msgid "Sent to Panelr."
+msgstr ""
+
+#: templates/panelr/portal/bouquets.php:17
+msgid "Series"
+msgstr ""
+
+#: includes/class-panelr-cart.php:211
+#: includes/class-panelr-cart.php:96
+#: includes/class-panelr-settings.php:429
+msgid "Service"
+msgstr ""
+
+#: includes/class-panelr-sync.php:243
+msgid "Service:"
+msgstr ""
+
+#: includes/class-panelr-settings.php:425
+msgid "Services"
+msgstr ""
+
+#: includes/class-panelr-settings.php:30
+msgid "Services & Products"
+msgstr ""
+
+#: includes/class-panelr-settings.php:376
+#: includes/class-panelr-settings.php:385
+msgid "Set in wp-config.php"
+msgstr ""
+
+#: includes/class-panelr-settings.php:784
+msgid "Set the synced plans to draft"
+msgstr ""
+
+#: templates/panelr/portal/line-only.php:22
+msgid "Set up your account"
+msgstr ""
+
+#: includes/class-panelr-settings.php:60
+msgid "Settings"
+msgstr ""
+
+#: includes/class-panelr-portal.php:103
+#: panelr-for-woocommerce.php:125
+msgid "Show"
+msgstr ""
+
+#: templates/panelr/apps.php:15
+msgid "Show all"
+msgstr ""
+
+#: includes/class-panelr-settings.php:741
+msgid "Show the bot buttons in the member area"
+msgstr ""
+
+#: includes/class-panelr-settings.php:750
+msgid "Show the bot buttons in the site footer"
+msgstr ""
+
+#: includes/class-panelr-settings.php:614
+msgid "Show the trial form"
+msgstr ""
+
+#: templates/panelr/apps.php:15
+msgid "Showing apps for your services."
+msgstr ""
+
+#: includes/class-panelr-settings.php:659
+msgid "Sign customers in to WordPress too"
+msgstr ""
+
+#: includes/class-panelr-portal.php:90
+#: templates/panelr/apps-sign-in.php:12
+#: templates/panelr/order-status/handoff-confirm.php:40
+msgid "Sign in"
+msgstr ""
+
+#: templates/panelr/order-status/handoff-confirm.php:39
+msgid "Sign in first so this renewal goes on your own connection."
+msgstr ""
+
+#: includes/class-panelr-order-status.php:245
+msgid "Sign in first so we can renew the right connection."
+msgstr ""
+
+#: includes/class-panelr-cart.php:388
+msgid "Sign in to pay with credits."
+msgstr ""
+
+#: includes/class-panelr-cart.php:277
+msgid "Sign in to renew a connection, then add it to your cart again."
+msgstr ""
+
+#: templates/panelr/support/sign-in-first.php:11
+msgid "Sign in to see your tickets or open a new one."
+msgstr ""
+
+#: templates/panelr/portal/sign-in.php:39
+msgid "Sign in with connection details"
+msgstr ""
+
+#: templates/panelr/portal/sign-in.php:123
+msgid "Sign in with email instead"
+msgstr ""
+
+#: templates/panelr/portal/dashboard.php:24
+#: templates/panelr/portal/line-only.php:17
+msgid "Sign out"
+msgstr ""
+
+#: templates/panelr/portal/tab-account.php:76
+msgid "Sign out everywhere"
+msgstr ""
+
+#: includes/class-panelr-portal.php:89
+msgid "Signing in…"
+msgstr ""
+
+#: includes/class-panelr-settings.php:749
+msgid "Site footer"
+msgstr ""
+
+#: includes/class-panelr-settings.php:774
+msgid "Site is behind a proxy or Cloudflare"
+msgstr ""
+
+#: templates/panelr/thankyou/panel.php:36
+msgid "Something about it could not be processed automatically. Our team has it and will be in touch."
+msgstr ""
+
+#: includes/class-panelr-checkout.php:391
+#: includes/class-panelr-order-status.php:162
+#: includes/class-panelr-portal.php:95
+msgid "Something went wrong. Please try again."
+msgstr ""
+
+#: includes/class-panelr-trial.php:52
+#: templates/panelr/trial.php:48
+msgid "Start my free trial"
+msgstr ""
+
+#: includes/class-panelr-orders.php:188
+#: templates/panelr/portal/line-only.php:55
+msgid "Status"
+msgstr ""
+
+#: includes/class-panelr-settings.php:661
+msgid "Stay signed in for"
+msgstr ""
+
+#: templates/panelr/order-status/order.php:100
+#: templates/panelr/portal/tab-orders.php:61
+msgid "Still to pay"
+msgstr ""
+
+#: templates/panelr/support/new.php:41
+msgid "Subject"
+msgstr ""
+
+#: templates/panelr/order-status/order.php:65
+msgid "Subtotal"
+msgstr ""
+
+#: includes/class-panelr-portal.php:243
+#: includes/class-panelr-settings.php:35
+#: includes/class-panelr-settings.php:49
+msgid "Support"
+msgstr ""
+
+#: includes/class-panelr-portal.php:242
+msgid "Support (%d)"
+msgstr ""
+
+#: templates/panelr/support/elsewhere.php:14
+msgid "Support is not available right now."
+msgstr ""
+
+#: includes/class-panelr-settings.php:698
+msgid "Support is off"
+msgstr ""
+
+#: includes/class-panelr-settings.php:698
+msgid "Support is on"
+msgstr ""
+
+#: includes/class-panelr-settings.php:690
+msgid "Support page"
+msgstr ""
+
+#: includes/class-panelr-settings.php:686
+msgid "Support pages"
+msgstr ""
+
+#: includes/class-panelr-support.php:46
+msgid "Support tickets are not available right now."
+msgstr ""
+
+#: includes/class-panelr-helpers.php:333
+msgid "Suspended"
+msgstr ""
+
+#: includes/class-panelr-settings.php:504
+msgid "Sync"
+msgstr ""
+
+#: includes/class-panelr-sync.php:148
+msgid "Sync complete: %1$d added, %2$d updated, %3$d set to draft."
+msgstr ""
+
+#: includes/class-panelr-settings.php:456
+msgid "Sync from Panelr"
+msgstr ""
+
+#: includes/class-panelr-settings.php:505
+msgid "Sync overwrites my edits to names, prices and descriptions"
+msgstr ""
+
+#: includes/class-panelr-settings.php:743
+msgid "Telegram bot link"
+msgstr ""
+
+#: includes/class-panelr-settings.php:473
+msgid "Term"
+msgstr ""
+
+#: includes/class-panelr-settings.php:232
+#: includes/class-panelr-settings.php:398
+msgid "Test connection"
+msgstr ""
+
+#: includes/class-panelr-cart.php:497
+msgid "That code does not work right now."
+msgstr ""
+
+#: includes/class-panelr-portal.php:137
+msgid "That confirmation link has already been used or has expired."
+msgstr ""
+
+#: includes/class-panelr-portal.php:576
+#: includes/class-panelr-portal.php:596
+#: includes/class-panelr-portal.php:632
+msgid "That connection is not on your account."
+msgstr ""
+
+#: includes/class-panelr-portal.php:350
+msgid "That email and password do not match."
+msgstr ""
+
+#: includes/class-panelr-support.php:107
+msgid "That form has expired. Please try again."
+msgstr ""
+
+#: includes/class-panelr-portal.php:530
+msgid "That link has already been used or has expired. Ask for a new one."
+msgstr ""
+
+#: includes/class-panelr-order-status.php:41
+msgid "That link has expired. Please go back and try again."
+msgstr ""
+
+#: includes/class-panelr-order-status.php:238
+msgid "That link is missing an email address."
+msgstr ""
+
+#: includes/class-panelr-checkout.php:515
+#: includes/class-panelr-checkout.php:518
+#: includes/class-panelr-order-status.php:309
+msgid "That order could not be found."
+msgstr ""
+
+#: includes/class-panelr-cart.php:400
+#: includes/class-panelr-portal.php:772
+#: includes/class-panelr-sync.php:283
+msgid "That plan could not be added to the cart."
+msgstr ""
+
+#: includes/class-panelr-order-status.php:270
+msgid "That plan could not be added to the cart. Please contact support."
+msgstr ""
+
+#: includes/class-panelr-portal.php:745
+#: includes/class-panelr-sync.php:275
+#: includes/class-panelr-upgrade.php:116
+msgid "That plan is not available right now."
+msgstr ""
+
+#: includes/class-panelr-order-status.php:205
+#: includes/class-panelr-order-status.php:235
+msgid "That plan is not available right now. Please contact support."
+msgstr ""
+
+#: includes/class-panelr-order-status.php:251
+msgid "That plan is on a different service than the connection."
+msgstr ""
+
+#: includes/class-panelr-portal.php:749
+msgid "That plan is on a different service than this connection."
+msgstr ""
+
+#: includes/class-panelr-upgrade.php:119
+msgid "That plan is on a different service than your trial."
+msgstr ""
+
+#: includes/class-panelr-cart.php:286
+msgid "That plan is on a different service. Choose a plan on %s to renew this connection."
+msgstr ""
+
+#: includes/class-panelr-trial.php:94
+msgid "That service is not offering trials."
+msgstr ""
+
+#: includes/class-panelr-support.php:140
+#: includes/class-panelr-support.php:72
+msgid "That ticket could not be found."
+msgstr ""
+
+#: includes/class-panelr-trial.php:89
+msgid "The check did not pass. Please try again."
+msgstr ""
+
+#: includes/class-panelr-portal.php:556
+msgid "The email could not be sent right now. Please try again later."
+msgstr ""
+
+#: includes/class-panelr-portal.php:121
+msgid "The member area is not connected yet."
+msgstr ""
+
+#: includes/class-panelr-settings.php:296
+msgid "The page \"%s\" could not be created."
+msgstr ""
+
+#: templates/panelr/order-status/order.php:191
+msgid "The payment did not go through. Please contact us."
+msgstr ""
+
+#: includes/class-panelr-upgrade-runner.php:82
+msgid "The trial plan is now chosen in Panelr, per service. The old \"Trial product\" setting no longer does anything."
+msgstr ""
+
+#: includes/class-panelr-portal.php:420
+#: includes/class-panelr-portal.php:468
+#: includes/class-panelr-portal.php:523
+msgid "The two passwords do not match."
+msgstr ""
+
+#: includes/class-panelr-portal.php:491
+msgid "There is already an account for that email. Sign in with it, or use \"Forgot password\"."
+msgstr ""
+
+#: includes/class-panelr-portal.php:448
+msgid "There is already an account for that email. Sign in, or use \"Forgot password\"."
+msgstr ""
+
+#: templates/panelr/order-status/order.php:197
+msgid "This order was canceled. Please contact us if that is a surprise."
+msgstr ""
+
+#: panelr-for-woocommerce.php:148
+msgid "This plugin connects to your Panelr installation. When customers request a free trial, their name, email address, IP address and browser identity are sent to your Panelr server for abuse screening. When customers sign in, their account details are read from your Panelr server and held in the WooCommerce session for the length of that session; connection passwords are fetched only when a customer asks to see them and are never stored in WordPress. WooCommerce orders keep a reference to the matching Panelr order."
+msgstr ""
+
+#: includes/class-panelr-settings.php:688
+msgid "This site"
+msgstr ""
+
+#: includes/class-panelr-portal.php:379
+msgid "Those connection details do not match."
+msgstr ""
+
+#: includes/class-panelr-support.php:156
+msgid "Ticket closed. Reply any time to reopen it."
+msgstr ""
+
+#: includes/class-panelr-support.php:136
+msgid "Ticket opened. We will reply by email and here."
+msgstr ""
+
+#: includes/class-panelr-cart.php:479
+#: includes/class-panelr-order-status.php:129
+#: includes/class-panelr-order-status.php:312
+msgid "Too many tries. Please wait a few minutes."
+msgstr ""
+
+#: templates/panelr/support/new.php:22
+msgid "Topic"
+msgstr ""
+
+#: templates/panelr/order-status/order.php:87
+#: templates/panelr/portal/tab-orders.php:54
+msgid "Total"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:479
+msgid "Transaction hash"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:439
+#: templates/panelr/order-status/order.php:148
+#: templates/panelr/thankyou/panel.php:93
+msgid "Transaction id or reference"
+msgstr ""
+
+#: includes/class-panelr-helpers.php:331
+#: templates/panelr/portal/tab-connections.php:36
+msgid "Trial"
+msgstr ""
+
+#: templates/panelr/upgrade.php:22
+msgid "Trial code"
+msgstr ""
+
+#: templates/panelr/upgrade.php:40
+msgid "Trial ends"
+msgstr ""
+
+#: includes/class-panelr-settings.php:489
+msgid "Trial plan (hidden)"
+msgstr ""
+
+#: includes/class-panelr-helpers.php:321
+#: includes/class-panelr-settings.php:47
+msgid "Trial upgrade"
+msgstr ""
+
+#: includes/class-panelr-settings.php:33
+#: includes/class-panelr-settings.php:431
+msgid "Trials"
+msgstr ""
+
+#: includes/class-panelr-settings.php:628
+msgid "Turnstile secret key"
+msgstr ""
+
+#: includes/class-panelr-settings.php:625
+msgid "Turnstile site key"
+msgstr ""
+
+#: templates/panelr/portal/line-only.php:61
+#: templates/panelr/portal/tab-connections.php:61
+msgid "Upgrade"
+msgstr ""
+
+#: includes/class-panelr-settings.php:47
+msgid "Upgrade Trial"
+msgstr ""
+
+#: templates/panelr/portal/tab-connections.php:82
+#: templates/panelr/upgrade.php:58
+msgid "Upgrade · %s"
+msgstr ""
+
+#: includes/class-panelr-portal.php:817
+msgid "Use at least 8 characters for your new password."
+msgstr ""
+
+#: includes/class-panelr-portal.php:417
+#: includes/class-panelr-portal.php:465
+#: includes/class-panelr-portal.php:520
+msgid "Use at least 8 characters for your password."
+msgstr ""
+
+#: includes/class-panelr-portal.php:87
+msgid "Use at least 8 characters."
+msgstr ""
+
+#: includes/class-panelr-portal.php:97
+#: templates/panelr/portal/sign-in.php:113
+#: templates/panelr/portal/tab-connections.php:46
+msgid "Username"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:448
+msgid "Venmo"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:449
+msgid "Venmo transaction id"
+msgstr ""
+
+#: includes/class-panelr-settings.php:789
+msgid "Version"
+msgstr ""
+
+#: includes/class-panelr-settings.php:541
+msgid "View"
+msgstr ""
+
+#: includes/class-panelr-settings.php:773
+msgid "Visitor addresses"
+msgstr ""
+
+#: includes/class-panelr-helpers.php:343
+#: includes/class-panelr-orders.php:219
+msgid "Waiting for payment"
+msgstr ""
+
+#: includes/class-panelr-helpers.php:342
+msgid "Waiting for review"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:473
+msgid "Wallet address"
+msgstr ""
+
+#: templates/panelr/order-status/order.php:169
+msgid "We are checking it and will set up your service shortly."
+msgstr ""
+
+#: includes/class-panelr-upgrade.php:85
+msgid "We could not find a trial with that code."
+msgstr ""
+
+#: includes/class-panelr-order-status.php:142
+msgid "We could not find an order with that reference and email."
+msgstr ""
+
+#: templates/panelr/thankyou/panel.php:29
+msgid "We have your order"
+msgstr ""
+
+#: templates/panelr/thankyou/panel.php:35
+msgid "We need to look at this order"
+msgstr ""
+
+#: includes/class-panelr-trial.php:131
+msgid "We received your request. You will get an email once it is approved."
+msgstr ""
+
+#: includes/class-panelr-trial.php:128
+msgid "We received your request. Your reference is %s. You will get an email once it is approved."
+msgstr ""
+
+#: includes/class-panelr-settings.php:783
+msgid "When the plugin is deleted"
+msgstr ""
+
+#: templates/panelr/portal/tab-account.php:55
+msgid "Where we reach you"
+msgstr ""
+
+#: includes/class-panelr-admin-orders.php:70
+#: includes/class-panelr-settings.php:568
+#: includes/class-panelr-settings.php:592
+msgid "WooCommerce"
+msgstr ""
+
+#: includes/class-panelr-settings.php:658
+msgid "WordPress accounts"
+msgstr ""
+
+#: includes/class-panelr-settings.php:184
+#: panelr-for-woocommerce.php:128
+msgid "Working…"
+msgstr ""
+
+#: includes/class-panelr-support.php:145
+msgid "Write a message first."
+msgstr ""
+
+#: includes/class-panelr-settings.php:490
+#: includes/class-panelr-settings.php:667
+msgid "Yes"
+msgstr ""
+
+#: templates/panelr/support/ticket.php:26
+msgid "You"
+msgstr ""
+
+#: includes/class-panelr-orders.php:229
+#: includes/class-panelr-orders.php:244
+#: includes/class-panelr-settings.php:247
+msgid "You are not allowed to do that."
+msgstr ""
+
+#: templates/panelr/portal/tab-credits.php:54
+msgid "You joined on an invite, %s."
+msgstr ""
+
+#: includes/class-panelr-portal.php:556
+msgid "Your address is already confirmed."
+msgstr ""
+
+#: includes/class-panelr-portal.php:729
+msgid "Your channels were not changed. Please try again."
+msgstr ""
+
+#: templates/panelr/portal/tab-credits.php:25
+msgid "Your credits"
+msgstr ""
+
+#: includes/class-panelr-credits-gateway.php:45
+msgid "Your credits could not be used for this order."
+msgstr ""
+
+#: includes/class-panelr-cart.php:392
+msgid "Your credits do not cover this plan."
+msgstr ""
+
+#: includes/class-panelr-cart.php:316
+msgid "Your credits no longer cover this order, so it will be paid in money."
+msgstr ""
+
+#: includes/class-panelr-portal.php:829
+msgid "Your current password is not right."
+msgstr ""
+
+#: templates/panelr/portal/tab-account.php:17
+msgid "Your details"
+msgstr ""
+
+#: includes/class-panelr-portal.php:136
+msgid "Your email address is confirmed."
+msgstr ""
+
+#: templates/panelr/portal/tab-credits.php:39
+msgid "Your invite code"
+msgstr ""
+
+#: includes/class-panelr-checkout.php:531
+#: includes/class-panelr-checkout.php:557
+msgid "Your note was added."
+msgstr ""
+
+#: templates/panelr/thankyou/panel.php:54
+msgid "Your order reference"
+msgstr ""
+
+#: templates/panelr/order-status/order.php:175
+msgid "Your payment is in and your service is being set up. You will get an email when it is ready."
+msgstr ""
+
+#: templates/panelr/thankyou/panel.php:113
+msgid "Your service is being set up. This usually takes a minute; you can wait here or check your inbox."
+msgstr ""
+
+#: templates/panelr/thankyou/panel.php:112
+#: templates/panelr/thankyou/panel.php:43
+msgid "Your service is set up. Your connection details are in your inbox."
+msgstr ""
+
+#: templates/panelr/order-status/order.php:183
+msgid "Your service is set up. Your connection details went to %s."
+msgstr ""
+
+#: templates/panelr/upgrade.php:33
+msgid "Your trial"
+msgstr ""
+
+#: includes/class-panelr-trial.php:118
+msgid "Your trial is ready. Check your email for your connection details."
+msgstr ""
+
+#: includes/class-panelr-checkout.php:458
+msgid "Zelle"
+msgstr ""
+
+#: includes/class-panelr-settings.php:579
+msgid "automatic"
+msgstr ""
+
+#: includes/class-panelr-settings.php:236
+msgid "could not be reached when an order came in. The order is held and retried every 5 minutes."
+msgstr ""
+
+#: templates/panelr/portal/tab-credits.php:26
+msgid "credit"
+msgid_plural "credits"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-panelr-settings.php:662
+msgid "days"
+msgstr ""
+
+#: includes/class-panelr-settings.php:320
+msgid "for WooCommerce"
+msgstr ""
+
+#: includes/class-panelr-settings.php:221
+msgid "is asking this site to slow down. Calls pause for a couple of minutes and then resume on their own."
+msgstr ""
+
+#: includes/class-panelr-settings.php:214
+msgid "is not connected yet."
+msgstr ""
+
+#: includes/class-panelr-settings.php:579
+msgid "manual"
+msgstr ""
+
+#: panelr-for-woocommerce.php:49
+msgid "requires WooCommerce to be installed and active."
+msgstr ""
+
+#: includes/class-panelr-settings.php:535
+msgid "— Choose a page —"
+msgstr ""
+
+#: includes/class-panelr-settings.php:576
+msgid "— Not mapped —"
+msgstr ""
