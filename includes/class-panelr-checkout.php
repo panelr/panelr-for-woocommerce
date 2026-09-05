@@ -1,677 +1,785 @@
 <?php
 defined('ABSPATH') || exit;
 
+/**
+ * Order creation — one path, at the right moment.
+ *
+ * When WooCommerce creates the order, the mapped Panelr method's mode
+ * decides: manual → create_work_order right then; automatic → complete_order
+ * once payment_complete fires. If the method list cannot be read the order
+ * is held and retried; nothing is guessed. Panelr never calls back, so the
+ * order is polled afterwards (Panelr_Orders).
+ */
 class Panelr_Checkout
 {
-
 	public static function init(): void
 	{
-		add_filter('woocommerce_add_cart_item_data',          [__CLASS__, 'persist_cart_item_data'], 10, 2);
-		add_filter('woocommerce_get_item_data',               [__CLASS__, 'display_cart_item_data'], 10, 2);
-		add_action('woocommerce_checkout_create_order_line_item', [__CLASS__, 'save_order_item_meta'], 10, 4);
-		add_action('woocommerce_payment_complete',           [__CLASS__, 'handle_automatic_payment']);
-		add_action('woocommerce_thankyou',                   [__CLASS__, 'maybe_create_work_order'], 5);
-		add_action('woocommerce_thankyou',                   [__CLASS__, 'render_thankyou'], 10);
-		add_filter('woocommerce_order_item_get_formatted_meta_data', [__CLASS__, 'hide_panelr_meta_from_display'], 10, 2);
-		add_filter('woocommerce_order_item_name',                    [__CLASS__, 'append_panelr_order_context'], 10, 2);
-		add_action('wp_ajax_panelr_submit_payment',          [__CLASS__, 'ajax_submit_payment']);
-		add_action('wp_ajax_nopriv_panelr_submit_payment',   [__CLASS__, 'ajax_submit_payment']);
+		add_action('woocommerce_checkout_order_processed',            [__CLASS__, 'on_order_created'], 10, 1);
+		add_action('woocommerce_store_api_checkout_order_processed',  [__CLASS__, 'on_order_created_block'], 10, 1);
+		add_action('woocommerce_payment_complete',                    [__CLASS__, 'on_payment_complete'], 10, 1);
+		add_action('woocommerce_thankyou',                            [__CLASS__, 'render_thankyou'], 10);
+		add_action('woocommerce_view_order',                          [__CLASS__, 'render_view_order'], 10);
+		add_action('wp_ajax_panelr_submit_payment',                   [__CLASS__, 'ajax_submit_payment']);
+		add_action('wp_ajax_nopriv_panelr_submit_payment',            [__CLASS__, 'ajax_submit_payment']);
+		add_action('wp_ajax_panelr_order_poll',                       [__CLASS__, 'ajax_order_poll']);
+		add_action('wp_ajax_nopriv_panelr_order_poll',                [__CLASS__, 'ajax_order_poll']);
+		add_action('panelr_retry_held_order',                         [__CLASS__, 'retry_held_order'], 10, 2);
+		add_filter('woocommerce_available_payment_gateways',          [__CLASS__, 'filter_gateways']);
+		add_filter('woocommerce_cart_needs_payment',                  [__CLASS__, 'cart_needs_payment'], 10, 2);
+		add_action('woocommerce_checkout_before_customer_details',    [__CLASS__, 'render_account_step'], 5);
+		add_filter('woocommerce_checkout_get_value',                  [__CLASS__, 'prefill_from_account'], 10, 2);
+		add_action('woocommerce_after_checkout_validation',           [__CLASS__, 'validate_account_step'], 10, 2);
+		add_action('woocommerce_store_api_checkout_update_order_from_request', [__CLASS__, 'block_checkout_needs_account'], 10, 2);
+		add_action('template_redirect',                               [__CLASS__, 'block_checkout_account_gate'], 20);
+		add_action('wp_ajax_panelr_checkout_signout',                 [__CLASS__, 'ajax_checkout_signout']);
+		add_action('wp_ajax_nopriv_panelr_checkout_signout',          [__CLASS__, 'ajax_checkout_signout']);
+		add_filter('woocommerce_order_needs_payment',                 [__CLASS__, 'order_needs_payment'], 10, 2);
 	}
 
-	// ── Hide internal Panelr meta from order display ─────────────────────
-
-	public static function hide_panelr_meta_from_display(array $formatted_meta, $order_item): array
+	/** A cart paid entirely with credits totals zero in money but still needs its gateway. */
+	public static function cart_needs_payment($needs, $cart): bool
 	{
-		$intent_labels = [
-			'renewal'       => __('Renewal', 'panelr-for-woocommerce'),
-			'trial_upgrade' => __('Trial Upgrade', 'panelr-for-woocommerce'),
-		];
-
-		$intent        = null;
-		$activation_id = null;
-
-		foreach ($formatted_meta as $key => $meta) {
-			if ($meta->key === '_panelr_intent') {
-				$intent = $meta->value;
-				unset($formatted_meta[$key]);
-			} elseif ($meta->key === '_panelr_activation_id') {
-				$activation_id = (int) $meta->value;
-				unset($formatted_meta[$key]);
-			}
-		}
-
-		if ($intent && $intent !== 'new_activation') {
-			$label = $intent_labels[$intent] ?? ucfirst($intent);
-
-			$formatted_meta[] = (object) [
-				'key'           => 'panelr_order_type',
-				'value'         => $label,
-				'display_key'   => __('Order Type', 'panelr-for-woocommerce'),
-				'display_value' => esc_html($label),
-			];
-
-			if ($activation_id) {
-				$order       = $order_item->get_order();
-				$editor_user = $order ? $order->get_meta('_panelr_editor_username') : '';
-				$xtream_user = $order ? $order->get_meta('_panelr_xtream_username') : '';
-				$display     = $editor_user ?: $xtream_user;
-
-				if ($display) {
-					$formatted_meta[] = (object) [
-						'key'           => 'panelr_account',
-						'value'         => $display,
-						'display_key'   => __('Account', 'panelr-for-woocommerce'),
-						'display_value' => esc_html($display),
-					];
-				}
-			}
-		}
-
-		return $formatted_meta;
+		return (bool) $needs || Panelr_Cart::all_lines_credit_paid();
 	}
 
-	// ── Append order context to item name on order pages ─────────────────
-
-	public static function append_panelr_order_context(string $name, $item): string
+	public static function order_needs_payment($needs, $order): bool
 	{
-		$intent        = $item->get_meta('_panelr_intent');
-		$activation_id = (int) $item->get_meta('_panelr_activation_id');
-
-		if (!$intent || $intent === 'new_activation') {
-			return $name;
-		}
-
-		$intent_labels = [
-			'renewal'       => __('Renewal', 'panelr-for-woocommerce'),
-			'trial_upgrade' => __('Trial Upgrade', 'panelr-for-woocommerce'),
-		];
-		$label = $intent_labels[$intent] ?? ucfirst($intent);
-
-		$order       = $item->get_order();
-		$editor_user = $order ? $order->get_meta('_panelr_editor_username') : '';
-		$xtream_user = $order ? $order->get_meta('_panelr_xtream_username') : '';
-		$display     = $editor_user ?: $xtream_user;
-
-		$context  = '<br><small class="panelr-order-context">';
-		$context .= esc_html__('Order Type', 'panelr-for-woocommerce') . ': <strong>' . esc_html($label) . '</strong>';
-		if ($display) {
-			$context .= ' &mdash; ' . esc_html__('Account', 'panelr-for-woocommerce') . ': <strong>' . esc_html($display) . '</strong>';
-		}
-		$context .= '</small>';
-
-		return $name . $context;
-	}
-
-	// ── Cart item data ────────────────────────────────────────────────────
-
-	public static function persist_cart_item_data(array $cart_item_data, int $product_id): array
-	{
-		return $cart_item_data;
-	}
-
-	public static function display_cart_item_data(array $item_data, array $cart_item): array
-	{
-		$intent        = $cart_item['_panelr_intent']        ?? '';
-		$activation_id = $cart_item['_panelr_activation_id'] ?? 0;
-
-		if (!$intent || $intent === 'new_activation') {
-			return $item_data;
-		}
-
-		$intent_labels = [
-			'renewal'       => __('Renewal', 'panelr-for-woocommerce'),
-			'trial_upgrade' => __('Trial Upgrade', 'panelr-for-woocommerce'),
-		];
-
-		$item_data[] = [
-			'key'   => __('Order Type', 'panelr-for-woocommerce'),
-			'value' => $intent_labels[$intent] ?? ucfirst($intent),
-		];
-
-		if ($activation_id) {
-			$portal_username = WC()->session ? WC()->session->get('panelr_portal_username') : '';
-			$portal_editor   = WC()->session ? WC()->session->get('panelr_portal_editor_username') : '';
-			$display         = $portal_editor ?: $portal_username;
-			if ($display) {
-				$item_data[] = [
-					'key'   => __('Account', 'panelr-for-woocommerce'),
-					'value' => esc_html($display),
-				];
-			}
-		}
-
-		return $item_data;
-	}
-
-	public static function save_order_item_meta($item, string $cart_item_key, array $cart_item, WC_Order $order): void
-	{
-		if (!empty($cart_item['_panelr_intent'])) {
-			$item->update_meta_data('_panelr_intent', $cart_item['_panelr_intent']);
-		}
-		if (!empty($cart_item['_panelr_activation_id'])) {
-			$item->update_meta_data('_panelr_activation_id', (int) $cart_item['_panelr_activation_id']);
-		}
-		if (!empty($cart_item['_panelr_reference_code'])) {
-			$item->update_meta_data('_panelr_intent',          'balance_payment');
-			$item->update_meta_data('_panelr_reference_code',  $cart_item['_panelr_reference_code']);
-			$order->update_meta_data('_panelr_reference_code', $cart_item['_panelr_reference_code']);
-			if (!empty($cart_item['_panelr_balance_amount'])) {
-				$item->set_subtotal($cart_item['_panelr_balance_amount']);
-				$item->set_total($cart_item['_panelr_balance_amount']);
-			}
-		}
-	}
-
-	// ── Helpers ────────────────────────────────────────────────────────────
-
-	private static function get_payment_map(): array
-	{
-		return json_decode((string) get_option('panelr_payment_map', '{}'), true) ?: [];
-	}
-
-	private static function get_panelr_method_id(string $gateway_id): ?int
-	{
-		$map = self::get_payment_map();
-		return isset($map[$gateway_id]) ? (int) $map[$gateway_id] : null;
-	}
-
-	private static function is_manual_gateway(string $gateway_id): bool
-	{
-		$panelr_id = self::get_panelr_method_id($gateway_id);
-		if (!$panelr_id) return false;
-
-		$mode_map = get_option('panelr_payment_mode_map', []);
-		if (is_array($mode_map) && isset($mode_map[$panelr_id])) {
-			return $mode_map[$panelr_id] === 'manual';
-		}
-
-		$api    = new Panelr_API();
-		$result = $api->get_payment_methods();
-		if (empty($result['success']) || empty($result['data'])) {
-			return true;
-		}
-
-		$mode_map = [];
-		foreach ($result['data'] as $pm) {
-			$mode_map[(int) $pm['id']] = $pm['mode'] ?? 'manual';
-		}
-		update_option('panelr_payment_mode_map', $mode_map);
-
-		return ($mode_map[$panelr_id] ?? 'manual') === 'manual';
-	}
-
-	private static function build_items(WC_Order $order): array
-	{
-		$items = [];
+		if ($needs || !$order instanceof WC_Order) return (bool) $needs;
+		if ($order->get_meta('_panelr_work_order_id') || !$order->has_status(['pending', 'failed'])) return false;
+		$credit_items = 0;
 		foreach ($order->get_items() as $item) {
-			$product_id = $item->get_product_id();
-			$panelr_id  = (int) get_post_meta($product_id, '_panelr_product_id', true);
-			if (!$panelr_id) continue;
-
-			$intent        = $item->get_meta('_panelr_intent') ?: 'new_activation';
-			$activation_id = (int) $item->get_meta('_panelr_activation_id');
-
-			$cart_item = [
-				'product_id' => $panelr_id,
-				'intent'     => $intent,
-				'qty'        => (int) $item->get_quantity(),
-			];
-
-			if ($activation_id) {
-				$cart_item['activation_id'] = $activation_id;
-			}
-
-			$items[] = $cart_item;
+			if (!is_a($item, 'WC_Order_Item_Product')) continue;
+			if ($item->get_meta('_panelr_pay_with_points') !== '1') return false;
+			$credit_items++;
 		}
-		return $items;
+		return $credit_items > 0;
 	}
 
-	// ── Build payment instructions from Panelr payment method ───────────────
+	// ── The account step ──────────────────────────────────────────────────
 
-	private static function build_instructions(array $pm, float $amount, string $ref): array
+	/** Does this cart need a Panelr login before the order is placed? */
+	public static function checkout_needs_account(): bool
 	{
-		$config    = $pm['config'] ?? [];
-		$processor = $pm['processor'] ?? '';
-		$res = [
-			'type'        => 'text',
-			'link'        => null,
-			'link_label'  => null,
-			'lines'       => [],
-			'note'        => $pm['instructions'] ?? '',
-			'copy_items'  => [],
-			'qr_data'     => null,
-			'txid_label'  => 'Transaction ID',
-		];
-
-		$amt     = '$' . number_format($amount, 2);
-		$raw_amt = number_format($amount, 2, '.', '');
-
-		switch ($processor) {
-			case 'venmo':
-				$handle = ltrim($config['handle'] ?? '', '@');
-				if ($handle) {
-					$note     = urlencode("Order {$ref}");
-					$deeplink = "https://venmo.com/u/{$handle}?txn=pay&amount={$raw_amt}&note={$note}";
-					$res['type']       = 'link';
-					$res['link']       = $deeplink;
-					$res['link_label'] = "Pay @{$handle} via Venmo";
-					$res['qr_data']    = $deeplink;
-					$res['lines']      = [
-						"Send exactly <strong>{$amt}</strong> to <strong>@{$handle}</strong>",
-						"Note is pre-filled with your order reference",
-					];
-					$res['copy_items'][] = ['label' => 'Venmo Handle',     'value' => '@' . $handle];
-					$res['copy_items'][] = ['label' => 'Note / Reference',  'value' => "Order {$ref}"];
-					$res['txid_label']   = 'Venmo Transaction ID';
-				}
-				break;
-
-			case 'cashapp':
-				$tag = ltrim($config['cashtag'] ?? '', '$');
-				if ($tag) {
-					$deeplink          = "https://cash.app/\${$tag}/{$raw_amt}";
-					$res['type']       = 'link';
-					$res['link']       = $deeplink;
-					$res['link_label'] = "Pay \${$tag} via Cash App";
-					$res['qr_data']    = $deeplink;
-					$res['lines']      = [
-						"Send exactly <strong>{$amt}</strong> to <strong>\${$tag}</strong>",
-						"Add reference <strong>{$ref}</strong> in the note field",
-					];
-					$res['copy_items'][] = ['label' => 'Cashtag',          'value' => '$' . $tag];
-					$res['copy_items'][] = ['label' => 'Reference / Note', 'value' => $ref];
-					$res['txid_label']   = 'Cash App Transaction ID';
-				}
-				break;
-
-			case 'zelle':
-				$recipient = $config['recipient'] ?? '';
-				$res['lines'] = [
-					"Send exactly <strong>{$amt}</strong> via Zelle to: <strong>{$recipient}</strong>",
-					"Add reference <strong>{$ref}</strong> in the memo field",
-				];
-				if ($recipient) $res['copy_items'][] = ['label' => 'Zelle Recipient', 'value' => $recipient];
-				$res['copy_items'][] = ['label' => 'Memo / Reference', 'value' => $ref];
-				$res['txid_label']   = 'Reference number or last 4 of sender account';
-				break;
-
-			case 'paypal':
-				$me_link = $config['me_link'] ?? '';
-				$email   = $config['email']   ?? '';
-				if ($me_link) {
-					$res['type']       = 'link';
-					$res['link']       = rtrim($me_link, '/') . "/{$raw_amt}";
-					$res['link_label'] = 'Pay via PayPal.me';
-					$res['lines']      = ["Add reference <strong>{$ref}</strong> in the payment note"];
-				} elseif ($email) {
-					$res['lines'] = [
-						"Send <strong>{$amt}</strong> to <strong>{$email}</strong> via PayPal",
-						"Add reference <strong>{$ref}</strong> in the note",
-					];
-					$res['copy_items'][] = ['label' => 'PayPal Email', 'value' => $email];
-				}
-				$res['copy_items'][] = ['label' => 'Note / Reference', 'value' => $ref];
-				$res['txid_label']   = 'PayPal Transaction ID';
-				break;
-
-			default:
-				$res['lines'] = ["Send <strong>{$amt}</strong> and include reference <strong>{$ref}</strong>"];
-				break;
-		}
-
-		return $res;
+		if (!WC()->cart || !Panelr_Cart::has_panelr_items()) return false;
+		if (Panelr_Handoff::current()) return false;          // Panelr already made the login
+		$setting = get_option('panelr_checkout_account', 'auto');
+		if ($setting === 'off') return false;
+		if ($setting === 'on') return true;
+		return Panelr_Helpers::accounts_enabled();
 	}
 
-	// ── Calculate adjusted total ───────────────────────────────────────────
-
-	private static function calc_adjusted_total(float $subtotal, array $pm): array
+	public static function render_account_step(): void
 	{
-		if (empty($pm['adjustment_enabled']) || !$pm['adjustment_direction'] || !$pm['adjustment_value']) {
-			return ['total' => $subtotal, 'direction' => null, 'label' => null, 'amount' => null];
-		}
-
-		$direction = $pm['adjustment_direction'];
-		$mode      = $pm['adjustment_mode'];
-		$value     = (float) $pm['adjustment_value'];
-		$adj_amt   = $mode === 'fixed' ? $value : round($subtotal * ($value / 100), 2);
-		$label     = ($pm['display_label'] ?: $pm['name']) . ' ' . ucfirst($direction)
-			. ' (' . ($mode === 'percent' ? $value . '%' : '$' . number_format($value, 2)) . ')';
-
-		$total = $direction === 'fee'
-			? round($subtotal + $adj_amt, 2)
-			: max(0.0, round($subtotal - $adj_amt, 2));
-
-		return [
-			'total'     => $total,
-			'direction' => $direction,
-			'label'     => $label,
-			'amount'    => $adj_amt,
-		];
-	}
-
-	// ── Get full Panelr payment method by mapped ID ────────────────────────
-
-	private static function get_panelr_payment_method(string $gateway_id): ?array
-	{
-		$panelr_id = self::get_panelr_method_id($gateway_id);
-		if (!$panelr_id) return null;
-
-		$api    = new Panelr_API();
-		$result = $api->get_payment_methods();
-		if (empty($result['success']) || empty($result['data'])) return null;
-
-		foreach ($result['data'] as $pm) {
-			if ((int) $pm['id'] === $panelr_id) return $pm;
-		}
-		return null;
-	}
-
-	// ── Manual payment — fires when order is created ───────────────────────
-
-	public static function handle_manual_order(WC_Order $order): void
-	{
-		$gateway_id = $order->get_payment_method();
-
-		wc_get_logger()->debug(
-			'Panelr handle_manual_order fired. Order #' . $order->get_id() . ' gateway: ' . $gateway_id . ' is_manual: ' . (self::is_manual_gateway($gateway_id) ? 'yes' : 'no'),
-			['source' => 'panelr']
-		);
-
-		if (!self::is_manual_gateway($gateway_id)) {
-			return;
-		}
-
-		$items = self::build_items($order);
-		if (empty($items)) return;
-
-		$pm = self::get_panelr_payment_method($gateway_id);
-		if (!$pm) {
-			wc_get_logger()->error(
-				'Panelr: could not load payment method for gateway ' . $gateway_id,
-				['source' => 'panelr']
-			);
-			return;
-		}
-
-		$subtotal = (float) $order->get_subtotal();
-		$adj      = self::calc_adjusted_total($subtotal, $pm);
-
-		$api    = new Panelr_API();
-		$result = $api->create_work_order([
-			'customer_email'       => $order->get_billing_email(),
-			'customer_name'        => trim($order->get_billing_first_name() . ' ' . $order->get_billing_last_name()),
-			'customer_phone'       => $order->get_billing_phone(),
-			'payment_method_id'    => (int) $pm['id'],
-			'wc_order_id'          => (string) $order->get_id(),
-			'status'               => 'pending_payment',
-			'items'                => $items,
-			'adjustment_direction' => $adj['direction'],
-			'adjustment_label'     => $adj['label'],
-			'adjustment_amount'    => $adj['amount'],
+		if (!self::checkout_needs_account()) return;
+		wp_enqueue_script('panelr-common');
+		Panelr_Template::output('checkout-account', [
+			'signed_in'      => Panelr_Session::is_signed_in(),
+			'email'          => Panelr_Session::email(),
+			'name'           => Panelr_Session::name(),
+			'require_invite' => Panelr_Portal::registration_needs_invite() && Panelr_Session::referral_code() === '',
+			'signup_points'  => Panelr_Helpers::referral_enabled() ? Panelr_Helpers::signup_points() : 0,
+			'portal_url'     => Panelr_Helpers::portal_url(),
+			'nonce'          => wp_create_nonce('panelr_checkout_signout'),
 		]);
+	}
 
-		if (empty($result['success'])) {
-			wc_get_logger()->error(
-				'Panelr create_work_order failed for order #' . $order->get_id() . ': ' . ($result['error'] ?? 'unknown'),
-				['source' => 'panelr']
-			);
+	/** A signed-in member's checkout starts with their own details. */
+	public static function prefill_from_account($value, $input)
+	{
+		if ($value !== null && $value !== '') return $value;
+		if (!Panelr_Session::is_signed_in()) return $value;
+		if ($input === 'billing_email') return Panelr_Session::email();
+		if ($input === 'billing_first_name' || $input === 'billing_last_name') {
+			$parts = preg_split('/\s+/', trim(Panelr_Session::name()), 2);
+			return $input === 'billing_first_name' ? ($parts[0] ?? '') : ($parts[1] ?? '');
+		}
+		return $value;
+	}
+
+	/** Sign in or create the Panelr login from the checkout form; add errors to WooCommerce's list. */
+	public static function validate_account_step($data, $errors): void
+	{
+		if (!self::checkout_needs_account()) return;
+		$email = strtolower(trim((string) ($data['billing_email'] ?? '')));
+		if ($email === '' || !is_email($email)) return; // WooCommerce reports the missing email itself
+
+		if (Panelr_Session::is_signed_in()) {
+			if (strtolower(Panelr_Session::email()) !== $email) {
+				$errors->add('panelr_account', sprintf(
+					/* translators: %s: account email */
+					__('Use the email of the account you are signed in with, %s, or sign out to use another.', 'panelr-for-woocommerce'),
+					Panelr_Session::email()
+				));
+			}
 			return;
 		}
 
-		$work_order_id      = $result['data']['work_order_id'];
-		$reference_code     = $result['data']['reference_code'];
-		$confirmation_token = $result['data']['confirmation_token'];
+		// WooCommerce verified the checkout nonce before this hook. Passwords are not sanitized: that would change them.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$password = (string) wp_unslash($_POST['panelr_account_password'] ?? '');
+		$confirm  = (string) wp_unslash($_POST['panelr_account_password2'] ?? '');
+		$invite   = strtolower(preg_replace('/[^a-z0-9_\-]/', '', strtolower(sanitize_text_field(wp_unslash($_POST['panelr_account_invite'] ?? '')))));
+		// phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
-		$order->update_meta_data('_panelr_work_order_id',      $work_order_id);
-		$order->update_meta_data('_panelr_reference_code',     $reference_code);
-		$order->update_meta_data('_panelr_confirmation_token', $confirmation_token);
-		$order->update_meta_data('_panelr_is_manual',          '1');
-		$order->update_meta_data('_panelr_adjusted_total',     $adj['total']);
+		if (strlen($password) < 8) {
+			$errors->add('panelr_account', __('Choose an account password of at least 8 characters.', 'panelr-for-woocommerce'));
+			return;
+		}
+		if ($confirm !== '' && $confirm !== $password) {
+			$errors->add('panelr_account', __('The two passwords do not match.', 'panelr-for-woocommerce'));
+			return;
+		}
+		if (!Panelr_Helpers::rate_limit('checkout_account', 10, 15 * MINUTE_IN_SECONDS)) {
+			$errors->add('panelr_account', __('Too many tries. Please wait a few minutes.', 'panelr-for-woocommerce'));
+			return;
+		}
+		$name   = trim((string) ($data['billing_first_name'] ?? '') . ' ' . (string) ($data['billing_last_name'] ?? ''));
+		$result = Panelr_Portal::account_for_checkout($email, $password, $name, $invite);
+		if (empty($result['ok'])) {
+			$errors->add('panelr_account', (string) $result['error']);
+		}
+	}
 
-		$editor_user = WC()->session ? WC()->session->get('panelr_portal_editor_username') : '';
-		$xtream_user = WC()->session ? WC()->session->get('panelr_portal_username') : '';
-		if ($editor_user) $order->update_meta_data('_panelr_editor_username', $editor_user);
-		if ($xtream_user) $order->update_meta_data('_panelr_xtream_username', $xtream_user);
+	/**
+	 * Block checkout has no room for a password, so it opens the member area's
+	 * sign-in / create-account form first and comes straight back.
+	 */
+	public static function block_checkout_account_gate(): void
+	{
+		if (is_admin() || !function_exists('is_checkout') || !is_checkout() || is_wc_endpoint_url('order-received') || is_wc_endpoint_url('order-pay')) return;
+		if (!self::checkout_needs_account() || Panelr_Session::is_signed_in()) return;
+		$page = get_post(get_queried_object_id());
+		if (!$page || !has_block('woocommerce/checkout', $page)) return; // classic checkout has its own account step
+		if (!Panelr_Helpers::page_url('portal')) return;
+		wp_safe_redirect(Panelr_Helpers::portal_url(['view' => 'checkout', 'return' => rawurlencode(wc_get_checkout_url())]));
+		exit;
+	}
+
+	/** Block checkout has no room for a password: the member area does the sign-in first. */
+	public static function block_checkout_needs_account($order, $request): void
+	{
+		if (!self::checkout_needs_account() || Panelr_Session::is_signed_in()) return;
+		$message = sprintf(
+			/* translators: %s: member area URL */
+			__('Please sign in or create your account first: %s', 'panelr-for-woocommerce'),
+			Panelr_Helpers::portal_url(['return' => rawurlencode(wc_get_checkout_url())])
+		);
+		if (class_exists('\Automattic\WooCommerce\StoreApi\Exceptions\RouteException')) {
+			throw new \Automattic\WooCommerce\StoreApi\Exceptions\RouteException('panelr_account_required', esc_html($message), 400);
+		}
+		throw new \Exception(esc_html($message));
+	}
+
+	public static function ajax_checkout_signout(): void
+	{
+		check_ajax_referer('panelr_checkout_signout', 'nonce');
+		Panelr_Session::sign_out();
+		wp_send_json_success();
+	}
+
+	// ── Gateways at checkout ──────────────────────────────────────────────
+
+	/** An all-credits cart shows only the credits gateway; any other cart never shows it. */
+	public static function filter_gateways(array $gateways): array
+	{
+		if ((is_admin() && !defined('DOING_AJAX')) || !WC()->cart) return $gateways;
+		$handoff = Panelr_Handoff::current();
+		if ($handoff) {
+			unset($gateways[Panelr_Credits_Gateway::ID]);
+			$allowed = Panelr_Handoff::allowed_gateways($handoff);
+			$kept    = array_intersect_key($gateways, array_flip($allowed));
+			return $kept ?: $gateways;
+		}
+		if (Panelr_Cart::all_lines_credit_paid() && Panelr_Session::is_signed_in()
+			&& Panelr_Session::credits_balance() >= Panelr_Cart::credits_in_cart()) {
+			return isset($gateways[Panelr_Credits_Gateway::ID]) ? [Panelr_Credits_Gateway::ID => $gateways[Panelr_Credits_Gateway::ID]] : $gateways;
+		}
+		unset($gateways[Panelr_Credits_Gateway::ID]);
+		return $gateways;
+	}
+
+	// ── Order created ─────────────────────────────────────────────────────
+
+	public static function on_order_created_block($order): void
+	{
+		if ($order instanceof WC_Order) {
+			self::on_order_created($order->get_id());
+		}
+	}
+
+	public static function on_order_created($order_id): void
+	{
+		$order = wc_get_order((int) $order_id);
+		if (!$order) return;
+		if ($order->get_meta('_panelr_work_order_id') || $order->get_meta('_panelr_balance_payment')) return;
+
+		$items = Panelr_Cart::order_items($order);
+		if (!$items) return;
+
+		self::stamp_order_context($order);
+
+		// Handed over by Panelr's checkout: the Panelr order already exists.
+		$handoff = Panelr_Handoff::current();
+		if ($handoff) {
+			$order->update_meta_data('_panelr_reference_code',     (string) $handoff['ref']);
+			$order->update_meta_data('_panelr_confirmation_token', (string) $handoff['token']);
+			$order->update_meta_data('_panelr_method_id',          (int) $handoff['method_id']);
+			$order->update_meta_data('_panelr_adjusted_total',     (float) $handoff['order_total']);
+			if (!empty($handoff['manual'])) {
+				$order->update_meta_data('_panelr_is_manual', '1');
+				$order->update_meta_data('_panelr_mode', 'manual');
+				$order->update_meta_data('_panelr_state', 'sent');
+				$order->update_meta_data('_panelr_status', 'pending_payment');
+			} else {
+				$order->update_meta_data('_panelr_mode', 'automatic');
+				$order->update_meta_data('_panelr_state', 'handoff');
+			}
+			$order->add_order_note(sprintf(
+				/* translators: %s: Panelr reference */
+				__('Started on Panelr as order %s; paid here.', 'panelr-for-woocommerce'),
+				$handoff['ref']
+			));
+			$order->save();
+			Panelr_Handoff::forget();
+			return;
+		}
+
+		$gateway_id = (string) $order->get_payment_method();
+		if ($gateway_id === Panelr_Credits_Gateway::ID) {
+			// The credits gateway completes the order itself in process_payment.
+			$order->update_meta_data('_panelr_state', 'credits');
+			$order->save();
+			return;
+		}
+
+		self::route_order($order, false);
+	}
+
+	/**
+	 * Decide manual vs automatic from the mapped method's mode and act.
+	 * Called on creation and from the held-order retry.
+	 */
+	public static function route_order(WC_Order $order, bool $is_retry): bool
+	{
+		$gateway_id = (string) $order->get_payment_method();
+		$method_id  = Panelr_Helpers::mapped_method_id($gateway_id);
+
+		if (!$method_id) {
+			// Unmapped gateway: nothing Panelr can do with it until the operator maps it.
+			$order->update_meta_data('_panelr_state', 'unmapped');
+			$order->add_order_note(sprintf(
+				/* translators: %s: gateway id */
+				__('Panelr: the payment method "%s" is not mapped to a Panelr payment method. Map it under Panelr → Payments and press Send.', 'panelr-for-woocommerce'),
+				$gateway_id
+			));
+			$order->save();
+			return false;
+		}
+
+		$methods = Panelr_Helpers::payment_methods();
+		if ($methods === null) {
+			self::hold_order($order, __('Panelr could not be reached to read the payment methods.', 'panelr-for-woocommerce'), $is_retry);
+			return false;
+		}
+		$pm = $methods[$method_id] ?? null;
+		if (!$pm) {
+			$order->update_meta_data('_panelr_state', 'unmapped');
+			$order->add_order_note(__('Panelr: the mapped payment method is no longer enabled in Panelr.', 'panelr-for-woocommerce'));
+			$order->save();
+			return false;
+		}
+
+		$mode = ($pm['mode'] ?? 'manual') === 'automated' ? 'automatic' : 'manual';
+		$order->update_meta_data('_panelr_mode', $mode);
+		$order->update_meta_data('_panelr_method_id', (int) $pm['id']);
+
+		if ($mode === 'manual') {
+			return self::create_manual_order($order, $pm);
+		}
+
+		// Automatic: wait for payment_complete. If it already fired (retry), send now.
+		$order->update_meta_data('_panelr_state', 'awaiting_payment');
+		$order->save();
+		if ($is_retry && $order->is_paid()) {
+			return self::complete_automatic_order($order, $pm);
+		}
+		return true;
+	}
+
+	private static function hold_order(WC_Order $order, string $reason, bool $is_retry): void
+	{
+		$attempt = (int) $order->get_meta('_panelr_hold_attempt');
+		$order->update_meta_data('_panelr_state', 'held');
+		$order->update_meta_data('_panelr_hold_reason', $reason);
+		if (!$is_retry) {
+			$order->update_meta_data('_panelr_held_at', time());
+			$order->add_order_note(sprintf(
+				/* translators: %s: reason */
+				__('Panelr: order held — %s It will be retried every 5 minutes for an hour.', 'panelr-for-woocommerce'),
+				$reason
+			));
+		}
+		$attempt++;
+		$order->update_meta_data('_panelr_hold_attempt', $attempt);
 		$order->save();
 
-		$confirm_url = $order->get_checkout_order_received_url();
-		$api->send_payment_instructions($work_order_id, $confirm_url);
-
-		wc_get_logger()->debug(
-			'Panelr work order #' . $work_order_id . ' created for WC order #' . $order->get_id(),
-			['source' => 'panelr']
-		);
-	}
-
-	// ── Automatic payment — fires after payment confirmed ─────────────────
-
-	public static function handle_automatic_payment(int $order_id): void
-	{
-		$order      = wc_get_order($order_id);
-		$gateway_id = $order->get_payment_method();
-
-		if (self::is_manual_gateway($gateway_id)) {
-			return;
-		}
-
-		if ($order->get_meta('_panelr_work_order_id')) {
-			return;
-		}
-
-		$items = self::build_items($order);
-		if (empty($items)) return;
-
-		$panelr_pm_id = self::get_panelr_method_id($gateway_id);
-
-		$api    = new Panelr_API();
-		$result = $api->complete_order([
-			'customer_email'         => $order->get_billing_email(),
-			'customer_name'          => trim($order->get_billing_first_name() . ' ' . $order->get_billing_last_name()),
-			'customer_phone'         => $order->get_billing_phone(),
-			'payment_method_id'      => $panelr_pm_id,
-			'payment_transaction_id' => $order->get_transaction_id(),
-			'payment_amount'         => (float) $order->get_total(),
-			'wc_order_id'            => (string) $order_id,
-			'items'                  => $items,
-		]);
-
-		if (!empty($result['success'])) {
-			$order->update_meta_data('_panelr_work_order_id',  $result['data']['work_order_id']);
-			$order->update_meta_data('_panelr_reference_code', $result['data']['reference_code']);
-			$editor_user = WC()->session ? WC()->session->get('panelr_portal_editor_username') : '';
-			$xtream_user = WC()->session ? WC()->session->get('panelr_portal_username') : '';
-			if ($editor_user) $order->update_meta_data('_panelr_editor_username', $editor_user);
-			if ($xtream_user) $order->update_meta_data('_panelr_xtream_username', $xtream_user);
+		if ($attempt <= 12 && function_exists('as_schedule_single_action')) {
+			as_schedule_single_action(time() + 5 * MINUTE_IN_SECONDS, 'panelr_retry_held_order', [$order->get_id(), $attempt], 'panelr');
+		} elseif ($attempt > 12) {
+			$order->add_order_note(__('Panelr: still unreachable after an hour. Use Send on the Panelr → Orders page once the connection is back.', 'panelr-for-woocommerce'));
+			$order->update_meta_data('_panelr_state', 'never_sent');
 			$order->save();
-		} else {
-			wc_get_logger()->error(
-				'Panelr complete_order failed for order #' . $order_id . ': ' . ($result['error'] ?? 'unknown'),
-				['source' => 'panelr']
-			);
 		}
+		set_transient('panelr_held_orders_notice', 1, HOUR_IN_SECONDS);
 	}
 
-	// ── Fallback: create work order on thank you page if not yet created ────
-
-	public static function maybe_create_work_order(int $order_id): void
+	public static function retry_held_order($order_id, $attempt = 0): void
 	{
-		$order = wc_get_order($order_id);
+		$order = wc_get_order((int) $order_id);
+		if (!$order || $order->get_meta('_panelr_state') !== 'held') return;
+		if ($order->get_meta('_panelr_confirmation_token') && !$order->get_meta('_panelr_work_order_id') && $order->is_paid()) {
+			self::complete_handoff_order($order);
+			return;
+		}
+		self::route_order($order, true);
+	}
+
+	/** Manual: the Panelr work order exists before the thank-you page loads. */
+	public static function create_manual_order(WC_Order $order, array $pm): bool
+	{
+		$items = Panelr_Cart::order_items($order);
+		if (!$items) return false;
+
+		$body = self::common_body($order, $items);
+		$body['status']            = 'pending_payment';
+		$body['payment_method_id'] = (int) $pm['id'];
+
+		// Panelr computes the method's own fee or discount on the total after
+		// the coupon — the same sum WooCommerce showed at checkout.
+		$result = Panelr_API::instance()->create_work_order($body);
+		if (!$result['ok']) {
+			if ($result['status'] === 422 || $result['status'] === 404) {
+				$order->update_meta_data('_panelr_state', 'refused');
+				$order->update_meta_data('_panelr_hold_reason', $result['error']);
+				$order->add_order_note(sprintf(
+					/* translators: %s: Panelr's message */
+					__('Panelr refused the order: %s', 'panelr-for-woocommerce'),
+					$result['error']
+				));
+				$order->save();
+				return false;
+			}
+			self::hold_order($order, $result['error'], (bool) $order->get_meta('_panelr_hold_attempt'));
+			return false;
+		}
+
+		$d = $result['data'];
+		$order->update_meta_data('_panelr_work_order_id',      (int) $d['work_order_id']);
+		$order->update_meta_data('_panelr_reference_code',     (string) $d['reference_code']);
+		$order->update_meta_data('_panelr_confirmation_token', (string) $d['confirmation_token']);
+		$order->update_meta_data('_panelr_is_manual',          '1');
+		$order->update_meta_data('_panelr_state',              'sent');
+		$order->update_meta_data('_panelr_status',             'pending_payment');
+		$order->update_meta_data('_panelr_adjusted_total',     isset($d['order_total']) ? (float) $d['order_total'] : (float) $order->get_total());
+		$order->update_meta_data('_panelr_credits_spent',      (int) ($d['credits_spent'] ?? 0));
+		$order->delete_meta_data('_panelr_hold_reason');
+		$order->add_order_note(sprintf(
+			/* translators: %s: Panelr reference code */
+			__('Panelr order %s created, waiting for payment.', 'panelr-for-woocommerce'),
+			$d['reference_code']
+		));
+		$order->save();
+
+		Panelr_API::instance()->send_payment_instructions((int) $d['work_order_id'], $order->get_checkout_order_received_url());
+		Panelr_Orders::schedule_polling($order->get_id());
+		return true;
+	}
+
+	// ── Payment complete (automatic) ──────────────────────────────────────
+
+	public static function on_payment_complete($order_id): void
+	{
+		$order = wc_get_order((int) $order_id);
 		if (!$order) return;
-
 		if ($order->get_meta('_panelr_work_order_id')) return;
+		if ($order->get_meta('_panelr_balance_payment')) return;
+		if ((string) $order->get_payment_method() === Panelr_Credits_Gateway::ID) return;
 
-		wc_get_logger()->debug(
-			'Panelr maybe_create_work_order fired for order #' . $order_id . ' gateway: ' . $order->get_payment_method(),
-			['source' => 'panelr']
-		);
+		$items = Panelr_Cart::order_items($order);
+		if (!$items) return;
 
-		self::handle_manual_order($order);
+		$state = (string) $order->get_meta('_panelr_state');
+		if ($state === 'handoff') {
+			self::complete_handoff_order($order);
+			return;
+		}
+		if ($state === '' ) {
+			// Created outside checkout (admin, API, an old cart): route now.
+			self::stamp_order_context($order);
+			if (!self::route_order($order, false)) return;
+			$state = (string) $order->get_meta('_panelr_state');
+		}
+		if ($state !== 'awaiting_payment') return;
+
+		$pm = Panelr_Helpers::mapped_method((string) $order->get_payment_method());
+		if (!$pm) {
+			self::hold_order($order, __('Panelr could not be reached to read the payment methods.', 'panelr-for-woocommerce'), false);
+			return;
+		}
+		self::complete_automatic_order($order, $pm);
 	}
 
-	// ── Thank you page — show payment instructions for manual orders ───────
-
-	public static function render_thankyou(int $order_id): void
+	public static function complete_automatic_order(WC_Order $order, array $pm): bool
 	{
-		$order = wc_get_order($order_id);
+		if ($order->get_meta('_panelr_work_order_id')) return true;
 
-		if (!$order->get_meta('_panelr_is_manual')) {
-			return;
+		$items = Panelr_Cart::order_items($order);
+		$body  = self::common_body($order, $items);
+		$body['payment_method_id']      = (int) $pm['id'];
+		$body['payment_transaction_id'] = (string) ($order->get_transaction_id() ?: 'WC-' . $order->get_id());
+		$body['payment_amount']         = (float) $order->get_total();
+
+		$result = Panelr_API::instance()->complete_order($body);
+		if (!$result['ok']) {
+			if (in_array($result['status'], [422, 404], true)) {
+				$order->update_meta_data('_panelr_state', 'refused');
+				$order->update_meta_data('_panelr_hold_reason', $result['error']);
+				$order->add_order_note(sprintf(
+					/* translators: %s: Panelr's message */
+					__('Panelr refused the order: %s', 'panelr-for-woocommerce'),
+					$result['error']
+				));
+				$order->save();
+				return false;
+			}
+			self::hold_order($order, $result['error'], (bool) $order->get_meta('_panelr_hold_attempt'));
+			return false;
 		}
 
-		$reference_code     = $order->get_meta('_panelr_reference_code');
-		$confirmation_token = $order->get_meta('_panelr_confirmation_token');
+		self::record_completed_send($order, $result['data']);
+		return true;
+	}
 
-		if (!$reference_code || !$confirmation_token) {
-			return;
+	/** An order Panelr created and this store paid: mark it paid on Panelr by its token. */
+	public static function complete_handoff_order(WC_Order $order): bool
+	{
+		if ($order->get_meta('_panelr_work_order_id')) return true;
+		$token = (string) $order->get_meta('_panelr_confirmation_token');
+		if ($token === '') return false;
+
+		$body = [
+			'confirmation_token'     => $token,
+			'payment_transaction_id' => (string) ($order->get_transaction_id() ?: 'WC-' . $order->get_id()),
+			'payment_amount'         => (float) $order->get_total(),
+		];
+		$mapped = Panelr_Helpers::mapped_method_id((string) $order->get_payment_method());
+		if ($mapped) $body['payment_method_id'] = $mapped;
+
+		$result = Panelr_API::instance()->complete_order($body);
+		if (!$result['ok']) {
+			if (in_array($result['status'], [422, 404], true)) {
+				$order->update_meta_data('_panelr_state', 'refused');
+				$order->update_meta_data('_panelr_hold_reason', $result['error']);
+				$order->add_order_note(sprintf(
+					/* translators: %s: Panelr's message */
+					__('Panelr refused the payment confirmation: %s', 'panelr-for-woocommerce'),
+					$result['error']
+				));
+				$order->save();
+				return false;
+			}
+			self::hold_order($order, $result['error'], (bool) $order->get_meta('_panelr_hold_attempt'));
+			return false;
 		}
+		self::record_completed_send($order, $result['data']);
+		return true;
+	}
 
-		$already_submitted = $order->get_meta('_panelr_payment_submitted');
-		$adjusted_total    = (float) $order->get_meta('_panelr_adjusted_total') ?: (float) $order->get_total();
-		$gateway_id        = $order->get_payment_method();
-		$pm                = self::get_panelr_payment_method($gateway_id);
-		$inst              = $pm ? self::build_instructions($pm, $adjusted_total, $reference_code) : [];
+	/** After complete_order (money or credits): stamp the order and start polling. */
+	public static function record_completed_send(WC_Order $order, array $d): void
+	{
+		$order->update_meta_data('_panelr_work_order_id',  (int) $d['work_order_id']);
+		$order->update_meta_data('_panelr_reference_code', (string) $d['reference_code']);
+		$order->update_meta_data('_panelr_state',          'queued');
+		$order->update_meta_data('_panelr_status',         'queued');
+		$order->update_meta_data('_panelr_credits_spent',  (int) ($d['credits_spent'] ?? 0));
+		$order->delete_meta_data('_panelr_hold_reason');
+		$order->add_order_note(sprintf(
+			/* translators: %s: Panelr reference code */
+			__('Panelr order %s is being set up.', 'panelr-for-woocommerce'),
+			$d['reference_code']
+		));
+		$order->save();
+		Panelr_Orders::schedule_polling($order->get_id());
+	}
 
-		if (!empty($inst['qr_data'])) {
-			wp_enqueue_script(
-				'qrcodejs',
-				PANELR_PLUGIN_URL . 'assets/js/qrcode.min.js',
-				[],
-				'1.0.0',
-				true
-			);
+	// ── Shared body ───────────────────────────────────────────────────────
+
+	private static function common_body(WC_Order $order, array $items): array
+	{
+		$body = [
+			'customer_email' => $order->get_billing_email(),
+			'customer_name'  => trim($order->get_billing_first_name() . ' ' . $order->get_billing_last_name()),
+			'customer_phone' => $order->get_billing_phone(),
+			'wc_order_id'    => (string) $order->get_id(),
+			'source'         => 'woocommerce',
+			'items'          => $items,
+		];
+		$coupon = (string) $order->get_meta('_panelr_coupon_code');
+		if ($coupon) $body['coupon_code'] = $coupon;
+		$ref = (string) $order->get_meta('_panelr_referral_code');
+		if ($ref) $body['referral_code'] = $ref;
+		return $body;
+	}
+
+	/** What the visitor carried at checkout: the Panelr coupon, the invite code, the account, the line names. */
+	private static function stamp_order_context(WC_Order $order): void
+	{
+		if (Panelr_Cart::coupon_mode() === 'panelr') {
+			$coupon = Panelr_Cart::applied_coupon();
+			if ($coupon) {
+				$order->update_meta_data('_panelr_coupon_code', $coupon['code']);
+				Panelr_Session::forget(Panelr_Cart::COUPON_KEY);
+			}
 		}
+		$ref = Panelr_Session::referral_code();
+		if ($ref) $order->update_meta_data('_panelr_referral_code', $ref);
+		if (Panelr_Session::is_signed_in()) {
+			$order->update_meta_data('_panelr_customer_id', Panelr_Session::customer_id());
+		}
+		$order->save();
+	}
 
-		wp_enqueue_script(
-			'panelr-thankyou',
-			PANELR_PLUGIN_URL . 'assets/js/thankyou.js',
-			!empty($inst['qr_data']) ? ['jquery', 'qrcodejs'] : ['jquery'],
-			PANELR_VERSION,
-			true
-		);
+	// ── Thank-you page ────────────────────────────────────────────────────
+
+	public static function render_thankyou($order_id): void
+	{
+		$order = wc_get_order((int) $order_id);
+		if (!$order) return;
+		if ($order->get_meta('_panelr_balance_payment')) return;
+		if (!Panelr_Cart::order_items($order)) return;
+
+		self::render_order_panel($order, true);
+	}
+
+	public static function render_view_order($order_id): void
+	{
+		$order = wc_get_order((int) $order_id);
+		if (!$order || !Panelr_Cart::order_items($order)) return;
+		self::render_order_panel($order, false);
+	}
+
+	private static function render_order_panel(WC_Order $order, bool $is_thankyou): void
+	{
+		$state = (string) $order->get_meta('_panelr_state');
+		$ref   = (string) $order->get_meta('_panelr_reference_code');
+		$token = (string) $order->get_meta('_panelr_confirmation_token');
+		$manual = $order->get_meta('_panelr_is_manual') === '1';
+
+		wp_enqueue_script('panelr-common');
+		wp_register_script('panelr-qrcode', PANELR_PLUGIN_URL . 'assets/js/qrcode.min.js', [], '1.0.0', true);
+		wp_enqueue_script('panelr-thankyou', PANELR_PLUGIN_URL . 'assets/js/thankyou.js', ['jquery', 'panelr-common', 'panelr-qrcode'], PANELR_VERSION, true);
 		wp_localize_script('panelr-thankyou', 'panelrThankyou', [
 			'ajaxurl'            => admin_url('admin-ajax.php'),
 			'nonce'              => wp_create_nonce('panelr_submit_payment'),
-			'confirmation_token' => $confirmation_token,
-			'already_submitted'  => $already_submitted ? '1' : '0',
-			'order_id'           => $order_id,
-			'qr_data'            => $inst['qr_data'] ?? '',
+			'poll_nonce'         => wp_create_nonce('panelr_order_poll_' . $order->get_id()),
+			'confirmation_token' => $token,
+			'order_id'           => $order->get_id(),
+			'order_key'          => $order->get_order_key(),
+			'already_submitted'  => $order->get_meta('_panelr_payment_submitted') === '1' ? '1' : '0',
+			'poll'               => in_array($state, ['queued', 'sent'], true) && !$manual ? '1' : '0',
+			'i18n'               => [
+				'enter_txid'     => __('Enter the transaction id or reference from your payment.', 'panelr-for-woocommerce'),
+				'submitting'     => __('Sending…', 'panelr-for-woocommerce'),
+				'received'       => __('Payment confirmation received. We will check it and set up your service shortly.', 'panelr-for-woocommerce'),
+				'add_note'       => __('Add note', 'panelr-for-woocommerce'),
+				'request_failed' => __('Something went wrong. Please try again.', 'panelr-for-woocommerce'),
+			],
 		]);
 
-		if ($already_submitted) {
-			echo '<div class="panelr-thankyou panelr-submitted">';
-			echo '<h2>' . esc_html__('Payment Confirmation Received', 'panelr-for-woocommerce') . '</h2>';
-			echo '<p>' . esc_html__('Your payment confirmation has been received. Our team will verify and activate your service shortly.', 'panelr-for-woocommerce') . '</p>';
-			echo '</div>';
-			return;
+		$panelr_order = null;
+		if ($ref && ($token || $order->get_billing_email())) {
+			$r = Panelr_API::instance()->get_work_order($ref, $token ?: null, $token ? null : $order->get_billing_email());
+			if ($r['ok']) $panelr_order = $r['data'];
 		}
 
-		$pm_name    = $pm ? ($pm['display_label'] ?: $pm['name']) : '';
-		$txid_label = $inst['txid_label'] ?? 'Transaction ID';
-
-		echo '<div class="panelr-thankyou" id="panelr-thankyou-wrap">';
-		echo '<h2>' . esc_html__('Complete Your Payment', 'panelr-for-woocommerce') . '</h2>';
-
-		// Reference box
-		echo '<div class="panelr-reference-box">';
-		echo '<p class="panelr-reference-label">' . esc_html__('Your Order Reference', 'panelr-for-woocommerce') . '</p>';
-		echo '<p class="panelr-reference-code">' . esc_html($reference_code) . '</p>';
-		echo '<p class="panelr-reference-note">' . esc_html__('Include this in your payment note / memo.', 'panelr-for-woocommerce') . '</p>';
-		echo '</div>';
-
-		// Payment instructions
-		if (!empty($inst['lines'])) {
-			echo '<div class="panelr-payment-instructions">';
-			if ($pm_name) {
-				echo '<p class="panelr-instructions-label">' . esc_html__('Payment Instructions', 'panelr-for-woocommerce') . ' &mdash; ' . esc_html($pm_name) . '</p>';
-			}
-			echo '<ul class="panelr-instructions-list">';
-			foreach ($inst['lines'] as $line) {
-				echo '<li>' . wp_kses($line, ['strong' => [], 'em' => []]) . '</li>';
-			}
-			echo '</ul>';
-
-			if (!empty($inst['link'])) {
-				echo '<div class="panelr-payment-link">';
-				echo '<a href="' . esc_url($inst['link']) . '" target="_blank" class="button alt panelr-pay-btn">';
-				echo esc_html($inst['link_label'] ?? 'Pay Now');
-				echo '</a>';
-				echo '</div>';
-			}
-
-			if (!empty($inst['copy_items'])) {
-				echo '<ul class="panelr-copy-list">';
-				foreach ($inst['copy_items'] as $ci) {
-					echo '<li class="panelr-copy-item">';
-					echo '<span class="panelr-copy-label">' . esc_html($ci['label']) . ':</span>';
-					echo '<code class="panelr-copy-value">' . esc_html($ci['value']) . '</code>';
-					echo '<button type="button" class="panelr-copy-btn button" data-copy="' . esc_attr($ci['value']) . '">' . esc_html__('Copy', 'panelr-for-woocommerce') . '</button>';
-					echo '</li>';
-				}
-				echo '</ul>';
-			}
-
-			if (!empty($inst['note'])) {
-				echo '<p class="panelr-instructions-note">' . esc_html($inst['note']) . '</p>';
-			}
-			echo '</div>';
+		$pm = null;
+		if ($manual) {
+			$pm = Panelr_Helpers::mapped_method((string) $order->get_payment_method());
 		}
 
-		if (!empty($inst['qr_data'])) {
-			echo '<div class="panelr-qr-wrap">';
-			echo '<p class="panelr-qr-label">' . esc_html__('Scan to pay:', 'panelr-for-woocommerce') . '</p>';
-			echo '<div id="panelr-qr-code"></div>';
-			echo '</div>';
-		}
-
-		echo '<p class="panelr-amount-due">' . esc_html__('Amount Due:', 'panelr-for-woocommerce') . ' <span class="panelr-amount">' . wp_kses_post(wc_price($adjusted_total)) . '</span></p>';
-
-		echo '<div id="panelr-payment-form" class="panelr-payment-form">';
-		echo '<p>';
-		echo '<label for="panelr_transaction_id"><strong>' . esc_html($txid_label) . '</strong></label><br>';
-		echo '<input type="text" id="panelr_transaction_id" name="panelr_transaction_id" class="input-text" placeholder="' . esc_attr__('Enter your transaction ID or reference number', 'panelr-for-woocommerce') . '">';
-		echo '</p>';
-		echo '<p>';
-		echo '<label for="panelr_customer_note">' . esc_html__('Note (optional)', 'panelr-for-woocommerce') . '</label><br>';
-		echo '<textarea id="panelr_customer_note" name="panelr_customer_note" rows="2"></textarea>';
-		echo '</p>';
-		echo '<p>';
-		echo '<button type="button" id="panelr-submit-payment" class="button alt">' . esc_html__('Confirm Payment', 'panelr-for-woocommerce') . ' &rarr;</button>';
-		echo '<span id="panelr-submit-result" class="panelr-submit-result"></span>';
-		echo '</p>';
-		echo '</div>';
-		echo '</div>';
+		Panelr_Template::output('thankyou/panel', [
+			'order'        => $order,
+			'is_thankyou'  => $is_thankyou,
+			'state'        => $state,
+			'manual'       => $manual,
+			'ref'          => $ref,
+			'panelr_order' => $panelr_order,
+			'pm'           => $pm,
+			'instructions' => $pm ? self::instructions($pm, $panelr_order, $order) : null,
+			'submitted'    => $order->get_meta('_panelr_payment_submitted') === '1',
+			'lines'        => json_decode((string) $order->get_meta('_panelr_lines'), true) ?: [],
+			'status'       => (string) $order->get_meta('_panelr_status'),
+			'hold_reason'  => (string) $order->get_meta('_panelr_hold_reason'),
+			'portal_url'   => Panelr_Helpers::portal_url(),
+		]);
 	}
 
-	// ── AJAX: submit transaction ID ────────────────────────────────────────
+	/**
+	 * Panelr's instructions and the method's config, rendered by processor
+	 * with copy rows. The QR only for a payable address. Amount in the store currency.
+	 * @return array{note:string,rows:array,qr:?string,txid_label:string,amount:float,currency:string}
+	 */
+	public static function instructions(array $pm, ?array $panelr_order, ?WC_Order $order = null): array
+	{
+		$config   = is_array($pm['config'] ?? null) ? $pm['config'] : [];
+		$currency = (string) ($panelr_order['currency'] ?? ($order ? $order->get_currency() : get_woocommerce_currency()));
+		$amount   = $panelr_order
+			? (float) (!empty($panelr_order['has_partials']) ? $panelr_order['balance_due'] : $panelr_order['order_total'])
+			: (float) ($order ? ($order->get_meta('_panelr_adjusted_total') ?: $order->get_total()) : 0);
+		$ref      = (string) ($panelr_order['reference_code'] ?? ($order ? $order->get_meta('_panelr_reference_code') : ''));
+
+		$rows = [];
+		$qr   = null;
+		$txid = __('Transaction id or reference', 'panelr-for-woocommerce');
+
+		$add = function (string $label, $value) use (&$rows) {
+			$value = trim((string) $value);
+			if ($value !== '') $rows[] = ['label' => $label, 'value' => $value];
+		};
+
+		switch ((string) ($pm['processor'] ?? '')) {
+			case 'venmo':
+				$add(__('Venmo', 'panelr-for-woocommerce'), !empty($config['handle']) ? '@' . ltrim($config['handle'], '@') : '');
+				$txid = __('Venmo transaction id', 'panelr-for-woocommerce');
+				if (!empty($config['handle'])) $qr = 'https://venmo.com/u/' . rawurlencode(ltrim($config['handle'], '@'));
+				break;
+			case 'cashapp':
+				$add(__('Cash App', 'panelr-for-woocommerce'), !empty($config['cashtag']) ? '$' . ltrim($config['cashtag'], '$') : '');
+				$txid = __('Cash App transaction id', 'panelr-for-woocommerce');
+				if (!empty($config['cashtag'])) $qr = 'https://cash.app/$' . rawurlencode(ltrim($config['cashtag'], '$'));
+				break;
+			case 'zelle':
+				$add(__('Zelle', 'panelr-for-woocommerce'), $config['recipient'] ?? '');
+				break;
+			case 'paypal':
+				$add(__('PayPal', 'panelr-for-woocommerce'), $config['email'] ?? '');
+				if (!empty($config['me_link'])) {
+					$add(__('PayPal.me', 'panelr-for-woocommerce'), $config['me_link']);
+					$qr = (string) $config['me_link'];
+				}
+				$txid = __('PayPal transaction id', 'panelr-for-woocommerce');
+				break;
+			case 'crypto':
+			case 'bitcoin':
+			case 'usdt':
+				foreach (['address', 'wallet', 'wallet_address'] as $k) {
+					if (!empty($config[$k])) {
+						$add(__('Wallet address', 'panelr-for-woocommerce'), $config[$k]);
+						$qr = (string) $config[$k];
+						break;
+					}
+				}
+				if (!empty($config['network'])) $add(__('Network', 'panelr-for-woocommerce'), $config['network']);
+				$txid = __('Transaction hash', 'panelr-for-woocommerce');
+				break;
+			default:
+				foreach ($config as $k => $v) {
+					if (is_scalar($v) && $v !== '' && !in_array($k, ['secret', 'api_key', 'token', 'webhook_secret', 'client_secret'], true)) {
+						$add(ucwords(str_replace('_', ' ', (string) $k)), $v);
+					}
+				}
+				break;
+		}
+		if ($ref) $add(__('Reference', 'panelr-for-woocommerce'), $ref);
+
+		return [
+			'note'       => (string) ($pm['instructions'] ?? ''),
+			'rows'       => $rows,
+			'qr'         => $qr,
+			'txid_label' => $txid,
+			'amount'     => $amount,
+			'currency'   => $currency,
+		];
+	}
+
+	// ── AJAX: "I've paid" on the thank-you page ───────────────────────────
 
 	public static function ajax_submit_payment(): void
 	{
 		check_ajax_referer('panelr_submit_payment', 'nonce');
 
-		$confirmation_token = sanitize_text_field(wp_unslash($_POST['confirmation_token'] ?? ''));
-		$transaction_id     = sanitize_text_field(wp_unslash($_POST['transaction_id']     ?? ''));
-		$customer_note      = sanitize_textarea_field(wp_unslash($_POST['customer_note']  ?? ''));
-		$order_id           = (int) sanitize_text_field(wp_unslash($_POST['order_id']     ?? 0));
+		$token    = sanitize_text_field(wp_unslash($_POST['confirmation_token'] ?? ''));
+		$txid     = sanitize_text_field(wp_unslash($_POST['transaction_id'] ?? ''));
+		$note     = sanitize_textarea_field(wp_unslash($_POST['customer_note'] ?? ''));
+		$order_id = absint(wp_unslash($_POST['order_id'] ?? 0));
+		$order_key = sanitize_text_field(wp_unslash($_POST['order_key'] ?? ''));
 
-		if (!$confirmation_token) {
-			wp_send_json_error(['message' => __('Missing confirmation token.', 'panelr-for-woocommerce')]);
+		$order = $order_id ? wc_get_order($order_id) : null;
+		if (!$order || $order->get_order_key() !== $order_key) {
+			wp_send_json_error(['message' => __('That order could not be found.', 'panelr-for-woocommerce')]);
+		}
+		if (!$token || $order->get_meta('_panelr_confirmation_token') !== $token) {
+			wp_send_json_error(['message' => __('That order could not be found.', 'panelr-for-woocommerce')]);
 		}
 
-		$api    = new Panelr_API();
-		$result = $api->submit_payment($confirmation_token, $transaction_id, $customer_note);
-
-		if (!empty($result['success'])) {
-			if ($order_id) {
-				$order = wc_get_order($order_id);
-				if ($order) {
-					$order->update_meta_data('_panelr_payment_submitted', '1');
-					$order->update_meta_data('_panelr_transaction_id', $transaction_id);
-					$order->save();
-				}
+		$already = $order->get_meta('_panelr_payment_submitted') === '1';
+		if ($already) {
+			if ($note !== '') {
+				$order->add_order_note(sprintf(
+					/* translators: %s: the customer's note */
+					__('Customer note: %s', 'panelr-for-woocommerce'),
+					$note
+				));
+				$order->save();
 			}
-			wp_send_json_success(['message' => __('Payment confirmation received. Our team will activate your service shortly.', 'panelr-for-woocommerce')]);
-		} else {
-			wp_send_json_error(['message' => $result['error'] ?? __('Could not submit payment confirmation. Please contact support.', 'panelr-for-woocommerce')]);
+			wp_send_json_success(['message' => __('Your note was added.', 'panelr-for-woocommerce')]);
 		}
+		$result = Panelr_API::instance()->submit_payment([
+			'confirmation_token'     => $token,
+			'payment_transaction_id' => $txid,
+			'customer_note'          => $note,
+		]);
+
+		if (!$result['ok']) {
+			wp_send_json_error(['message' => $result['error']]);
+		}
+
+		if (!$already) {
+			$order->update_meta_data('_panelr_payment_submitted', '1');
+			$order->update_meta_data('_panelr_transaction_id', $txid);
+			$order->update_meta_data('_panelr_status', 'payment_submitted');
+			$order->add_order_note(sprintf(
+				/* translators: %s: transaction id */
+				__('Customer confirmed payment (%s).', 'panelr-for-woocommerce'),
+				$txid ?: '—'
+			));
+			$order->save();
+			Panelr_Orders::schedule_polling($order->get_id());
+		}
+
+		wp_send_json_success(['message' => $already
+			? __('Your note was added.', 'panelr-for-woocommerce')
+			: __('Payment confirmation received. We will check it and set up your service shortly.', 'panelr-for-woocommerce')]);
+	}
+
+	/** The thank-you page asks whether the order is ready yet. */
+	public static function ajax_order_poll(): void
+	{
+		$order_id  = absint(wp_unslash($_POST['order_id'] ?? 0));
+		$order_key = sanitize_text_field(wp_unslash($_POST['order_key'] ?? ''));
+		check_ajax_referer('panelr_order_poll_' . $order_id, 'nonce');
+
+		$order = $order_id ? wc_get_order($order_id) : null;
+		if (!$order || $order->get_order_key() !== $order_key) {
+			wp_send_json_error();
+		}
+		$status = Panelr_Orders::check_order($order, 'customer');
+		wp_send_json_success([
+			'status' => $status,
+			'label'  => Panelr_Helpers::order_status_label($status),
+			'done'   => in_array($status, ['completed', 'canceled', 'payment_failed'], true),
+			'lines'  => json_decode((string) $order->get_meta('_panelr_lines'), true) ?: [],
+		]);
 	}
 }

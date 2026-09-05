@@ -167,3 +167,69 @@
     margin: 0;
     border: none;
 }
+/* ── v2 ───────────────────────────────────────────────────────────────── */
+.panelr-tabs { margin-bottom: 16px; }
+.panelr-settings-state { display: flex; align-items: center; gap: 8px; }
+.panelr-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #f1f5f9;
+    color: #475569;
+    vertical-align: middle;
+}
+.panelr-pill--ok { background: #dcfce7; color: #166534; }
+.panelr-pill--warn { background: #fef3c7; color: #92400e; }
+.panelr-last-error { color: #b91c1c; font-size: 13px; margin: 8px 0 0; }
+.panelr-settings-section h2 { margin-top: 18px; }
+.panelr-settings-section h2:first-child { margin-top: 0; }
+.panelr-products-table { max-width: 100%; }
+.panelr-orders-table td { vertical-align: middle; }
+.panelr-order-box p { margin: 0 0 10px; }
+.panelr-order-box__result { display: block; font-size: 12px; }
+
+.panelr-settings-wrap { max-width: 1100px; }
+.panelr-tabs .nav-tab { font-size: 13px; padding: 6px 11px; margin-left: 4px; }
+.panelr-settings-version {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    font-family: monospace;
+    background: rgba(255,255,255,0.08);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+.panelr-help {
+    background: none; border: none; padding: 0 2px; cursor: pointer; vertical-align: middle; color: #646970; line-height: 1;
+}
+.panelr-help:hover, .panelr-help:focus { color: #2271b1; }
+.panelr-help .dashicons { font-size: 18px; width: 18px; height: 18px; }
+.panelr-help__text {
+    display: block; max-width: 560px; margin: 8px 0 0; padding: 10px 12px; font-size: 13px; line-height: 1.5;
+    background: #f6f7f7; border-left: 3px solid #2271b1; color: #1d2327;
+}
+.panelr-help__text[hidden] { display: none; }
+
+/* Admin menu icon: WordPress expects a 20px image */
+#toplevel_page_panelr .wp-menu-image img { width: 20px; height: 20px; padding: 7px 0 0; }
+
+.panelr-endpoint { display: inline-block; margin-left: 8px; font-size: 12px; color: #50575e; vertical-align: middle; }
+
+/* Products: chips + switch */
+.panelr-chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 10px; }
+.panelr-chip.is-active { background: #2271b1 !important; border-color: #2271b1 !important; color: #fff !important; }
+.panelr-onoff-cell { white-space: nowrap; }
+.panelr-switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.panelr-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.panelr-switch__track { width: 36px; height: 20px; border-radius: 20px; background: #c3c4c7; position: relative; transition: background 150ms; }
+.panelr-switch__track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left 150ms; box-shadow: 0 1px 2px rgba(0,0,0,.3); }
+.panelr-switch input:checked + .panelr-switch__track { background: #00a32a; }
+.panelr-switch input:checked + .panelr-switch__track::after { left: 18px; }
+.panelr-switch input:focus-visible + .panelr-switch__track { outline: 2px solid #2271b1; outline-offset: 2px; }
+.panelr-switch__label { font-size: 13px; min-width: 24px; }
+#panelr-products-table tbody tr[data-service] td { vertical-align: middle; }
+
+.panelr-real-name { display: block; font-size: 12px; color: #646970; margin-top: 2px; }
+.panelr-chip__real { font-weight: normal; opacity: .75; }
+.panelr-chip__real::before { content: "· "; }

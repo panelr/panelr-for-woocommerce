@@ -490,3 +490,269 @@
     border-left: none !important;
     border-right: none !important;
 }
+
+/* ── v2 additions ─────────────────────────────────────────────────────── */
+
+.panelr-order-status,
+.panelr-support,
+.panelr-apps,
+.panelr-thankyou {
+    color: var(--panelr-text);
+    font-size: 16px;
+    max-width: 760px;
+}
+
+.panelr-order-status .panelr-portal__section,
+.panelr-support .panelr-portal__section,
+.panelr-apps .panelr-portal__section {
+    background: var(--panelr-bg);
+    border: 1px solid var(--panelr-border);
+    border-radius: var(--panelr-radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--panelr-shadow);
+}
+
+.panelr-order-status .button,
+.panelr-support .button,
+.panelr-apps .button,
+.panelr-thankyou .button,
+.panelr-addons .button,
+.panelr-credits-buy .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 18px;
+    font-size: 14px !important;
+    font-weight: 500;
+    border-radius: var(--panelr-radius-sm);
+    border: 1px solid var(--panelr-border) !important;
+    background: var(--panelr-bg) !important;
+    color: var(--panelr-text) !important;
+    cursor: pointer;
+    line-height: 1.4;
+    text-decoration: none;
+}
+
+.panelr-order-status .panelr-renew-btn,
+.panelr-support .panelr-renew-btn,
+.panelr-apps .panelr-renew-btn,
+.panelr-thankyou #panelr-submit-payment,
+.panelr-addons .panelr-addon-add,
+.panelr-credits-buy__button,
+.panelr-portal #panelr-register-btn,
+.panelr-portal #panelr-forgot-btn,
+.panelr-portal #panelr-reset-btn,
+.panelr-portal #panelr-line-login-btn,
+.panelr-portal #panelr-setup-btn,
+.panelr-portal #panelr-change-password-btn,
+.panelr-portal .panelr-bouquets__save {
+    background: var(--panelr-accent) !important;
+    border-color: var(--panelr-accent) !important;
+    color: var(--panelr-text-inverse) !important;
+    box-shadow: none;
+}
+
+.panelr-order-status .panelr-renew-btn:hover,
+.panelr-support .panelr-renew-btn:hover,
+.panelr-thankyou #panelr-submit-payment:hover,
+.panelr-addons .panelr-addon-add:hover,
+.panelr-credits-buy__button:hover {
+    background: var(--panelr-accent-hover) !important;
+    border-color: var(--panelr-accent-hover) !important;
+}
+
+.panelr-order-status .input-text,
+.panelr-support .input-text,
+.panelr-thankyou .input-text {
+    width: 100%;
+    max-width: 420px;
+    padding: 10px 13px;
+    font-size: 15px;
+    border: 1px solid var(--panelr-border);
+    border-radius: var(--panelr-radius-sm);
+    background: var(--panelr-bg);
+    color: var(--panelr-text);
+    box-sizing: border-box;
+}
+
+.panelr-support textarea.input-text,
+.panelr-thankyou textarea.input-text { max-width: 100%; }
+
+.panelr-notice { margin-bottom: 16px; }
+
+/* Member area header */
+.panelr-portal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.panelr-portal__who { display: flex; flex-direction: column; }
+.panelr-portal__name { font-size: 18px; }
+.panelr-portal__email { font-size: 14px; color: var(--panelr-text-muted); }
+.panelr-portal__header .panelr-portal__actions { margin: 0; }
+.panelr-portal__verify {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+.panelr-portal__tabs { margin-bottom: 16px; flex-wrap: wrap; }
+.panelr-portal__tabs > a { text-decoration: none; }
+.panelr-portal__links { font-size: 14px; margin: 0; }
+.panelr-portal__welcome { font-size: 15px; margin-bottom: 16px; }
+.panelr-portal__service-heading { font-size: 15px; font-weight: 600; margin: 24px 0 8px; color: var(--panelr-text-muted); text-transform: uppercase; letter-spacing: .05em; }
+
+/* Connections */
+.panelr-line__head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.panelr-line__title { margin: 0 !important; padding: 0 !important; border: none !important; font-size: 18px; display: flex; align-items: center; gap: 6px; }
+.panelr-line__rename.button { padding: 3px 8px !important; font-size: 13px !important; }
+.panelr-line__rename-form { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+.panelr-line__rename-form .input-text { max-width: 260px; }
+.panelr-line__actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 0; }
+.panelr-line__panel { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--panelr-bg-tertiary); }
+.panelr-line__credentials td:last-child { white-space: nowrap; }
+.panelr-line__renew-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.panelr-bouquets__group h4 { display: flex; align-items: center; gap: 8px; }
+.panelr-bouquets__group h4 .button { padding: 3px 10px !important; font-size: 12px !important; }
+.panelr-portal__result.is-ok { color: var(--panelr-success); }
+.panelr-portal__result.is-error { color: var(--panelr-error); }
+.panelr-portal__choices { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.panelr-portal__choices label.is-unavailable { opacity: .55; }
+.panelr-portal__bots { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Chats */
+.panelr-chats__row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--panelr-bg-tertiary); }
+.panelr-chats__who { display: flex; flex-direction: column; gap: 2px; }
+.panelr-chats__state { font-size: 13px; color: var(--panelr-text-muted); }
+.panelr-chats__code { margin: 4px 0 12px; padding: 14px; border: 1px solid var(--panelr-border); border-radius: var(--panelr-radius-sm); }
+.panelr-chat-link__code .panelr-portal__code { font-size: 20px; font-weight: 700; letter-spacing: .12em; }
+.panelr-chats h4 { margin: 18px 0 8px; }
+
+/* Renew / Channels / Details: the open one is lit */
+.panelr-portal .panelr-line__tab.is-active { background: var(--panelr-accent) !important; border-color: var(--panelr-accent) !important; color: var(--panelr-text-inverse) !important; }
+
+/* Channel packages: Live TV / Movies / Series tabs */
+.panelr-bouquets__tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 12px; }
+.panelr-portal .panelr-bouquets__tab.is-active { background: var(--panelr-accent) !important; border-color: var(--panelr-accent) !important; color: var(--panelr-text-inverse) !important; }
+.panelr-bouquets__count { margin-left: 6px; font-size: 12px; opacity: .8; }
+
+/* Working buttons */
+.panelr-spinner { display: inline-block; width: 14px; height: 14px; margin-right: 8px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: panelr-spin .7s linear infinite; vertical-align: -2px; }
+.button.is-busy, .button[disabled] { opacity: .7; cursor: progress; }
+.panelr-tab-btn.is-loading { cursor: progress; }
+.panelr-tab-btn .panelr-spinner { width: 12px; height: 12px; margin-right: 6px; }
+.panelr-portal__tab-panel.is-loading { opacity: .45; pointer-events: none; transition: opacity .2s; }
+@keyframes panelr-spin { to { transform: rotate(360deg); } }
+
+/* Orders */
+.panelr-order__head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.panelr-order__ref { margin: 0 !important; padding: 0 !important; border: none !important; font-family: monospace; font-size: 16px; }
+.panelr-order__date { color: var(--panelr-text-muted); font-size: 14px; }
+.panelr-portal__status--pending_payment,
+.panelr-portal__status--pending,
+.panelr-portal__status--payment_submitted,
+.panelr-portal__status--awaiting_webhook,
+.panelr-portal__status--queued,
+.panelr-portal__status--open,
+.panelr-portal__status--in_progress,
+.panelr-portal__status--reopened { background: var(--panelr-accent-light); color: var(--panelr-accent); }
+.panelr-portal__status--completed,
+.panelr-portal__status--resolved { background: var(--panelr-success-bg); color: var(--panelr-success); }
+.panelr-portal__status--payment_failed { background: var(--panelr-error-bg); color: var(--panelr-error); }
+.panelr-portal__status--closed { background: var(--panelr-bg-tertiary); color: var(--panelr-text-muted); }
+
+/* Credits */
+.panelr-credits__balance { font-size: 28px; margin: 0 0 8px; }
+.panelr-credits__balance strong { color: var(--panelr-accent); }
+.panelr-credits__buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.panelr-credits__delta--plus { color: var(--panelr-success); font-weight: 600; }
+.panelr-credits__delta--minus { color: var(--panelr-error); font-weight: 600; }
+.panelr-credits__plans { padding-left: 18px; font-size: 15px; }
+
+/* Support */
+.panelr-ticket__head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.panelr-ticket__head h3 { margin: 0 !important; padding: 0 !important; border: none !important; }
+.panelr-ticket__meta { color: var(--panelr-text-muted); font-size: 14px; margin: 4px 0 16px; }
+.panelr-ticket__thread { list-style: none; margin: 0 0 20px; padding: 0; }
+.panelr-ticket__message { padding: 12px 16px; border-radius: var(--panelr-radius); margin-bottom: 10px; background: var(--panelr-bg-secondary); }
+.panelr-ticket__message--support { background: var(--panelr-accent-light); }
+.panelr-ticket__from { font-size: 13px; color: var(--panelr-text-muted); margin-bottom: 4px; }
+.panelr-ticket__text { font-size: 15px; line-height: 1.6; }
+.panelr-support__close { margin-top: 8px; }
+
+/* Apps */
+.panelr-apps__platform { display: flex; align-items: center; gap: 10px; }
+.panelr-apps__platform-logo { height: 24px; width: auto; }
+.panelr-apps__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.panelr-app { display: flex; gap: 16px; align-items: flex-start; padding: 12px 0; border-top: 1px solid var(--panelr-bg-tertiary); }
+.panelr-app:first-child { border-top: none; }
+.panelr-app__logo { width: 56px; height: 56px; object-fit: contain; border-radius: var(--panelr-radius-sm); background: var(--panelr-bg-secondary); flex-shrink: 0; }
+.panelr-app__name { margin: 0 0 4px; font-size: 16px; }
+.panelr-app__description { margin: 0 0 8px; font-size: 15px; }
+.panelr-app__services { margin: 0 0 8px; font-size: 14px; color: var(--panelr-text-muted); }
+.panelr-app__actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 0; }
+.panelr-app__code { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
+
+/* Product page */
+.panelr-product-service { display: block; font-size: 14px; }
+.panelr-product-service__label { color: var(--panelr-text-muted); }
+.panelr-addons { margin: 32px 0; }
+.panelr-addons__title { font-size: 20px; margin-bottom: 12px; }
+.panelr-addons__service { font-size: 15px; font-weight: 600; margin: 16px 0 8px; }
+.panelr-addons__list { list-style: none; margin: 0; padding: 0; }
+.panelr-addons__item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--panelr-border); flex-wrap: wrap; }
+.panelr-addons__meta { color: var(--panelr-text-muted); font-size: 14px; flex: 1; }
+.panelr-credits-buy { margin: 12px 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+/* Cart */
+.panelr-coupon-row__form { display: inline-flex; gap: 6px; align-items: center; }
+.panelr-coupon-row .input-text { max-width: 160px; padding: 6px 10px; }
+.panelr-coupon-row__result { display: block; font-size: 14px; }
+.panelr-coupon-row__applied { margin-right: 8px; }
+
+/* Order received */
+.panelr-thankyou__pending { border: 1px solid var(--panelr-accent); background: var(--panelr-accent-light); border-radius: var(--panelr-radius); padding: 16px 20px; margin-bottom: 16px; }
+.panelr-thankyou__pending h2, .panelr-payment-success h2 { margin: 0 0 8px; font-size: 20px; }
+.panelr-thankyou__lines { list-style: none; margin: 8px 0 0; padding: 0; }
+.panelr-thankyou__portal { margin-top: 16px; }
+.panelr-instructions-note { white-space: pre-line; font-size: 15px; margin: 0 0 12px; }
+.panelr-qr-wrap { margin: 0 0 20px; }
+.panelr-submit-result.is-error { color: var(--panelr-error); }
+.panelr-submit-result.is-ok { color: var(--panelr-success); }
+
+/* Bots footer */
+.panelr-bots-footer { display: flex; gap: 8px; justify-content: center; padding: 12px; flex-wrap: wrap; }
+
+@media (max-width: 600px) {
+    .panelr-portal__table th { width: auto; white-space: normal; }
+    .panelr-app { flex-direction: column; }
+}
+
+/* Checkout account step */
+.panelr-checkout-account { margin-bottom: 24px; }
+.panelr-checkout-account h3 { margin-bottom: 8px; }
+.panelr-checkout-account__intro { font-size: 15px; margin: 0 0 12px; }
+.panelr-checkout-account__who { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.panelr-checkout-account__links { font-size: 14px; }
+
+/* Plans grid */
+.panelr-plans__title { font-size: 22px; margin: 24px 0 12px; }
+.panelr-plans__grid { list-style: none; margin: 0 0 24px; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.panelr-plans__grid--1 { grid-template-columns: 1fr; }
+.panelr-plans__grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.panelr-plans__grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.panelr-plan { background: var(--panelr-bg); border: 1px solid var(--panelr-border); border-radius: var(--panelr-radius); padding: 20px; box-shadow: var(--panelr-shadow); display: flex; flex-direction: column; }
+.panelr-plan__name { font-size: 18px; margin: 0 0 4px; }
+.panelr-plan__name a { text-decoration: none; color: var(--panelr-text); }
+.panelr-plan__summary { color: var(--panelr-text-muted); font-size: 14px; margin: 0 0 12px; }
+.panelr-plan__text { font-size: 15px; flex: 1; }
+.panelr-plan__buy { display: flex; flex-direction: column; gap: 8px; margin: 12px 0 0; }
+.panelr-plan__button { background: var(--panelr-accent) !important; border-color: var(--panelr-accent) !important; color: var(--panelr-text-inverse) !important; justify-content: center; }
+.panelr-services { list-style: none; margin: 0; padding: 0; }
+.panelr-services__item { padding: 10px 0; border-top: 1px solid var(--panelr-border); display: flex; justify-content: space-between; gap: 12px; }
+.panelr-services__meta { color: var(--panelr-text-muted); font-size: 14px; }
+@media (max-width: 782px) { .panelr-plans__grid, .panelr-plans__grid--4, .panelr-plans__grid--2 { grid-template-columns: 1fr; } }

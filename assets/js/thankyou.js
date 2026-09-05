@@ -1,106 +1,96 @@
+/* Panelr for WooCommerce — order received page */
 jQuery(function ($) {
+	'use strict';
+	if (typeof panelrThankyou === 'undefined') return;
 
-    if (typeof panelrThankyou === 'undefined') return;
+	var i18n = panelrThankyou.i18n || {};
 
-    // Extract order ID from URL
-   var orderId = parseInt(panelrThankyou.order_id, 10) || 0;
-    
-    // Already submitted — disable form
-    if (panelrThankyou.already_submitted === '1') {
-        $('#panelr-payment-form').hide();
-        $('#panelr-thankyou-wrap').append(
-            '<div class="panelr-payment-success">' +
-            '<strong>&#10003; Payment confirmation already received. Our team will verify and activate your service shortly.</strong>' +
-            '</div>'
-        );
-        return;
-    }
+	// QR code for a payable address
+	function renderQR() {
+		var el = document.getElementById('panelr-qr-code');
+		if (!el || !el.getAttribute('data-qr')) return;
+		if (typeof QRCode === 'undefined') {
+			if (!renderQR.tries) renderQR.tries = 0;
+			if (renderQR.tries++ < 30) setTimeout(renderQR, 100);
+			return;
+		}
+		new QRCode(el, { text: el.getAttribute('data-qr'), width: 180, height: 180, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+	}
+	renderQR();
 
-    // QR code — runs after DOM + scripts ready
-    function renderQR() {
-        var el = document.getElementById('panelr-qr-code');
-        if (!el || !panelrThankyou.qr_data) return;
-        if (typeof QRCode === 'undefined') {
-            setTimeout(renderQR, 100);
-            return;
-        }
-        new QRCode(el, {
-            text:         panelrThankyou.qr_data,
-            width:        180,
-            height:       180,
-            colorDark:    '#000000',
-            colorLight:   '#ffffff',
-            correctLevel: QRCode.CorrectLevel.M,
-        });
-    }
-    renderQR();
+	// "I've paid" / add a note
+	$('#panelr-submit-payment').on('click', function () {
+		var $btn = $(this);
+		var $result = $('#panelr-submit-result');
+		var txid = ($('#panelr_transaction_id').val() || '').trim();
+		var note = ($('#panelr_customer_note').val() || '').trim();
+		var already = panelrThankyou.already_submitted === '1';
 
-    // Copy buttons
-    $(document).on('click', '.panelr-copy-btn', function () {
-        var val = $(this).data('copy');
-        var btn = $(this);
-        navigator.clipboard.writeText(val).then(function () {
-            var orig = btn.text();
-            btn.text('Copied!');
-            setTimeout(function () { btn.text(orig); }, 1500);
-        }).catch(function () {
-            var ta = document.createElement('textarea');
-            ta.value = val;
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            document.body.removeChild(ta);
-        });
-    });
+		if (!already && !txid) { panelr.result($result, i18n.enter_txid, false); return; }
+		if (already && !note) return;
 
-    // Submit payment confirmation
-    var submitted = false;
+		panelr.busy($btn, true, i18n.submitting);
+		$.post(panelrThankyou.ajaxurl, {
+			action: 'panelr_submit_payment',
+			nonce: panelrThankyou.nonce,
+			confirmation_token: panelrThankyou.confirmation_token,
+			transaction_id: txid,
+			customer_note: note,
+			order_id: panelrThankyou.order_id,
+			order_key: panelrThankyou.order_key
+		})
+		.done(function (res) {
+			if (res.success) {
+				if (!already) {
+					$('#panelr_transaction_id').closest('p').slideUp();
+					panelrThankyou.already_submitted = '1';
+					$('#panelr-payment-form').before('<div class="panelr-payment-success">' + panelr.escHtml(res.data.message) + '</div>');
+					$btn.text(i18n.add_note || 'Add note');
+				} else {
+					panelr.result($result, res.data.message, true);
+				}
+				$('#panelr_customer_note').val('');
+				panelr.busy($btn, false);
+				if (!already) $btn.text(i18n.add_note || 'Add note');
+			} else {
+				panelr.result($result, res.data.message, false);
+				panelr.busy($btn, false);
+			}
+		})
+		.fail(function () { panelr.result($result, i18n.request_failed, false); panelr.busy($btn, false); });
+	});
 
-    $('#panelr-submit-payment').on('click', function () {
-        if (submitted) return;
-
-        var btn    = $(this);
-        var result = $('#panelr-submit-result');
-        var txId   = $('#panelr_transaction_id').val().trim();
-        var note   = $('#panelr_customer_note').val().trim();
-
-        if (!txId) {
-            result.text('Please enter your transaction ID.').css('color', 'red');
-            return;
-        }
-
-        submitted = true;
-        btn.prop('disabled', true);
-        result.text('Submitting...').css('color', '');
-
-        $.post(panelrThankyou.ajaxurl, {
-            action:             'panelr_submit_payment',
-            nonce:              panelrThankyou.nonce,
-            confirmation_token: panelrThankyou.confirmation_token,
-            transaction_id:     txId,
-            customer_note:      note,
-            order_id:           orderId,
-        })
-        .done(function (res) {
-            if (res.success) {
-                $('#panelr-payment-form').slideUp();
-                result.text('');
-                $('#panelr-thankyou-wrap').append(
-                    '<div class="panelr-payment-success">' +
-                    '<strong>&#10003; ' + res.data.message + '</strong>' +
-                    '</div>'
-                );
-            } else {
-                result.text('&#10007; ' + res.data.message).css('color', 'red');
-                submitted = false;
-                btn.prop('disabled', false);
-            }
-        })
-        .fail(function () {
-            result.text('Request failed. Please try again or contact support.').css('color', 'red');
-            submitted = false;
-            btn.prop('disabled', false);
-        });
-    });
-
+	// Automatic orders: ask whether it is ready yet.
+	if (panelrThankyou.poll === '1') {
+		var delays = [5000, 10000, 15000, 20000, 30000, 30000, 60000, 60000, 60000, 90000];
+		var attempt = 0;
+		var tick = function () {
+			$.post(panelrThankyou.ajaxurl, {
+				action: 'panelr_order_poll',
+				nonce: panelrThankyou.poll_nonce,
+				order_id: panelrThankyou.order_id,
+				order_key: panelrThankyou.order_key
+			}).done(function (res) {
+				if (!res.success) return;
+				var $box = $('#panelr-order-progress');
+				$box.find('.panelr-thankyou__status-label').text(res.data.label);
+				if (res.data.lines && res.data.lines.length) {
+					var html = '';
+					$.each(res.data.lines, function (i, l) {
+						html += '<li><code>' + panelr.escHtml(l.username) + '</code>' + (l.service_name ? ' · ' + panelr.escHtml(l.service_name) : '') + '</li>';
+					});
+					$box.find('.panelr-thankyou__lines').html(html).prop('hidden', false);
+				}
+				if (res.data.done) {
+					if (res.data.status === 'completed') {
+						$box.removeClass('panelr-thankyou__pending').addClass('panelr-payment-success');
+						$box.find('.panelr-thankyou__status-text').text($box.data('ready-text') || 'Your service is set up. Your connection details are in your inbox.');
+					}
+					return;
+				}
+				if (attempt < delays.length) setTimeout(tick, delays[attempt++]);
+			});
+		};
+		setTimeout(tick, delays[attempt++]);
+	}
 });
