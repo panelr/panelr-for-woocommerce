@@ -77,6 +77,8 @@ class Panelr_Checkout
 			'email'          => Panelr_Session::email(),
 			'name'           => Panelr_Session::name(),
 			'require_invite' => Panelr_Portal::registration_needs_invite() && Panelr_Session::referral_code() === '',
+			'referral_enabled' => Panelr_Helpers::referral_enabled(),
+			'invite_code'    => Panelr_Session::referral_code(),
 			'signup_points'  => Panelr_Helpers::referral_enabled() ? Panelr_Helpers::signup_points() : 0,
 			'portal_url'     => Panelr_Helpers::portal_url(),
 			'nonce'          => wp_create_nonce('panelr_checkout_signout'),

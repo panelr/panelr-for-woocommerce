@@ -24,6 +24,9 @@ class Panelr_Cart
 		add_action('woocommerce_cart_calculate_fees',               [__CLASS__, 'add_fees'], 20);
 		add_action('woocommerce_cart_totals_before_order_total',    [__CLASS__, 'render_cart_extras']);
 		add_action('woocommerce_review_order_before_order_total',   [__CLASS__, 'render_cart_extras']);
+		// The block cart and block checkout never fire the totals hooks above.
+		add_filter('render_block_woocommerce/cart',                 [__CLASS__, 'block_coupon_box'], 10, 2);
+		add_filter('render_block_woocommerce/checkout',             [__CLASS__, 'block_coupon_box'], 10, 2);
 		add_filter('woocommerce_coupons_enabled',                   [__CLASS__, 'maybe_disable_wc_coupons']);
 		add_action('wp_ajax_panelr_apply_coupon',                   [__CLASS__, 'ajax_apply_coupon']);
 		add_action('wp_ajax_nopriv_panelr_apply_coupon',            [__CLASS__, 'ajax_apply_coupon']);
@@ -534,6 +537,18 @@ class Panelr_Cart
 		check_ajax_referer('panelr_cart', 'nonce');
 		Panelr_Session::forget(self::COUPON_KEY);
 		wp_send_json_success(['message' => __('Code removed.', 'panelr-for-woocommerce')]);
+	}
+
+	/** Panelr-mode discount box placed above the block cart / block checkout. */
+	public static function block_coupon_box(string $content, array $block): string
+	{
+		if (is_admin() || self::coupon_mode() !== 'panelr') return $content;
+		if (!WC()->cart || !self::has_panelr_items() || Panelr_Handoff::current()) return $content;
+		// cart.js is already enqueued on the cart and checkout pages (enqueue()).
+		return Panelr_Template::render('coupon-box', [
+			'coupon'  => self::applied_coupon(),
+			'invited' => Panelr_Session::referral_code() !== '',
+		]) . $content;
 	}
 
 	/** The coupon box (Panelr mode) and the "Invited by a member" line, in the cart totals. */
