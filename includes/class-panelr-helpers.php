@@ -264,6 +264,9 @@ class Panelr_Helpers
 				'earn_points'     => (int) $product->get_meta('_panelr_referral_earn_points'),
 				'status'          => $product->get_status(),
 				'url'             => $product->get_permalink(),
+				// Set by the sync when Panelr stops offering the plan. A plan with
+				// no service recorded predates services and is not on Panelr either.
+				'removed_at'      => (string) $product->get_meta('_panelr_removed_at'),
 			];
 		}
 		return $rows;

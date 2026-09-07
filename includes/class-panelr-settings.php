@@ -580,7 +580,7 @@ class Panelr_Settings
 					<button type="button" class="button panelr-chip is-active" data-service="all"><?php esc_html_e('All services', 'panelr-for-woocommerce'); ?></button>
 					<?php foreach ($service_ids as $sid): ?>
 						<?php $shown = Panelr_Helpers::service_name($sid); $real = Panelr_Helpers::service_panelr_name($sid); ?>
-						<button type="button" class="button panelr-chip" data-service="<?php echo (int) $sid; ?>"><?php echo esc_html($shown ?: __('No service', 'panelr-for-woocommerce')); ?><?php if ($shown && $real && $shown !== $real): ?> <span class="panelr-chip__real"><?php echo esc_html($real); ?></span><?php endif; ?></button>
+						<button type="button" class="button panelr-chip" data-service="<?php echo (int) $sid; ?>"><?php echo esc_html($shown ?: __('Not on Panelr', 'panelr-for-woocommerce')); ?><?php if ($shown && $real && $shown !== $real): ?> <span class="panelr-chip__real"><?php echo esc_html($real); ?></span><?php endif; ?></button>
 					<?php endforeach; ?>
 				</p>
 			<?php endif; ?>
@@ -623,10 +623,17 @@ class Panelr_Settings
 							<?php endif; ?>
 						</td>
 						<td><?php
-							$shown = Panelr_Helpers::service_name($p['plugin_id']);
-							$real  = Panelr_Helpers::service_panelr_name($p['plugin_id']);
-							echo esc_html($shown ?: '—');
-							if ($shown && $real && $shown !== $real) {
+							$shown   = Panelr_Helpers::service_name($p['plugin_id']);
+							$real    = Panelr_Helpers::service_panelr_name($p['plugin_id']);
+							$notHere = $p['removed_at'] !== '' || (int) $p['plugin_id'] === 0;
+							if ($notHere) {
+								// Left over from an earlier sync or withdrawn by Panelr: say so, and
+								// offer the bin (WooCommerce's trash keeps it restorable).
+								echo '<span class="panelr-real-name">' . esc_html__('Not on Panelr any more', 'panelr-for-woocommerce') . '</span>';
+							} else {
+								echo esc_html($shown ?: '—');
+							}
+							if (!$notHere && $shown && $real && $shown !== $real) {
 								echo '<span class="panelr-real-name">' . esc_html(sprintf(
 									/* translators: %s: the service's name in Panelr */
 									__('In Panelr: %s', 'panelr-for-woocommerce'),
@@ -640,7 +647,11 @@ class Panelr_Settings
 							echo esc_html(sprintf(_n('%d month', '%d months', $p['duration_months'], 'panelr-for-woocommerce'), $p['duration_months'])); ?></td>
 						<td><?php echo wp_kses_post(wc_price($p['price'])); ?></td>
 						<td><?php echo $p['cost_points'] ? (int) $p['cost_points'] : '—'; ?></td>
-						<td><a href="<?php echo esc_url(get_edit_post_link($p['wc_id'])); ?>"><?php esc_html_e('Edit', 'panelr-for-woocommerce'); ?></a></td>
+						<td><a href="<?php echo esc_url(get_edit_post_link($p['wc_id'])); ?>"><?php esc_html_e('Edit', 'panelr-for-woocommerce'); ?></a><?php
+							if ($notHere && ($trash = get_delete_post_link($p['wc_id']))) {
+								echo ' &middot; <a href="' . esc_url($trash) . '">' . esc_html__('Move to trash', 'panelr-for-woocommerce') . '</a>';
+							}
+						?></td>
 					</tr>
 				<?php endforeach; ?>
 				</tbody>
