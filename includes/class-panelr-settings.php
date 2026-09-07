@@ -502,7 +502,9 @@ class Panelr_Settings
 	public static function tab_services(): void
 	{
 		$services = Panelr_Helpers::services();
-		$products = Panelr_Sync::get_synced_products();
+		// Only what Panelr syncs. Plans Panelr no longer offers, or that predate
+		// services, stay in WooCommerce (never deleted) but not in this table.
+		$products = array_values(array_filter(Panelr_Sync::get_synced_products(), fn($p) => $p['removed_at'] === '' && (int) $p['plugin_id'] > 0));
 		$last     = get_option('panelr_last_sync', '');
 		?>
 		<h2><?php esc_html_e('Services', 'panelr-for-woocommerce'); ?></h2>
