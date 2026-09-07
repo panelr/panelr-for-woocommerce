@@ -67,7 +67,7 @@ class Panelr_API
 
 		// Whatever was saved — the site, the site with /api, or the endpoint
 		// itself (with or without a query string) — the base is the site.
-		$this->base_url = preg_replace('#/api(/(api|process)\.php)?(\?.*)?/?$#i', '', $this->base_url);
+		$this->base_url = preg_replace('#(/api)?(/(api|process)\.php)?(\?.*)?/?$#i', '', $this->base_url);
 	}
 
 	// ── State ─────────────────────────────────────────────────────────────
