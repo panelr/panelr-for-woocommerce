@@ -216,6 +216,20 @@ class Panelr_Helpers
 		return $posts ? (int) $posts[0] : 0;
 	}
 
+	/**
+	 * The address a Panelr order is filed under.
+	 *
+	 * Orders are always filed under the Panelr account that was signed in at
+	 * checkout, never the WooCommerce billing email — those can differ when a
+	 * WordPress profile prefills the billing fields. Panelr checks ownership by
+	 * this address, so anything asking Panelr about an order has to use it too.
+	 */
+	public static function order_account_email(WC_Order $order): string
+	{
+		$account = (string) $order->get_meta('_panelr_customer_email');
+		return $account !== '' ? $account : (string) $order->get_billing_email();
+	}
+
 	public static function panelr_product_id(int $wc_product_id): int
 	{
 		if (!$wc_product_id) return 0;

@@ -80,7 +80,7 @@ class Panelr_Checkout
 			'referral_enabled' => Panelr_Helpers::referral_enabled(),
 			'invite_code'    => Panelr_Session::referral_code(),
 			'signup_points'  => Panelr_Helpers::referral_enabled() ? Panelr_Helpers::signup_points() : 0,
-			'portal_url'     => Panelr_Helpers::portal_url(),
+			'portal_url'     => Panelr_Helpers::portal_url(['panelr_fresh' => '1']),
 			'nonce'          => wp_create_nonce('panelr_checkout_signout'),
 		]);
 	}
@@ -609,8 +609,9 @@ class Panelr_Checkout
 		]);
 
 		$panelr_order = null;
-		if ($ref && ($token || $order->get_billing_email())) {
-			$r = Panelr_API::instance()->get_work_order($ref, $token ?: null, $token ? null : $order->get_billing_email());
+		$accountEmail = Panelr_Helpers::order_account_email($order);
+		if ($ref && ($token || $accountEmail)) {
+			$r = Panelr_API::instance()->get_work_order($ref, $token ?: null, $token ? null : $accountEmail);
 			if ($r['ok']) $panelr_order = $r['data'];
 		}
 
@@ -786,10 +787,23 @@ class Panelr_Checkout
 			wp_send_json_error();
 		}
 		$status = Panelr_Orders::check_order($order, 'customer');
+		$done   = in_array($status, ['completed', 'canceled', 'payment_failed'], true);
+
+		// The member area reads a snapshot that is refreshed every five minutes,
+		// and the order finishes in a background job that cannot reach the
+		// visitor's session. Without this, somebody who renews and then opens
+		// their account sees the old end date until that window passes. This
+		// runs in their own session at the moment the service is ready, so the
+		// account is already current when they get there.
+		if ($status === 'completed' && Panelr_Session::is_signed_in()
+			&& Panelr_Helpers::order_account_email($order) === Panelr_Session::email()) {
+			Panelr_Session::snapshot(true);
+		}
+
 		wp_send_json_success([
 			'status' => $status,
 			'label'  => Panelr_Helpers::order_status_label($status),
-			'done'   => in_array($status, ['completed', 'canceled', 'payment_failed'], true),
+			'done'   => $done,
 			'lines'  => json_decode((string) $order->get_meta('_panelr_lines'), true) ?: [],
 		]);
 	}

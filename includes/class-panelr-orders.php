@@ -55,7 +55,7 @@ class Panelr_Orders
 	{
 		$ref   = (string) $order->get_meta('_panelr_reference_code');
 		$token = (string) $order->get_meta('_panelr_confirmation_token');
-		$email = (string) $order->get_billing_email();
+		$email = Panelr_Helpers::order_account_email($order);
 		if (!$ref) return 'none';
 
 		$result = Panelr_API::instance()->get_work_order($ref, $token ?: null, $token ? null : $email);
