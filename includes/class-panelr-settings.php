@@ -458,7 +458,7 @@ class Panelr_Settings
 						<input type="url" id="panelr_api_url" class="regular-text" value="<?php echo esc_attr($api->base_url() . '/api/api.php'); ?>" readonly>
 						<span class="panelr-pill"><?php esc_html_e('Set in wp-config.php', 'panelr-for-woocommerce'); ?></span>
 					<?php else: ?>
-						<input type="url" id="panelr_api_url" name="panelr_api_url" class="regular-text" value="<?php echo esc_attr(self::endpoint_for_display()); ?>" placeholder="https://staging.panelr.app/api/api.php" autocomplete="off">
+						<input type="url" id="panelr_api_url" name="panelr_api_url" class="regular-text" value="<?php echo esc_attr(self::endpoint_for_display()); ?>" placeholder="https://yourdomain.com/api/api.php" autocomplete="off">
 					<?php endif; ?>
 				<?php self::field_close(); ?>
 
