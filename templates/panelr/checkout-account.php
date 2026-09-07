@@ -43,10 +43,10 @@ defined('ABSPATH') || exit;
 			<label for="panelr_account_password2"><?php esc_html_e('Password again (new accounts)', 'panelr-for-woocommerce'); ?></label>
 			<input type="password" class="input-text" name="panelr_account_password2" id="panelr_account_password2" autocomplete="new-password">
 		</p>
-		<?php if ($require_invite): ?>
+		<?php if ($require_invite || !empty($referral_enabled)): ?>
 			<p class="form-row form-row-wide">
-				<label for="panelr_account_invite"><?php esc_html_e('Invite code (new accounts)', 'panelr-for-woocommerce'); ?></label>
-				<input type="text" class="input-text" name="panelr_account_invite" id="panelr_account_invite" autocomplete="off">
+				<label for="panelr_account_invite"><?php echo $require_invite ? esc_html__('Invite code (new accounts)', 'panelr-for-woocommerce') : esc_html__('Invite code (optional)', 'panelr-for-woocommerce'); ?></label>
+				<input type="text" class="input-text" name="panelr_account_invite" id="panelr_account_invite" value="<?php echo esc_attr($invite_code ?? ''); ?>" autocomplete="off">
 			</p>
 		<?php endif; ?>
 		<p class="form-row form-row-wide panelr-checkout-account__links">

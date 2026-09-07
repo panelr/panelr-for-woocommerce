@@ -220,6 +220,7 @@ class Panelr_Portal
 			'accounts'       => $for_checkout && (!isset($store['features']['accounts']) || !empty($store['features']['accounts'])),
 			'signup_points'  => Panelr_Helpers::referral_enabled() ? Panelr_Helpers::signup_points() : 0,
 			'require_invite' => self::registration_needs_invite(),
+			'referral_enabled' => Panelr_Helpers::referral_enabled(), // a code can always be typed, not only followed from a link
 			'invite_code'    => Panelr_Session::referral_code(),
 			'show_line'      => true,
 			'services'       => Panelr_Helpers::services(),

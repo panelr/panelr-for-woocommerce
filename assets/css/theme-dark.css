@@ -756,3 +756,9 @@
 .panelr-services__item { padding: 10px 0; border-top: 1px solid var(--panelr-border); display: flex; justify-content: space-between; gap: 12px; }
 .panelr-services__meta { color: var(--panelr-text-muted); font-size: 14px; }
 @media (max-width: 782px) { .panelr-plans__grid, .panelr-plans__grid--4, .panelr-plans__grid--2 { grid-template-columns: 1fr; } }
+
+.panelr-coupon-box { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 0 0 20px; }
+
+.panelr-coupon-box__label { font-weight: 600; }
+
+.panelr-coupon-box__invited { flex-basis: 100%; }

@@ -72,7 +72,7 @@ $view = in_array($view, ['register', 'forgot', 'line'], true) ? $view : 'signin'
 				<label for="panelr-reg-password2"><?php esc_html_e('Password again', 'panelr-for-woocommerce'); ?></label>
 				<input type="password" id="panelr-reg-password2" class="input-text" autocomplete="new-password">
 			</p>
-			<?php if ($require_invite || $invite_code): ?>
+			<?php if ($require_invite || $invite_code || !empty($referral_enabled)): ?>
 				<p class="panelr-portal__field">
 					<label for="panelr-reg-invite"><?php echo $require_invite ? esc_html__('Invite code', 'panelr-for-woocommerce') : esc_html__('Invite code (optional)', 'panelr-for-woocommerce'); ?></label>
 					<input type="text" id="panelr-reg-invite" class="input-text" value="<?php echo esc_attr($invite_code); ?>" autocomplete="off">
