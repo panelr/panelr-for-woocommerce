@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.0.1
+
+Follows the Panelr API changes of Sep 6 2026 (see Panelr's API handoff, section 6). No database change.
+
+- Registration: an email that already has an account is asked to sign in; one on file without a password is sent a link to choose one (`register_customer` now answers 409 in both cases).
+- Connection rename sends the signed-in customer with the request, which `update_customer` now requires.
+- "Resend confirmation" calls `update_customer_account` with `resend_verification` instead of re-registering.
+- Both sign-in calls pass the visitor's address so Panelr throttles the guesser, not every visitor of the store; a 429 shows "Too many tries".
+- New `processing` order status ("Being set up") while Panelr provisions.
+- Welcome-credit copy: credits arrive once the email is confirmed.
+
 ## 2.0.0
 
 Rebuilt for Panelr 2.0. Everything a store on 1.0.1 relied on keeps working; see "What changed from version 1" in README.md for the six places behaviour differs.

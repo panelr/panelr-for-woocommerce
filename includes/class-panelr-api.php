@@ -322,12 +322,14 @@ class Panelr_API
 
 	public function verify_customer_login(string $email, string $password): array
 	{
-		return $this->post('verify_customer_login', ['customer_email' => $email, 'password' => $password]);
+		// The visitor's own address lets Panelr throttle a guesser without
+		// blocking every visitor of this store (they all share the store's IP).
+		return $this->post('verify_customer_login', ['customer_email' => $email, 'password' => $password, 'customer_ip' => Panelr_Helpers::client_ip()]);
 	}
 
 	public function verify_login(string $username, string $password, int $plugin_id = 0): array
 	{
-		$body = ['username' => $username, 'password' => $password];
+		$body = ['username' => $username, 'password' => $password, 'customer_ip' => Panelr_Helpers::client_ip()];
 		if ($plugin_id) $body['plugin_id'] = $plugin_id;
 		return $this->post('verify_login', $body);
 	}
@@ -379,7 +381,18 @@ class Panelr_API
 
 	public function update_customer(int $activation_id, array $data): array
 	{
+		// Panelr needs to know whose line this is (it refuses a line that is
+		// not the named customer's); the signed-in member is the owner.
+		if (empty($data['customer_id']) && empty($data['customer_email']) && Panelr_Session::customer_id() > 0) {
+			$data['customer_id'] = Panelr_Session::customer_id();
+		}
 		return $this->post('update_customer', array_merge(['activation_id' => $activation_id], $data));
+	}
+
+	/** Re-send the address confirmation email to a signed-in account. */
+	public function resend_verification(int $customer_id, string $verify_url): array
+	{
+		return $this->post('update_customer_account', ['customer_id' => $customer_id, 'verify_url' => $verify_url, 'resend_verification' => true]);
 	}
 
 	public function update_bouquets(int $activation_id, array $payload): array
