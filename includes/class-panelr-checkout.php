@@ -517,9 +517,13 @@ class Panelr_Checkout
 
 	private static function common_body(WC_Order $order, array $items): array
 	{
+		// The signed-in Panelr account owns the order; billing details only
+		// fill in when nobody was signed in at checkout.
+		$accountEmail = (string) $order->get_meta('_panelr_customer_email');
+		$accountName  = (string) $order->get_meta('_panelr_customer_name');
 		$body = [
-			'customer_email' => $order->get_billing_email(),
-			'customer_name'  => trim($order->get_billing_first_name() . ' ' . $order->get_billing_last_name()),
+			'customer_email' => $accountEmail ?: $order->get_billing_email(),
+			'customer_name'  => ($accountEmail ? $accountName : '') ?: trim($order->get_billing_first_name() . ' ' . $order->get_billing_last_name()),
 			'customer_phone' => $order->get_billing_phone(),
 			'wc_order_id'    => (string) $order->get_id(),
 			'source'         => 'woocommerce',
@@ -545,7 +549,12 @@ class Panelr_Checkout
 		$ref = Panelr_Session::referral_code();
 		if ($ref) $order->update_meta_data('_panelr_referral_code', $ref);
 		if (Panelr_Session::is_signed_in()) {
+			// The Panelr account that placed the order. WooCommerce's billing
+			// fields can be prefilled from a different WordPress profile, so
+			// the order is always filed under this account, never the billing email.
 			$order->update_meta_data('_panelr_customer_id', Panelr_Session::customer_id());
+			$order->update_meta_data('_panelr_customer_email', Panelr_Session::email());
+			$order->update_meta_data('_panelr_customer_name', Panelr_Session::name());
 		}
 		$order->save();
 	}
