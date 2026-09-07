@@ -61,8 +61,9 @@ class Panelr_Credits_Gateway
 		unset($item);
 
 		$body = [
-			'customer_email'         => $order->get_billing_email() ?: Panelr_Session::email(),
-			'customer_name'          => trim($order->get_billing_first_name() . ' ' . $order->get_billing_last_name()) ?: Panelr_Session::name(),
+			// Credits belong to the signed-in Panelr account, so the order is theirs.
+			'customer_email'         => Panelr_Session::email() ?: $order->get_billing_email(),
+			'customer_name'          => Panelr_Session::name() ?: trim($order->get_billing_first_name() . ' ' . $order->get_billing_last_name()),
 			'customer_phone'         => $order->get_billing_phone(),
 			'wc_order_id'            => (string) $order->get_id(),
 			'source'                 => 'woocommerce',

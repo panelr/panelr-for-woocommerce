@@ -76,6 +76,7 @@ Everything keeps working. Members now sign in with their email and password (con
 == Changelog ==
 
 = 2.0.1 =
+* Orders are filed under the Panelr account signed in at checkout, never under WooCommerce's prefilled billing email.
 * Registration: an email that already has an account is asked to sign in; one on file without a password is sent a link to choose one.
 * Connection rename works with the updated Panelr API.
 * "Resend confirmation" uses the account itself rather than re-registering.

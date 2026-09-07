@@ -4,6 +4,7 @@
 
 Follows the Panelr API changes of Sep 6 2026 (see Panelr's API handoff, section 6). No database change.
 
+- Orders are filed under the Panelr account signed in at checkout (`_panelr_customer_email`), never under WooCommerce's prefilled billing email — a WordPress profile with another person's billing details no longer redirects the lines.
 - Registration: an email that already has an account is asked to sign in; one on file without a password is sent a link to choose one (`register_customer` now answers 409 in both cases).
 - Connection rename sends the signed-in customer with the request, which `update_customer` now requires.
 - "Resend confirmation" calls `update_customer_account` with `resend_verification` instead of re-registering.
