@@ -65,8 +65,9 @@ class Panelr_API
 			$this->api_key = (string) get_option('panelr_api_key', '');
 		}
 
-		// A base URL saved with the entry point on the end still works.
-		$this->base_url = preg_replace('#/api/api\.php$#', '', $this->base_url);
+		// Whatever was saved — the site, the site with /api, or the endpoint
+		// itself (with or without a query string) — the base is the site.
+		$this->base_url = preg_replace('#/api(/(api|process)\.php)?(\?.*)?/?$#i', '', $this->base_url);
 	}
 
 	// ── State ─────────────────────────────────────────────────────────────
@@ -183,9 +184,10 @@ class Panelr_API
 
 		if (!is_array($json)) {
 			return $this->fail($status, sprintf(
-				/* translators: %d: HTTP status code */
-				__('Panelr answered with something we could not read (HTTP %d).', 'panelr-for-woocommerce'),
-				$status
+				/* translators: 1: HTTP status code, 2: the address that was called */
+				__('Panelr answered with something we could not read (HTTP %1$d) at %2$s. Check the API endpoint in Settings.', 'panelr-for-woocommerce'),
+				$status,
+				preg_replace('/\?.*$/', '', $url)
 			), $action);
 		}
 
