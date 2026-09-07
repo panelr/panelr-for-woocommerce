@@ -170,7 +170,7 @@ $price      = fn(float $v) => wc_price($v, ['currency' => $currency]);
 			<p><?php esc_html_e('We are checking it and will set up your service shortly.', 'panelr-for-woocommerce'); ?></p>
 		</div>
 
-	<?php elseif (in_array($status, ['awaiting_webhook', 'queued'], true)): ?>
+	<?php elseif (in_array($status, ['awaiting_webhook', 'queued', 'processing'], true)): ?>
 		<div class="panelr-payment-success">
 			<h3><?php esc_html_e('Being set up', 'panelr-for-woocommerce'); ?></h3>
 			<p><?php esc_html_e('Your payment is in and your service is being set up. You will get an email when it is ready.', 'panelr-for-woocommerce'); ?></p>

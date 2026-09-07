@@ -365,6 +365,7 @@ class Panelr_Helpers
 			case 'pending':           return __('Waiting for review', 'panelr-for-woocommerce');
 			case 'pending_payment':   return __('Waiting for payment', 'panelr-for-woocommerce');
 			case 'payment_submitted': return __('Payment confirmation received', 'panelr-for-woocommerce');
+			case 'processing':        return __('Being set up', 'panelr-for-woocommerce');
 			case 'awaiting_webhook':  return __('Being set up', 'panelr-for-woocommerce');
 			case 'queued':            return __('Being set up', 'panelr-for-woocommerce');
 			case 'completed':         return __('Ready', 'panelr-for-woocommerce');

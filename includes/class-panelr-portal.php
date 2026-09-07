@@ -262,25 +262,29 @@ class Panelr_Portal
 		if ($invite !== '') $body['referral_code'] = $invite;
 
 		$result = $api->register_customer($body);
-		if (!$result['ok']) {
-			return ['ok' => false, 'error' => $result['error']];
-		}
-		if (!empty($result['data']['created'])) {
+		if ($result['ok']) {
+			// A brand-new login, or the existing login's own password: signed in.
 			Panelr_Session::sign_in($result['data']);
-			return ['ok' => true, 'created' => true];
+			return ['ok' => true, 'created' => !empty($result['data']['created'])];
 		}
 
-		// The email already has a login: the password has to be its password.
-		$login = $api->verify_customer_login($email, $password);
-		if (!$login['ok']) {
+		// 409: the address is already on file. Panelr says nothing about the
+		// account; a member record with no password gets a link by email.
+		if ($result['status'] === 409) {
+			if (!empty($result['data']['claim_link_sent'])) {
+				return ['ok' => false, 'error' => sprintf(
+					/* translators: %s: email */
+					__('%s is already on file with us. We have emailed you a link to choose a password — finish that first, then come back and sign in.', 'panelr-for-woocommerce'),
+					$email
+				)];
+			}
 			return ['ok' => false, 'error' => sprintf(
 				/* translators: %s: email */
 				__('There is already an account for %s and that password does not match it. Use that account\'s password, or reset it from the member area.', 'panelr-for-woocommerce'),
 				$email
 			)];
 		}
-		Panelr_Session::sign_in($login['data']);
-		return ['ok' => true, 'created' => false];
+		return ['ok' => false, 'error' => $result['error']];
 	}
 
 	public static function registration_needs_invite(): bool
@@ -532,7 +536,9 @@ class Panelr_Portal
 		if (!$result['ok']) {
 			wp_send_json_error(['message' => $result['status'] === 401
 				? __('That email and password do not match.', 'panelr-for-woocommerce')
-				: $result['error']]);
+				: ($result['status'] === 429
+					? __('Too many tries. Please wait a few minutes.', 'panelr-for-woocommerce')
+					: $result['error'])]);
 		}
 		Panelr_Session::sign_in($result['data']);
 		wp_send_json_success(['redirect' => self::after_sign_in_url()]);
@@ -561,7 +567,9 @@ class Panelr_Portal
 		if (!$result['ok']) {
 			wp_send_json_error(['message' => $result['status'] === 401
 				? __('Those connection details do not match.', 'panelr-for-woocommerce')
-				: $result['error']]);
+				: ($result['status'] === 429
+					? __('Too many tries. Please wait a few minutes.', 'panelr-for-woocommerce')
+					: $result['error'])]);
 		}
 		$data = $result['data'];
 
@@ -635,13 +643,14 @@ class Panelr_Portal
 
 		$result = Panelr_API::instance()->register_customer($body);
 		if (!$result['ok']) {
+			if ($result['status'] === 409) {
+				wp_send_json_error(['message' => !empty($result['data']['claim_link_sent'])
+					? __('That email is already on file with us. We have emailed you a link to choose a password — finish that first, then sign in.', 'panelr-for-woocommerce')
+					: __('There is already an account for that email. Sign in, or use "Forgot password".', 'panelr-for-woocommerce')]);
+			}
 			wp_send_json_error(['message' => $result['error']]);
 		}
-		$d = $result['data'];
-		if (empty($d['created'])) {
-			wp_send_json_error(['message' => __('There is already an account for that email. Sign in, or use "Forgot password".', 'panelr-for-woocommerce')]);
-		}
-		Panelr_Session::sign_in($d);
+		Panelr_Session::sign_in($result['data']);
 		wp_send_json_success(['redirect' => self::after_sign_in_url()]);
 	}
 
@@ -672,19 +681,22 @@ class Panelr_Portal
 
 		$result = Panelr_API::instance()->register_customer($body);
 		if (!$result['ok']) {
+			if ($result['status'] === 409) {
+				if (!empty($result['data']['claim_link_sent'])) {
+					// A member record without a password: Panelr emailed the line's address a link to finish setting it up.
+					wp_send_json_error(['message' => __('This email already has an account record with us. We have emailed it a link to choose a password — finish that, then sign in here.', 'panelr-for-woocommerce')]);
+				}
+				// A login already exists for this email; the line owner proved the line, so open it.
+				$acct = Panelr_API::instance()->get_customer_by_email((string) $line['email']);
+				if ($acct['ok']) {
+					Panelr_Session::sign_in($acct['data']);
+					wp_send_json_success(['redirect' => Panelr_Helpers::portal_url()]);
+				}
+				wp_send_json_error(['message' => __('There is already an account for that email. Sign in with it, or use "Forgot password".', 'panelr-for-woocommerce')]);
+			}
 			wp_send_json_error(['message' => $result['error']]);
 		}
-		$d = $result['data'];
-		if (empty($d['created'])) {
-			// A login already exists for this email; the line owner proved the line, so open it.
-			$acct = Panelr_API::instance()->get_customer_by_email((string) $line['email']);
-			if ($acct['ok']) {
-				Panelr_Session::sign_in($acct['data']);
-				wp_send_json_success(['redirect' => Panelr_Helpers::portal_url()]);
-			}
-			wp_send_json_error(['message' => __('There is already an account for that email. Sign in with it, or use "Forgot password".', 'panelr-for-woocommerce')]);
-		}
-		Panelr_Session::sign_in($d);
+		Panelr_Session::sign_in($result['data']);
 		wp_send_json_success(['redirect' => Panelr_Helpers::portal_url()]);
 	}
 
@@ -734,11 +746,11 @@ class Panelr_Portal
 		if (!Panelr_Helpers::rate_limit('resend', 3, 15 * MINUTE_IN_SECONDS)) {
 			wp_send_json_error(['message' => __('Please wait a few minutes before asking again.', 'panelr-for-woocommerce')]);
 		}
-		// register_customer on an existing login re-sends the confirmation when verify_url is given.
-		$result = Panelr_API::instance()->register_customer([
-			'customer_email' => Panelr_Session::email(),
-			'verify_url'     => Panelr_Helpers::portal_url(['panelr_verify' => '{token}']),
-		]);
+		// The signed-in account asks Panelr to send its confirmation email again.
+		$result = Panelr_API::instance()->resend_verification(
+			Panelr_Session::customer_id(),
+			Panelr_Helpers::portal_url(['panelr_verify' => '{token}'])
+		);
 		if (!$result['ok']) {
 			wp_send_json_error(['message' => $result['error']]);
 		}

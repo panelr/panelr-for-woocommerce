@@ -4,7 +4,7 @@ Tags: iptv, woocommerce, panelr, subscription, streaming
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,14 @@ Account details are held in the WooCommerce session while a member is signed in.
 Everything keeps working. Members now sign in with their email and password (connection details still work as a door and offer account set-up); manual orders reach Panelr before the thank-you page; payment instructions come from Panelr. Full list in README.md.
 
 == Changelog ==
+
+= 2.0.1 =
+* Registration: an email that already has an account is asked to sign in; one on file without a password is sent a link to choose one.
+* Connection rename works with the updated Panelr API.
+* "Resend confirmation" uses the account itself rather than re-registering.
+* Sign-in attempts are throttled per visitor, not per store; too many tries shows a clear message.
+* New "Being set up" order status shown while Panelr provisions.
+* Welcome-credit note now says credits arrive once the email is confirmed.
 
 = 2.0.0 =
 * Rebuilt for Panelr 2.0: several services, member accounts, credits and invite codes, coupons, support tickets, apps, per-service trials, channel packages, connection labels, bot hand-off confirm page, order polling, held-order retries, templates, top-level settings menu. See CHANGELOG.md.

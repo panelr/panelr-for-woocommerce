@@ -29,7 +29,7 @@ $aid = (int) $line['activation_id'];
 			<?php if ($signup_points > 0): ?>
 				<p class="panelr-portal__welcome"><?php echo esc_html(sprintf(
 					/* translators: %d: credits */
-					_n('New accounts start with %d credit.', 'New accounts start with %d credits.', $signup_points, 'panelr-for-woocommerce'),
+					_n('Confirm your email and your new account starts with %d credit.', 'Confirm your email and your new account starts with %d credits.', $signup_points, 'panelr-for-woocommerce'),
 					$signup_points
 				)); ?></p>
 			<?php endif; ?>
