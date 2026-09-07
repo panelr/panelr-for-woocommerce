@@ -308,7 +308,12 @@ class Panelr_Portal
 
 	private static function render_dashboard(): string
 	{
-		$snapshot = Panelr_Session::snapshot();
+		// Arriving from an order that has just been set up: read the account
+		// again rather than the snapshot, so the new end date is on screen
+		// straight away instead of after the five-minute refresh.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- a read-only hint, no state changes on it
+		$fresh    = !empty($_GET['panelr_fresh']);
+		$snapshot = Panelr_Session::snapshot($fresh);
 		if (!$snapshot) {
 			return self::render_sign_in();
 		}

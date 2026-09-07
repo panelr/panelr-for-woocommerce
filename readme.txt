@@ -76,15 +76,12 @@ Everything keeps working. Members now sign in with their email and password (con
 == Changelog ==
 
 = 2.0.1 =
+* Credits work with the block checkout. They only worked with the classic checkout before.
+* Orders check their status with Panelr using the account email instead of the WooCommerce billing email.
+* A renewal shows on the account page right away instead of up to five minutes later.
+* An API address ending in a folder called `api` is no longer trimmed.
 * Orders are filed under the Panelr account signed in at checkout, never under WooCommerce's prefilled billing email.
 * An invite code can be typed when creating an account (optional unless the store requires one), not only carried from a link.
-* The Panelr discount-code box now also appears on the block cart and block checkout.
-* Registration: an email that already has an account is asked to sign in; one on file without a password is sent a link to choose one.
-* Connection rename works with the updated Panelr API.
-* "Resend confirmation" uses the account itself rather than re-registering.
-* Sign-in attempts are throttled per visitor, not per store; too many tries shows a clear message.
-* New "Being set up" order status shown while Panelr provisions.
-* Welcome-credit note now says credits arrive once the email is confirmed.
 
 = 2.0.0 =
 * Rebuilt for Panelr 2.0: several services, member accounts, credits and invite codes, coupons, support tickets, apps, per-service trials, channel packages, connection labels, bot hand-off confirm page, order polling, held-order retries, templates, top-level settings menu. See CHANGELOG.md.

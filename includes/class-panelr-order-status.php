@@ -367,7 +367,7 @@ class Panelr_Order_Status
 		$txid   = $order->get_transaction_id() ?: 'WC-' . $order->get_id();
 		$result = Panelr_API::instance()->submit_payment([
 			'reference_code'         => $ref,
-			'customer_email'         => $order->get_billing_email(),
+			'customer_email'         => Panelr_Helpers::order_account_email($order),
 			'payment_transaction_id' => $txid,
 			'amount'                 => $amount,
 			'customer_note'          => 'WooCommerce order #' . $order->get_id(),

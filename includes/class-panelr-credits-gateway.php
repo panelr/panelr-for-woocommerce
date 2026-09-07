@@ -13,6 +13,25 @@ class Panelr_Credits_Gateway
 	public static function init(): void
 	{
 		add_filter('woocommerce_payment_gateways', [__CLASS__, 'register']);
+		add_action('woocommerce_blocks_payment_method_type_registration', [__CLASS__, 'register_blocks']);
+	}
+
+	/**
+	 * Tell the block checkout about this method.
+	 *
+	 * A classic gateway alone is invisible there — the checkout lists only
+	 * methods registered through this hook — so a credit-paid cart was left
+	 * with no payment option at all and could not be placed.
+	 */
+	public static function register_blocks($registry): void
+	{
+		if (!class_exists('Automattic\\WooCommerce\\Blocks\\Payments\\Integrations\\AbstractPaymentMethodType')) {
+			return;
+		}
+		require_once PANELR_PLUGIN_DIR . 'includes/class-panelr-credits-blocks.php';
+		if (class_exists('Panelr_Credits_Blocks')) {
+			$registry->register(new Panelr_Credits_Blocks());
+		}
 	}
 
 	public static function register(array $gateways): array

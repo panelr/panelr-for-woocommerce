@@ -4,7 +4,11 @@
 
 Follows the Panelr API changes of Sep 6 2026 (see Panelr's API handoff, section 6). No database change.
 
-- Orders are filed under the Panelr account signed in at checkout (`_panelr_customer_email`), never under WooCommerce's prefilled billing email — a WordPress profile with another person's billing details no longer redirects the lines.
+- Credits work with the block checkout. They only worked with the classic checkout before, so on the block checkout the credits option did not appear and a credits-only cart had no way to pay.
+- Orders check their status with Panelr using the account email instead of the WooCommerce billing email. When the two were different, orders never reached Completed, connection details did not appear on the thank-you page, and balance payments were not recorded.
+- A renewal shows on the account page right away instead of up to five minutes later.
+- An API address ending in a folder called `api` is no longer trimmed.
+- Orders are filed under the Panelr account signed in at checkout (`_panelr_customer_email`), never under WooCommerce's prefilled billing email. A WordPress profile holding someone else's billing details no longer sends the lines to the wrong account.
 - Registration: an email that already has an account is asked to sign in; one on file without a password is sent a link to choose one (`register_customer` now answers 409 in both cases).
 - Connection rename sends the signed-in customer with the request, which `update_customer` now requires.
 - "Resend confirmation" calls `update_customer_account` with `resend_verification` instead of re-registering.

@@ -65,9 +65,12 @@ class Panelr_API
 			$this->api_key = (string) get_option('panelr_api_key', '');
 		}
 
-		// Whatever was saved — the site, the site with /api, or the endpoint
-		// itself (with or without a query string) — the base is the site.
-		$this->base_url = preg_replace('#(/api)?(/(api|process)\.php)?(\?.*)?/?$#i', '', $this->base_url);
+		// Whatever was saved — the site, or the endpoint itself with or without
+		// a query string — the base is the site. Only a real endpoint file is
+		// stripped: a bare trailing /api is left alone, because Panelr may be
+		// installed in a folder of that name and cutting it would point every
+		// call at the wrong place.
+		$this->base_url = preg_replace('#(/api)?/(api|process)\.php(\?.*)?/?$#i', '', $this->base_url);
 	}
 
 	// ── State ─────────────────────────────────────────────────────────────
