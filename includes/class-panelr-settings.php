@@ -149,7 +149,7 @@ class Panelr_Settings
 			$v = 'https://' . $v;
 		}
 		$v = esc_url_raw($v);
-		$v = preg_replace('#/api(/(api|process)\.php)?(\?.*)?/?$#i', '', $v);
+		$v = preg_replace('#(/api)?(/(api|process)\.php)?(\?.*)?/?$#i', '', $v);
 		return rtrim($v, '/') . '/api/api.php';
 	}
 
@@ -158,7 +158,7 @@ class Panelr_Settings
 	{
 		$v = (string) get_option('panelr_api_url', '');
 		if ($v === '') return '';
-		$v = preg_replace('#/api(/(api|process)\.php)?(\?.*)?/?$#i', '', $v);
+		$v = preg_replace('#(/api)?(/(api|process)\.php)?(\?.*)?/?$#i', '', $v);
 		return rtrim($v, '/') . '/api/api.php';
 	}
 
