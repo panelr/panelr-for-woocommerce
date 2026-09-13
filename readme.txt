@@ -4,7 +4,7 @@ Tags: iptv, woocommerce, panelr, subscription, streaming
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 2.0.1
+Stable tag: 2.0.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,9 @@ Account details are held in the WooCommerce session while a member is signed in.
 Everything keeps working. Members now sign in with their email and password (connection details still work as a door and offer account set-up); manual orders reach Panelr before the thank-you page; payment instructions come from Panelr. Full list in README.md.
 
 == Changelog ==
+
+= 2.0.2 =
+* Connection details in the member area follow what Panelr says about each service: an app sign-in shows a server address, username and password with no playlist links; Xtream lines keep their links; the service's own steps and apps are shown underneath. Older Panelr versions still show the old rows.
 
 = 2.0.1 =
 * Credits work with the block checkout. They only worked with the classic checkout before.

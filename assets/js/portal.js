@@ -197,13 +197,40 @@ jQuery(function ($) {
 						+ '<button type="button" class="button panelr-copy-btn" data-copy="' + panelr.escHtml(value) + '">' + panelr.escHtml(i18n.copy) + '</button>';
 					return '<tr><th>' + panelr.escHtml(label) + '</th><td>' + cell + '</td><td>' + buttons + '</td></tr>';
 				};
-				rows += row(i18n.host, d.host);
-				rows += row(i18n.username, d.username);
-				rows += row(i18n.password, d.password, true);
-				rows += row(i18n.mac, d.mac);
-				rows += row(i18n.m3u, d.m3u_url);
-				rows += row(i18n.epg, d.epg_url);
-				$panel.html(rows ? '<table class="panelr-portal__table panelr-line__credentials">' + rows + '</table>' : '<p>' + panelr.escHtml(i18n.details_none) + '</p>').data('loaded', true);
+				var extra = '';
+				if (d.connection && d.connection.fields) {
+					// Panelr says what to show and what to call it, whatever
+					// kind of service this is (Xtream, app sign-in, MAC, code).
+					var c = d.connection;
+					c.fields.forEach(function (f) { rows += row(f.label, f.value, !!f.secret); });
+					(c.links || []).forEach(function (l) { rows += row(l.label, l.url); });
+					var how = '';
+					if (c.intro) how += '<p>' + panelr.escHtml(c.intro) + '</p>';
+					if (c.steps && c.steps.length) {
+						how += '<ol>' + c.steps.map(function (s) { return '<li>' + panelr.escHtml(s) + '</li>'; }).join('') + '</ol>';
+					}
+					if (c.apps && c.apps.length) {
+						how += '<p class="panelr-line__apps">' + c.apps.map(function (a) {
+							var label = panelr.escHtml(a.label || ('Download ' + a.name));
+							var link = a.download_url
+								? '<a class="button panelr-line__app" href="' + panelr.escHtml(a.download_url) + '" target="_blank" rel="noopener">&#11015;&#65039; ' + label + '</a>'
+								: '<strong>' + panelr.escHtml(a.name) + '</strong>';
+							var meta = [];
+							if (a.platforms && a.platforms.length) meta.push(panelr.escHtml(a.platforms.join(', ')));
+							if (a.downloader_code) meta.push(panelr.escHtml(i18n.code_label) + ' <code>' + panelr.escHtml(a.downloader_code) + '</code>');
+							return link + (meta.length ? ' <span class="panelr-line__code">' + meta.join(' · ') + '</span>' : '');
+						}).join(' ') + '</p>';
+					}
+					if (how) extra = '<div class="panelr-line__howto"><h4>' + panelr.escHtml(i18n.how_to) + '</h4>' + how + '</div>';
+				} else {
+					rows += row(i18n.host, d.host);
+					rows += row(i18n.username, d.username);
+					rows += row(i18n.password, d.password, true);
+					rows += row(i18n.mac, d.mac);
+					rows += row(i18n.m3u, d.m3u_url);
+					rows += row(i18n.epg, d.epg_url);
+				}
+				$panel.html(rows ? '<table class="panelr-portal__table panelr-line__credentials">' + rows + '</table>' + extra : '<p>' + panelr.escHtml(i18n.details_none) + '</p>').data('loaded', true);
 			})
 			.fail(function () { $panel.html('<p class="panelr-portal__error">' + panelr.escHtml(i18n.request_failed) + '</p>'); });
 	});

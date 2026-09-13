@@ -108,6 +108,10 @@ class Panelr_Portal
 				'show'           => __('Show', 'panelr-for-woocommerce'),
 				'hide'           => __('Hide', 'panelr-for-woocommerce'),
 				'details_none'   => __('No connection details yet. Please try again shortly.', 'panelr-for-woocommerce'),
+				'links'          => __('Playlist links', 'panelr-for-woocommerce'),
+				'how_to'         => __('How to connect', 'panelr-for-woocommerce'),
+				'apps'           => __('Apps', 'panelr-for-woocommerce'),
+				'code_label'     => __('Downloader code', 'panelr-for-woocommerce'),
 				'reset_sent'     => __('If that address has an account, a link to choose a new password is on its way.', 'panelr-for-woocommerce'),
 				'chat_linked'    => __('Linked', 'panelr-for-woocommerce'),
 				'chat_not_linked' => __('Not linked', 'panelr-for-woocommerce'),
@@ -833,6 +837,9 @@ class Panelr_Portal
 				'epg_url'  => (string) ($line['epg_url'] ?? ''),
 				'mac'      => (string) ($line['mac_address'] ?? ''),
 				'type'     => (string) ($line['connection_type'] ?? 'm3u'),
+				// Panelr 2.2+: how this customer connects, ready to show —
+				// kind, wording, fields, links, steps and apps.
+				'connection' => is_array($line['connection'] ?? null) ? $line['connection'] : null,
 			]);
 		}
 		wp_send_json_error(['message' => __('No connection details yet. Please try again shortly.', 'panelr-for-woocommerce')]);

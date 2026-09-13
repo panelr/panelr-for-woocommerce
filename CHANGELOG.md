@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.2
+
+Follows Panelr's connection details change of Sep 11 2026 (`get_lines` and `verify_login` now carry a `connection` object). No database change.
+
+- The member area's connection details are rendered from Panelr's `connection` object when it is there: the kind of sign-in decides the fields and their labels, playlist links appear only for services that have them, and the service's setup steps and suggested apps follow underneath. Without the object (an older Panelr) the old host / username / password / MAC / M3U / EPG rows are shown as before.
+
 ## 2.0.1
 
 Follows the Panelr API changes of Sep 6 2026 (see Panelr's API handoff, section 6). No database change.

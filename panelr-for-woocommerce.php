@@ -4,7 +4,7 @@
  * Plugin Name:       Panelr for WooCommerce
  * Plugin URI:        https://github.com/panelr/panelr-for-woocommerce
  * Description:       Connect your Panelr installation to WooCommerce: plans from every service, sign-in, renewals, trials, credits, coupons, support and apps.
- * Version:           2.0.1
+ * Version:           2.0.2
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            Panelr
