@@ -96,6 +96,7 @@ class Panelr_Settings
 		register_setting('panelr_services', 'panelr_sync_overwrite_edits', ['sanitize_callback' => [__CLASS__, 'sanitize_bool']]);
 		register_setting('panelr_services', 'panelr_product_categories',   ['sanitize_callback' => [__CLASS__, 'sanitize_bool']]);
 		register_setting('panelr_services', 'panelr_service_names',        ['sanitize_callback' => [__CLASS__, 'sanitize_service_names']]);
+		register_setting('panelr_services', 'panelr_service_modes',        ['sanitize_callback' => [__CLASS__, 'sanitize_service_modes']]);
 
 		// Pages
 		foreach (self::page_defs() as $def) {
@@ -178,6 +179,21 @@ class Panelr_Settings
 		return sanitize_text_field($v);
 	}
 
+	/** plugin_id => 'options' for services sold as one product with options; everything else is one product per plan. */
+	public static function sanitize_service_modes($v): string
+	{
+		if ($v === null || $v === '') return (string) get_option('panelr_service_modes', '{}');
+		if (is_string($v)) {
+			$decoded = json_decode($v, true);
+			$v = is_array($decoded) ? $decoded : [];
+		}
+		$clean = [];
+		foreach ((array) $v as $id => $mode) {
+			if ((int) $id && $mode === 'options') $clean[(int) $id] = 'options';
+		}
+		return wp_json_encode($clean);
+	}
+
 	public static function sanitize_service_names($v): string
 	{
 		if ($v === null || $v === '') return (string) get_option('panelr_service_names', '{}');
@@ -250,6 +266,7 @@ class Panelr_Settings
 			'i18n'    => [
 				'working'        => __('Working…', 'panelr-for-woocommerce'),
 				'done'           => __('Done', 'panelr-for-woocommerce'),
+				'saved'          => __('Saved', 'panelr-for-woocommerce'),
 				'request_failed' => __('Something went wrong. Please try again.', 'panelr-for-woocommerce'),
 				'sent'           => __('Sent to Panelr.', 'panelr-for-woocommerce'),
 			],
@@ -510,12 +527,13 @@ class Panelr_Settings
 		<h2><?php esc_html_e('Services', 'panelr-for-woocommerce'); ?></h2>
 		<form method="post" action="options.php">
 			<?php settings_fields('panelr_services'); ?>
-		<?php $overrides = Panelr_Helpers::service_name_overrides(); ?>
+		<?php $overrides = Panelr_Helpers::service_name_overrides(); $modes = Panelr_Helpers::service_modes(); ?>
 		<?php if ($services): ?>
 			<table class="widefat striped panelr-products-table">
 				<thead><tr>
 					<th><?php esc_html_e('Service', 'panelr-for-woocommerce'); ?></th>
 					<th><?php esc_html_e('Shown on this store as', 'panelr-for-woocommerce'); ?></th>
+					<th><?php esc_html_e('Sold as', 'panelr-for-woocommerce'); ?></th>
 					<th><?php esc_html_e('Category', 'panelr-for-woocommerce'); ?></th>
 					<th><?php esc_html_e('Trials', 'panelr-for-woocommerce'); ?></th>
 					<th><?php esc_html_e('Channels', 'panelr-for-woocommerce'); ?></th>
@@ -537,6 +555,10 @@ class Panelr_Settings
 								)); ?></span>
 							<?php endif; ?>
 						</td>
+						<td><select name="panelr_service_modes[<?php echo (int) $id; ?>]" class="panelr-sell-as">
+							<option value="plans" <?php selected($modes[(int) $id] ?? 'plans', 'plans'); ?>><?php esc_html_e('A product for each plan', 'panelr-for-woocommerce'); ?></option>
+							<option value="options" <?php selected($modes[(int) $id] ?? 'plans', 'options'); ?>><?php esc_html_e('One product, plans as options', 'panelr-for-woocommerce'); ?></option>
+						</select></td>
 						<td><?php echo esc_html($svc['category_name'] ?? '—'); ?></td>
 						<td><?php echo !empty($svc['trials_enabled']) ? esc_html__('On', 'panelr-for-woocommerce') : esc_html__('Off', 'panelr-for-woocommerce'); ?></td>
 						<td><?php echo !empty($svc['bouquets_enabled']) ? esc_html(ucfirst((string) $svc['bouquet_mode'])) : esc_html__('Off', 'panelr-for-woocommerce'); ?></td>
@@ -550,12 +572,12 @@ class Panelr_Settings
 			<p><?php esc_html_e('No services yet. Connect to Panelr first.', 'panelr-for-woocommerce'); ?></p>
 		<?php endif; ?>
 		<?php if ($services): ?>
-			<p><?php self::help(__('Type a name to show it instead of Panelr\'s wherever this store names the service: product pages, cart lines, the member area, the plans grid. Leave empty to use Panelr\'s name. Panelr itself is not changed.', 'panelr-for-woocommerce')); ?>
-			<?php submit_button(__('Save names', 'panelr-for-woocommerce'), 'secondary', 'submit', false); ?></p>
+			<p><?php self::help(__('Shown as: type a name to show it instead of Panelr\'s wherever this store names the service: product pages, cart lines, the member area, the plans grid. Leave empty to use Panelr\'s name. Panelr itself is not changed. Sold as: "A product for each plan" lists every plan in the shop on its own, as before. "One product, plans as options" gives the service a single product with a Plan dropdown, one option per plan. Saving a change refiles the plans straight away; the products you had are kept as drafts and come back if you switch back.', 'panelr-for-woocommerce')); ?>
+			<?php submit_button(__('Save', 'panelr-for-woocommerce'), 'secondary', 'submit', false); ?></p>
 		<?php endif; ?>
 		</form>
 
-		<h2><?php esc_html_e('Products', 'panelr-for-woocommerce'); ?></h2>
+		<h2><?php esc_html_e('Products', 'panelr-for-woocommerce'); ?><?php self::help(__('Plan: the name customers see for this plan, everywhere this store shows it: the shop, the cart, order emails, the member area. Type over it and it is saved as you go; clear it to go back to Panelr\'s name. A sync never changes it.', 'panelr-for-woocommerce')); ?></h2>
 		<?php
 		usort($products, function ($a, $b) {
 			$sa = Panelr_Helpers::service_name($a['plugin_id']);
@@ -611,18 +633,18 @@ class Panelr_Settings
 								</label>
 							<?php endif; ?>
 						</td>
-						<td><span title="<?php echo esc_attr(sprintf(
-							/* translators: %d: Panelr plan number */
-							__('Plan number %d', 'panelr-for-woocommerce'),
-							$p['panelr_id']
-						)); ?>"><?php echo esc_html($p['name']); ?></span>
-							<?php if ($p['panelr_name'] !== '' && $p['panelr_name'] !== $p['name']): ?>
-								<span class="panelr-real-name"><?php echo esc_html(sprintf(
-									/* translators: %s: the plan's name in Panelr */
-									__('In Panelr: %s', 'panelr-for-woocommerce'),
-									$p['panelr_name']
-								)); ?></span>
-							<?php endif; ?>
+						<td class="panelr-plan-cell">
+							<input type="text" class="panelr-store-name" value="<?php echo esc_attr($p['store_name'] !== '' ? $p['store_name'] : $p['name']); ?>" data-panelr-name="<?php echo esc_attr($p['panelr_name']); ?>" data-saved="<?php echo esc_attr($p['store_name']); ?>" maxlength="80" aria-label="<?php esc_attr_e('Shown on this store as', 'panelr-for-woocommerce'); ?>" title="<?php echo esc_attr(sprintf(
+								/* translators: %d: Panelr plan number */
+								__('Plan number %d', 'panelr-for-woocommerce'),
+								$p['panelr_id']
+							)); ?>">
+							<span class="panelr-real-name panelr-plan-cell__real" <?php if ($p['panelr_name'] === '' || $p['panelr_name'] === $p['name']) echo 'hidden'; ?>><?php echo esc_html(sprintf(
+								/* translators: %s: the plan's name in Panelr */
+								__('In Panelr: %s', 'panelr-for-woocommerce'),
+								$p['panelr_name']
+							)); ?></span>
+							<span class="panelr-real-name panelr-plan-cell__result" aria-live="polite"></span>
 						</td>
 						<td><?php
 							$shown   = Panelr_Helpers::service_name($p['plugin_id']);
@@ -649,7 +671,7 @@ class Panelr_Settings
 							echo esc_html(sprintf(_n('%d month', '%d months', $p['duration_months'], 'panelr-for-woocommerce'), $p['duration_months'])); ?></td>
 						<td><?php echo wp_kses_post(wc_price($p['price'])); ?></td>
 						<td><?php echo $p['cost_points'] ? (int) $p['cost_points'] : '—'; ?></td>
-						<td><a href="<?php echo esc_url(get_edit_post_link($p['wc_id'])); ?>"><?php esc_html_e('Edit', 'panelr-for-woocommerce'); ?></a><?php
+						<td><a href="<?php echo esc_url(get_edit_post_link($p['is_variation'] ? $p['parent_id'] : $p['wc_id'])); ?>"><?php esc_html_e('Edit', 'panelr-for-woocommerce'); ?></a><?php
 							if ($notHere && ($trash = get_delete_post_link($p['wc_id']))) {
 								echo ' &middot; <a href="' . esc_url($trash) . '">' . esc_html__('Move to trash', 'panelr-for-woocommerce') . '</a>';
 							}
@@ -664,7 +686,7 @@ class Panelr_Settings
 			<?php settings_fields('panelr_services'); ?>
 			<table class="form-table" role="presentation">
 				<?php self::field_open(__('Sync', 'panelr-for-woocommerce')); ?>
-					<?php self::checkbox('panelr_sync_overwrite_edits', __('Replace my own edits with Panelr\'s values on every sync', 'panelr-for-woocommerce'), '0', __('Off: a plan you renamed, repriced or re-described in WooCommerce keeps your version; Panelr\'s value is only applied while you have not touched it. On: every sync copies Panelr\'s name, price and description over yours, the way version 1 did.', 'panelr-for-woocommerce')); ?>
+					<?php self::checkbox('panelr_sync_overwrite_edits', __('Replace my own edits with Panelr\'s values on every sync', 'panelr-for-woocommerce'), '0', __('Off: a plan you renamed, repriced or re-described in WooCommerce keeps your version; Panelr\'s value is only applied while you have not touched it. On: every sync copies Panelr\'s name, price and description over yours, the way version 1 did. A name typed in the Products table above is never replaced either way.', 'panelr-for-woocommerce')); ?>
 				<?php self::field_close(); ?>
 				<?php self::field_open(__('Categories', 'panelr-for-woocommerce')); ?>
 					<?php self::checkbox('panelr_product_categories', __('File each plan under a product category named after its service', 'panelr-for-woocommerce'), '1', __('Creates one WooCommerce product category per service (for example "Demo Service") and puts that service\'s plans in it, so your theme can list plans per service and shop links can point at one service. Switch off to manage categories yourself.', 'panelr-for-woocommerce')); ?>

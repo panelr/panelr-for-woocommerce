@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.3
+
+No database change.
+
+- **Sold as.** Under Panelr → Services each service has a "Sold as" choice: "A product for each plan" (the original way, still the default) or "One product, plans as options". The second gives the service a single variable product with a `Plan` attribute, one variation per Panelr plan, carrying the same `_panelr_*` meta as a plan product does; carts, checkout, renewals, credits, the plans grid and the member area resolve a variation the same way they resolve a product. Saving the choice runs a sync: plans sold the other way are parked (their `_panelr_product_id` moves to `_panelr_product_id_was`, status draft / disabled, never deleted) and brought back if the service is switched back. Trial plans stay private products of their own.
+- **Store name per plan.** The Products table's Plan column is an input, saved as you type (`panelr_rename_product`). It is kept in `_panelr_store_name`, sets the product name (or the option label), is never touched by a sync whatever the "Replace my own edits" switch says, follows the plan across a "Sold as" switch, and is what `Panelr_Helpers::plan_name()` answers for a line's plan in the member area. Empty means Panelr's name.
+- Options that are switched off are left out of the Plan dropdown instead of showing as unavailable. Two plans with the same name get told apart by their connections and term.
+- The member area shows a service's setup steps as written in Panelr (line breaks kept, never renumbered).
+- Service categories are looked up through `meta_query`; the old `meta_key`/`meta_value` term query matched nothing, so a renamed service got a second category on the next sync.
+
 ## 2.0.2
 
 Follows Panelr's connection details change of Sep 11 2026 (`get_lines` and `verify_login` now carry a `connection` object). No database change.

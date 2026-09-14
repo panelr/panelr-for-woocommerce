@@ -63,9 +63,10 @@ class Panelr_Cart
 	/** Keep the Panelr keys that arrive with add_to_cart, and stamp the service on every synced product. */
 	public static function add_cart_item_data(array $cart_item_data, int $product_id, int $variation_id = 0): array
 	{
-		$panelr_id = Panelr_Helpers::panelr_product_id($product_id);
+		// A plan sold as an option on its service's product is the variation.
+		$panelr_id = Panelr_Helpers::panelr_product_id($variation_id ?: $product_id);
 		if ($panelr_id) {
-			$product = wc_get_product($product_id);
+			$product = wc_get_product($variation_id ?: $product_id);
 			if (empty($cart_item_data['_panelr_intent'])) {
 				$cart_item_data['_panelr_intent'] = 'new_activation';
 			}
@@ -405,7 +406,7 @@ class Panelr_Cart
 		if (!$cost || Panelr_Session::credits_balance() < $cost + self::credits_in_cart()) {
 			wp_send_json_error(['message' => __('Your credits do not cover this plan.', 'panelr-for-woocommerce')]);
 		}
-		$key = WC()->cart->add_to_cart($wc_id, 1, 0, [], [
+		$key = Panelr_Helpers::add_plan_to_cart($wc_id, 1, [
 			'_panelr_intent'          => 'new_activation',
 			'_panelr_plugin_id'       => (int) $product->get_meta('_panelr_plugin_id'),
 			'_panelr_pay_with_points' => 1,

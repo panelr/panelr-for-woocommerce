@@ -4,7 +4,7 @@ Tags: iptv, woocommerce, panelr, subscription, streaming
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 2.0.2
+Stable tag: 2.0.3
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,12 @@ Account details are held in the WooCommerce session while a member is signed in.
 Everything keeps working. Members now sign in with their email and password (connection details still work as a door and offer account set-up); manual orders reach Panelr before the thank-you page; payment instructions come from Panelr. Full list in README.md.
 
 == Changelog ==
+
+= 2.0.3 =
+* Each service can be sold as one product with its plans as options (a Plan dropdown), or as a product for each plan as before. Choose under Panelr → Services, "Sold as". Switching refiles the plans on the spot; the products you had are kept as drafts and come back if you switch back.
+* The name a plan is shown under on this store is edited in the Products table and saved as you type. It overrides Panelr's name in the shop, the cart, order emails and the member area, and no sync changes it. Clear it to go back to Panelr's name.
+* A service's setup steps in the member area are shown exactly as written in Panelr, line breaks kept, instead of being renumbered as a list.
+* Renaming a service under "Shown on this store as" no longer creates a second product category for it.
 
 = 2.0.2 =
 * Connection details in the member area follow what Panelr says about each service: an app sign-in shows a server address, username and password with no playlist links; Xtream lines keep their links; the service's own steps and apps are shown underneath. Older Panelr versions still show the old rows.

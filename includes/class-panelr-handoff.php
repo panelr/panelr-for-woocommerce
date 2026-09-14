@@ -153,7 +153,7 @@ class Panelr_Handoff
 			if (!empty($item['linked_username'])) $data['_panelr_line_label']    = (string) $item['linked_username'];
 			if (!empty($item['points_paid']))     $data['_panelr_credits_paid']  = (int) $item['points_paid'];
 
-			$key = WC()->cart->add_to_cart($wc_id, $qty, 0, [], $data);
+			$key = Panelr_Helpers::add_plan_to_cart($wc_id, $qty, $data);
 			if ($key) $added++;
 		}
 		if (!$added) {

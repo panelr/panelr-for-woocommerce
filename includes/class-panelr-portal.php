@@ -302,6 +302,7 @@ class Panelr_Portal
 
 	private static function render_line_only(array $line): string
 	{
+		$line['product_name'] = Panelr_Helpers::plan_name((int) ($line['product_id'] ?? 0), (string) ($line['product_name'] ?? ''));
 		return Panelr_Template::render('portal/line-only', [
 			'line'          => $line,
 			'plans'         => Panelr_Helpers::renewal_products((int) $line['plugin_id'], (int) $line['connections'], !empty($line['is_trial'])),
@@ -388,6 +389,7 @@ class Panelr_Portal
 			$key = (int) ($line['plugin_id'] ?? 0);
 			$line['plans'] = Panelr_Helpers::renewal_products($key, (int) ($line['connections'] ?? 0), !empty($line['is_trial']));
 			$line['service_name'] = Panelr_Helpers::service_name($key) ?: $line['service_name'];
+			$line['product_name'] = Panelr_Helpers::plan_name((int) ($line['product_id'] ?? 0), (string) ($line['product_name'] ?? ''));
 			$line['bouquets_on'] = self::bouquets_allowed($key);
 			$groups[$key]['name']    = $line['service_name'];
 			$groups[$key]['lines'][] = $line;
@@ -994,7 +996,7 @@ class Panelr_Portal
 		];
 		if ($use_credits) $data['_panelr_pay_with_points'] = 1;
 
-		$key = WC()->cart->add_to_cart($row['wc_id'], 1, 0, [], $data);
+		$key = Panelr_Helpers::add_plan_to_cart($row['wc_id'], 1, $data);
 		if (!$key) {
 			wp_send_json_error(['message' => __('That plan could not be added to the cart.', 'panelr-for-woocommerce')]);
 		}

@@ -231,5 +231,14 @@
 #panelr-products-table tbody tr[data-service] td { vertical-align: middle; }
 
 .panelr-real-name { display: block; font-size: 12px; color: #646970; margin-top: 2px; }
+.panelr-real-name[hidden] { display: none; }
 .panelr-chip__real { font-weight: normal; opacity: .75; }
 .panelr-chip__real::before { content: "· "; }
+
+/* Products: the store's name for a plan, edited in place */
+.panelr-plan-cell { min-width: 220px; }
+.panelr-store-name { width: 100%; max-width: 260px; font-size: 13px; padding: 4px 8px; border: 1px solid transparent; background: transparent; border-radius: 4px; }
+.panelr-store-name:hover { border-color: #c3c4c7; background: #fff; }
+.panelr-store-name:focus { border-color: #2271b1; background: #fff; box-shadow: 0 0 0 1px #2271b1; outline: none; }
+.panelr-plan-cell__result:empty { display: none; }
+.panelr-sell-as { max-width: 220px; }

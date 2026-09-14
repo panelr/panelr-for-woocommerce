@@ -122,7 +122,7 @@ class Panelr_Upgrade
 			wp_send_json_error(['message' => __('That plan is on a different service than your trial.', 'panelr-for-woocommerce')]);
 		}
 
-		$key = WC()->cart->add_to_cart($row['wc_id'], 1, 0, [], [
+		$key = Panelr_Helpers::add_plan_to_cart($row['wc_id'], 1, [
 			'_panelr_intent'        => 'trial_upgrade',
 			'_panelr_activation_id' => (int) $verified['activation_id'],
 			'_panelr_plugin_id'     => $row['plugin_id'],

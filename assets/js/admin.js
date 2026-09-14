@@ -96,6 +96,45 @@ jQuery(function ($) {
 			.always(function () { $cb.prop('disabled', false); });
 	});
 
+	// Products: the name this store shows for a plan, saved as you type
+	var renameTimers = {};
+	function renamePlan($input) {
+		var $row = $input.closest('tr');
+		var $real = $row.find('.panelr-plan-cell__real');
+		var $res = $row.find('.panelr-plan-cell__result');
+		var name = $.trim($input.val());
+		var panelrName = String($input.data('panelr-name') || '');
+		if (name === panelrName) name = '';
+		if (name === String($input.data('saved') || '')) return;
+		show($res, i18n.working, true);
+		$.post(panelrAdmin.ajaxurl, { action: 'panelr_rename_product', nonce: panelrAdmin.nonce, product_id: $row.data('product-id'), name: name })
+			.done(function (res) {
+				if (res.success) {
+					$input.data('saved', res.data.store_name);
+					if (!$input.is(':focus')) $input.val(res.data.name);
+					$real.prop('hidden', !res.data.store_name);
+					show($res, i18n.saved, true);
+					setTimeout(function () { if ($res.text() === i18n.saved) $res.text(''); }, 1500);
+				} else {
+					show($res, res.data.message || i18n.request_failed, false);
+				}
+			})
+			.fail(function () { show($res, i18n.request_failed, false); });
+	}
+	$(document).on('input', '.panelr-store-name', function () {
+		var $input = $(this), id = $input.closest('tr').data('product-id');
+		clearTimeout(renameTimers[id]);
+		renameTimers[id] = setTimeout(function () { renamePlan($input); }, 600);
+	});
+	$(document).on('change blur', '.panelr-store-name', function () {
+		var $input = $(this), id = $input.closest('tr').data('product-id');
+		clearTimeout(renameTimers[id]);
+		renamePlan($input);
+	});
+	$(document).on('keydown', '.panelr-store-name', function (e) {
+		if (e.key === 'Enter') { e.preventDefault(); $(this).trigger('blur'); }
+	});
+
 	// Copy a shortcode
 	$(document).on('click', '.panelr-copy-admin', function () {
 		var $btn = $(this), text = $btn.data('copy'), orig = $btn.text();

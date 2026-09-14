@@ -270,7 +270,7 @@ class Panelr_Order_Status
 		}
 
 		WC()->cart->empty_cart();
-		$key = WC()->cart->add_to_cart($row['wc_id'], 1, 0, [], $cart_data);
+		$key = Panelr_Helpers::add_plan_to_cart($row['wc_id'], 1, $cart_data);
 		if (!$key) {
 			return __('That plan could not be added to the cart. Please contact support.', 'panelr-for-woocommerce');
 		}

@@ -9,6 +9,7 @@ class Panelr_Helpers
 	private static ?array $services = null;
 	private static ?array $store_settings = null;
 	private static ?array $payment_methods = null;
+	private static ?array $product_rows = null;
 
 	// ── Services ──────────────────────────────────────────────────────────
 
@@ -48,6 +49,35 @@ class Panelr_Helpers
 	{
 		$svc = self::service($plugin_id);
 		return $svc ? (string) $svc['name'] : '';
+	}
+
+	/**
+	 * How a service is sold: 'plans' = one WooCommerce product per Panelr plan
+	 * (the original way, the default), 'options' = one product for the service
+	 * with each plan as an option on it.
+	 */
+	public static function service_mode(int $plugin_id): string
+	{
+		return self::service_modes()[$plugin_id] ?? 'plans';
+	}
+
+	/** @return array<int,string> plugin_id => 'plans'|'options' */
+	public static function service_modes(): array
+	{
+		$raw = json_decode((string) get_option('panelr_service_modes', '{}'), true);
+		$out = [];
+		foreach ((array) $raw as $id => $mode) {
+			if ((int) $id && $mode === 'options') $out[(int) $id] = 'options';
+		}
+		return $out;
+	}
+
+	/** The name this store gives a Panelr plan (the store name when set, else the product's), or $fallback when the plan is not synced here. */
+	public static function plan_name(int $panelr_id, string $fallback = ''): string
+	{
+		if (!$panelr_id) return $fallback;
+		$row = self::product_row_by_panelr_id($panelr_id);
+		return $row && $row['name'] !== '' ? $row['name'] : $fallback;
 	}
 
 	/** @return array<int,string> plugin_id => name the store shows */
@@ -200,20 +230,79 @@ class Panelr_Helpers
 
 	// ── Products ──────────────────────────────────────────────────────────
 
-	/** The WooCommerce product id synced from a Panelr product id, any status. */
+	/**
+	 * The WooCommerce product synced from a Panelr product id, any status:
+	 * a simple product, or a variation when its service is sold as one
+	 * product with options.
+	 */
 	public static function wc_product_id_for(int $panelr_id, bool $published_only = false): int
 	{
 		if (!$panelr_id) return 0;
 		$posts = get_posts([
-			'post_type'      => 'product',
-			'post_status'    => $published_only ? 'publish' : 'any',
-			'posts_per_page' => 1,
+			'post_type'      => ['product', 'product_variation'],
+			'post_status'    => 'any',
+			'posts_per_page' => 5,
 			'meta_key'       => '_panelr_product_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- the join key between Panelr and WooCommerce
 			'meta_value'     => $panelr_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 			'fields'         => 'ids',
 			'no_found_rows'  => true,
 		]);
+		foreach ($posts as $id) {
+			if (!$published_only) return (int) $id;
+			$product = wc_get_product($id);
+			if ($product && self::plan_status($product) === 'publish') return (int) $id;
+		}
+		return 0;
+	}
+
+	/**
+	 * 'publish' when the plan can be bought, 'draft' when switched off, 'private'
+	 * for a trial plan. A variation counts as off when it or its product is.
+	 */
+	public static function plan_status(WC_Product $product): string
+	{
+		if ($product->is_type('variation')) {
+			if ($product->get_status() !== 'publish') return 'draft';
+			$parent = wc_get_product($product->get_parent_id());
+			return $parent && $parent->get_status() === 'publish' ? 'publish' : 'draft';
+		}
+		return $product->get_status();
+	}
+
+	/** The variable product that stands for a service ("one product with options"), 0 when there is none. */
+	public static function service_product_id(int $plugin_id): int
+	{
+		if (!$plugin_id) return 0;
+		$posts = get_posts([
+			'post_type'      => 'product',
+			'post_status'    => 'any',
+			'posts_per_page' => 1,
+			'meta_key'       => '_panelr_service_product', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- one product per service
+			'meta_value'     => $plugin_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+		]);
 		return $posts ? (int) $posts[0] : 0;
+	}
+
+	/**
+	 * Add a synced plan to the cart, whether it is a product of its own or an
+	 * option on the service's product. Returns the cart item key, or false.
+	 */
+	public static function add_plan_to_cart(int $wc_id, int $qty, array $data)
+	{
+		$product = wc_get_product($wc_id);
+		if (!$product) return false;
+		if ($product->is_type('variation')) {
+			return WC()->cart->add_to_cart($product->get_parent_id(), $qty, $wc_id, $product->get_variation_attributes(), $data);
+		}
+		return WC()->cart->add_to_cart($wc_id, $qty, 0, [], $data);
+	}
+
+	/** Forget the product rows read this request (after a sync, a rename or a switch). */
+	public static function flush_products(): void
+	{
+		self::$product_rows = null;
 	}
 
 	/**
@@ -249,9 +338,18 @@ class Panelr_Helpers
 	 */
 	public static function synced_products(bool $published_only = true): array
 	{
+		if (self::$product_rows === null) {
+			self::$product_rows = self::read_product_rows();
+		}
+		if (!$published_only) return self::$product_rows;
+		return array_values(array_filter(self::$product_rows, fn($r) => $r['status'] === 'publish'));
+	}
+
+	private static function read_product_rows(): array
+	{
 		$posts = get_posts([
-			'post_type'      => 'product',
-			'post_status'    => $published_only ? 'publish' : 'any',
+			'post_type'      => ['product', 'product_variation'],
+			'post_status'    => 'any',
 			'posts_per_page' => -1,
 			'meta_key'       => '_panelr_product_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- the join key; a store has dozens of plans, not thousands
 			'fields'         => 'ids',
@@ -264,19 +362,27 @@ class Panelr_Helpers
 		foreach ($posts as $post_id) {
 			$product = wc_get_product($post_id);
 			if (!$product) continue;
+			$is_variation = $product->is_type('variation');
+			$store_name   = (string) $product->get_meta('_panelr_store_name');
+			$synced_name  = (string) $product->get_meta('_panelr_synced_name');
 			$rows[] = [
 				'wc_id'           => (int) $post_id,
+				'parent_id'       => $is_variation ? (int) $product->get_parent_id() : 0,
+				'is_variation'    => $is_variation,
 				'panelr_id'       => (int) $product->get_meta('_panelr_product_id'),
 				'plugin_id'       => (int) $product->get_meta('_panelr_plugin_id'),
-				'name'            => $product->get_name(),
-				'panelr_name'     => (string) $product->get_meta('_panelr_synced_name'),
+				// What customers see: the store name when set; for a product of its
+				// own, its WooCommerce name (which the operator may have edited).
+				'name'            => $store_name !== '' ? $store_name : ($is_variation ? $synced_name : $product->get_name()),
+				'store_name'      => $store_name,
+				'panelr_name'     => $synced_name,
 				'price'           => (float) $product->get_price(),
 				'connections'     => (int) $product->get_meta('_panelr_connections'),
 				'duration_months' => (int) $product->get_meta('_panelr_duration_months'),
 				'is_trial'        => $product->get_meta('_panelr_is_trial') === '1',
 				'cost_points'     => (int) $product->get_meta('_panelr_referral_cost_points'),
 				'earn_points'     => (int) $product->get_meta('_panelr_referral_earn_points'),
-				'status'          => $product->get_status(),
+				'status'          => self::plan_status($product),
 				'url'             => $product->get_permalink(),
 				// Set by the sync when Panelr stops offering the plan. A plan with
 				// no service recorded predates services and is not on Panelr either.

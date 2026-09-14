@@ -207,7 +207,8 @@ jQuery(function ($) {
 					var how = '';
 					if (c.intro) how += '<p>' + panelr.escHtml(c.intro) + '</p>';
 					if (c.steps && c.steps.length) {
-						how += '<ol>' + c.steps.map(function (s) { return '<li>' + panelr.escHtml(s) + '</li>'; }).join('') + '</ol>';
+						// As the admin wrote them, line breaks kept — never renumbered
+						how += '<p style="white-space:pre-line">' + c.steps.map(function (s) { return panelr.escHtml(s); }).join('\n') + '</p>';
 					}
 					if (c.apps && c.apps.length) {
 						how += '<p class="panelr-line__apps">' + c.apps.map(function (a) {
