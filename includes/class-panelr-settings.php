@@ -529,7 +529,7 @@ class Panelr_Settings
 			<?php settings_fields('panelr_services'); ?>
 		<?php $overrides = Panelr_Helpers::service_name_overrides(); $modes = Panelr_Helpers::service_modes(); ?>
 		<?php if ($services): ?>
-			<table class="widefat striped panelr-products-table">
+			<div class="panelr-table-scroll"><table class="widefat striped panelr-products-table">
 				<thead><tr>
 					<th><?php esc_html_e('Service', 'panelr-for-woocommerce'); ?></th>
 					<th><?php esc_html_e('Shown on this store as', 'panelr-for-woocommerce'); ?></th>
@@ -567,7 +567,7 @@ class Panelr_Settings
 					</tr>
 				<?php endforeach; ?>
 				</tbody>
-			</table>
+			</table></div>
 		<?php else: ?>
 			<p><?php esc_html_e('No services yet. Connect to Panelr first.', 'panelr-for-woocommerce'); ?></p>
 		<?php endif; ?>
@@ -608,7 +608,7 @@ class Panelr_Settings
 					<?php endforeach; ?>
 				</p>
 			<?php endif; ?>
-			<table class="widefat striped panelr-products-table" id="panelr-products-table">
+			<div class="panelr-table-scroll"><table class="widefat striped panelr-products-table" id="panelr-products-table">
 				<thead><tr>
 					<th><?php esc_html_e('For sale', 'panelr-for-woocommerce'); ?></th>
 					<th><?php esc_html_e('Plan', 'panelr-for-woocommerce'); ?></th>
@@ -679,7 +679,7 @@ class Panelr_Settings
 					</tr>
 				<?php endforeach; ?>
 				</tbody>
-			</table>
+			</table></div>
 		<?php endif; ?>
 
 		<form method="post" action="options.php">
@@ -789,7 +789,7 @@ class Panelr_Settings
 			<?php if ($methods === null): ?>
 				<p><?php esc_html_e('Panelr\'s payment methods could not be read. Check the connection.', 'panelr-for-woocommerce'); ?></p>
 			<?php else: ?>
-				<table class="widefat striped panelr-products-table">
+				<div class="panelr-table-scroll"><table class="widefat striped panelr-products-table">
 					<thead><tr><th><?php esc_html_e('WooCommerce', 'panelr-for-woocommerce'); ?></th><th><?php esc_html_e('Panelr', 'panelr-for-woocommerce'); ?></th></tr></thead>
 					<tbody>
 					<?php foreach ($gateways as $gw):
@@ -809,7 +809,7 @@ class Panelr_Settings
 						</tr>
 					<?php endforeach; ?>
 					</tbody>
-				</table>
+				</table></div>
 			<?php endif; ?>
 
 			<table class="form-table" role="presentation">

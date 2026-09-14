@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.5
+
+- Admin: the Services and Products tables are fluid (inputs and selects fill their cells) and scroll inside their box instead of running past the card.
+
 ## 2.0.4
 
 No database change. Pairs with Panelr's WooCommerce payment method (Sep 14 2026): a Panelr method that sends the customer here to pay with whatever this store accepts.

@@ -122,9 +122,11 @@
 }
 
 /* ── Products table ──────────────────────────────────────────────────── */
+.panelr-table-scroll { max-width: 100%; overflow-x: auto; }
 .panelr-products-table {
     margin-top: 14px;
-    max-width: 680px;
+    width: 100%;
+    max-width: 100%;
     font-size: 13px;
     border: 1px solid #e2e8f0 !important;
     border-radius: 6px;
@@ -242,3 +244,10 @@
 .panelr-store-name:focus { border-color: #2271b1; background: #fff; box-shadow: 0 0 0 1px #2271b1; outline: none; }
 .panelr-plan-cell__result:empty { display: none; }
 .panelr-sell-as { max-width: 220px; }
+
+/* Tables stay inside the card: inputs and selects take the cell, not the other way round */
+.panelr-products-table td, .panelr-products-table th { box-sizing: border-box; }
+.panelr-products-table input[type="text"].regular-text, .panelr-products-table select.panelr-sell-as { width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; }
+.panelr-products-table input[type="text"].regular-text { min-width: 160px; }
+.panelr-products-table select.panelr-sell-as { min-width: 170px; }
+.panelr-products-table .panelr-store-name { min-width: 140px; }
