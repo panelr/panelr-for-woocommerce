@@ -4,7 +4,7 @@ Tags: iptv, woocommerce, panelr, subscription, streaming
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 2.0.3
+Stable tag: 2.0.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,10 @@ Account details are held in the WooCommerce session while a member is signed in.
 Everything keeps working. Members now sign in with their email and password (connection details still work as a door and offer account set-up); manual orders reach Panelr before the thank-you page; payment instructions come from Panelr. Full list in README.md.
 
 == Changelog ==
+
+= 2.0.4 =
+* An order handed over from Panelr's checkout is paid as it was priced there: its lines cannot be removed, resized or added to in the store's cart.
+* Orders paid by an offline method (bank transfer, cheque, cash on delivery) reach Panelr when they are marked paid in WooCommerce, with no need to press Send.
 
 = 2.0.3 =
 * Each service can be sold as one product with its plans as options (a Plan dropdown), or as a product for each plan as before. Choose under Panelr → Services, "Sold as". Switching refiles the plans on the spot; the products you had are kept as drafts and come back if you switch back.

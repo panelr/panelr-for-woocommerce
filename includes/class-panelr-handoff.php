@@ -24,6 +24,16 @@ class Panelr_Handoff
 		add_action('template_redirect', [__CLASS__, 'receive'], 5);
 		add_action('woocommerce_before_calculate_totals', [__CLASS__, 'apply_prices'], 25);
 		add_action('woocommerce_cart_emptied', [__CLASS__, 'forget']);
+		// The cart is the order Panelr priced: nothing is added, taken out or
+		// resized here. What Panelr expects to be paid is what gets paid.
+		add_action('woocommerce_before_calculate_totals', [__CLASS__, 'restore_lines'], 20);
+		// An emptied cart never reaches calculate_totals, so removal is caught on its own.
+		add_action('woocommerce_cart_item_removed', [__CLASS__, 'restore_after_removal'], 10, 2);
+		add_action('woocommerce_cart_loaded_from_session', [__CLASS__, 'restore_lines'], 20);
+		add_filter('woocommerce_cart_item_remove_link', [__CLASS__, 'no_remove_link'], 10, 2);
+		add_filter('woocommerce_cart_item_quantity', [__CLASS__, 'fixed_quantity'], 10, 3);
+		add_filter('woocommerce_update_cart_validation', [__CLASS__, 'refuse_quantity_change'], 10, 4);
+		add_filter('woocommerce_add_to_cart_validation', [__CLASS__, 'refuse_add'], 10, 2);
 		add_action('woocommerce_checkout_update_order_review', [__CLASS__, 'keep_customer_details']);
 	}
 
@@ -134,6 +144,7 @@ class Panelr_Handoff
 		self::forget();
 
 		$added = 0;
+		$lines = [];
 		foreach ($cart as $item) {
 			$panelr_id = (int) ($item['product_id'] ?? 0);
 			$wc_id     = Panelr_Sync::ensure_product($panelr_id);
@@ -154,7 +165,10 @@ class Panelr_Handoff
 			if (!empty($item['points_paid']))     $data['_panelr_credits_paid']  = (int) $item['points_paid'];
 
 			$key = Panelr_Helpers::add_plan_to_cart($wc_id, $qty, $data);
-			if ($key) $added++;
+			if ($key) {
+				$added++;
+				$lines[$key] = ['wc_id' => $wc_id, 'qty' => $qty, 'data' => $data];
+			}
 		}
 		if (!$added) {
 			return __('That order could not be loaded into the cart. Please contact us.', 'panelr-for-woocommerce');
@@ -173,6 +187,7 @@ class Panelr_Handoff
 			'email'       => (string) ($o['customer_email'] ?? ''),
 			'name'        => (string) ($o['customer_name'] ?? ''),
 			'currency'    => (string) ($o['currency'] ?? ''),
+			'lines'       => $lines,
 			'at'          => time(),
 		]);
 
@@ -189,6 +204,109 @@ class Panelr_Handoff
 			WC()->customer->save();
 		}
 		return '';
+	}
+
+	// ── The cart stays the order ──────────────────────────────────────────
+
+	private static bool $restoring = false;
+
+	/** The hand-off in the session while it is fresh, whether or not the cart still carries every line. */
+	private static function session_handoff(): ?array
+	{
+		$h = Panelr_Session::get(self::SESSION_KEY);
+		if (!is_array($h) || empty($h['ref']) || empty($h['token']) || empty($h['lines'])) return null;
+		if ((int) ($h['at'] ?? 0) < time() - DAY_IN_SECONDS) return null;
+		return $h;
+	}
+
+	private static function is_handoff_line(string $key): bool
+	{
+		$h = self::session_handoff();
+		return $h && isset($h['lines'][$key]);
+	}
+
+	private static function locked_notice(): void
+	{
+		if (!function_exists('wc_add_notice') || !function_exists('wc_has_notice')) return;
+		$msg = __('This order was priced on our site and is paid as it is. To change it, start again there.', 'panelr-for-woocommerce');
+		if (!wc_has_notice($msg, 'notice')) wc_add_notice($msg, 'notice');
+	}
+
+	/** A line taken out or resized in the store cart is put back. */
+	public static function restore_lines(WC_Cart $cart): void
+	{
+		if ((is_admin() && !defined('DOING_AJAX')) || self::$restoring) return;
+		$h = self::session_handoff();
+		if (!$h) return;
+		self::$restoring = true;
+		$contents = $cart->get_cart();
+		$changed  = false;
+		foreach ((array) $h['lines'] as $key => $line) {
+			if (!isset($contents[$key])) {
+				$new = Panelr_Helpers::add_plan_to_cart((int) $line['wc_id'], (int) $line['qty'], (array) $line['data']);
+				if ($new && $new !== $key) {
+					$h['lines'][$new] = $line;
+					unset($h['lines'][$key]);
+					Panelr_Session::set(self::SESSION_KEY, $h);
+				}
+				$changed = true;
+			} elseif ((int) $contents[$key]['quantity'] !== (int) $line['qty']) {
+				$cart->set_quantity($key, (int) $line['qty'], false);
+				$changed = true;
+			}
+		}
+		// Anything that is not the order (added by a form the filter did not
+		// cover, or by the block cart) comes out again.
+		foreach ($cart->get_cart() as $key => $item) {
+			if (!isset($h['lines'][$key])) {
+				$cart->remove_cart_item($key);
+				$changed = true;
+			}
+		}
+		self::$restoring = false;
+		if ($changed) self::locked_notice();
+	}
+
+	public static function restore_after_removal($key, $cart): void
+	{
+		if ($cart instanceof WC_Cart && self::is_handoff_line((string) $key)) {
+			self::restore_lines($cart);
+		}
+	}
+
+	public static function no_remove_link($link, $key)
+	{
+		return self::is_handoff_line((string) $key) ? '' : $link;
+	}
+
+	public static function fixed_quantity($html, $key, $item)
+	{
+		return self::is_handoff_line((string) $key) ? '<span class="panelr-handoff-qty">' . (int) ($item['quantity'] ?? 1) . '</span>' : $html;
+	}
+
+	public static function refuse_quantity_change($passed, $key, $values, $quantity)
+	{
+		if (self::is_handoff_line((string) $key) && (int) $quantity !== (int) ($values['quantity'] ?? 0)) {
+			self::locked_notice();
+			return false;
+		}
+		return $passed;
+	}
+
+	public static function refuse_add($passed, $product_id)
+	{
+		if (self::$restoring) return $passed;
+		$h = self::session_handoff();
+		if (!$h) return $passed;
+		// The order's own plans pass (the cart is re-validated from the session
+		// through this same filter); anything else does not.
+		foreach ((array) $h['lines'] as $line) {
+			$own = wc_get_product((int) $line['wc_id']);
+			if (!$own) continue;
+			if ((int) $product_id === $own->get_id() || (int) $product_id === (int) $own->get_parent_id()) return $passed;
+		}
+		self::locked_notice();
+		return false;
 	}
 
 	/** Block/classic checkout may re-save the customer; keep the handed-off email in place. */

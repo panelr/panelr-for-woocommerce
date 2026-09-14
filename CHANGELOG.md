@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.4
+
+No database change. Pairs with Panelr's WooCommerce payment method (Sep 14 2026): a Panelr method that sends the customer here to pay with whatever this store accepts.
+
+- **Hand-off cart lock.** While a Panelr order is in the cart (`Panelr_Handoff`), its lines are put back if removed or resized (`woocommerce_before_calculate_totals`), the remove link and quantity box are gone, and nothing else can be added. Panelr also refuses a completion that pays less than the order owes, so a store coupon or a dropped line no longer provisions the whole order.
+- **Offline gateways.** `woocommerce_order_status_processing` / `_completed` now complete the Panelr order the same way `woocommerce_payment_complete` does, so bank transfer, cheque and cash on delivery orders reach Panelr when the shop marks them paid.
+
 ## 2.0.3
 
 No database change.

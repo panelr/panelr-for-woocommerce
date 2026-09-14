@@ -17,6 +17,10 @@ class Panelr_Checkout
 		add_action('woocommerce_checkout_order_processed',            [__CLASS__, 'on_order_created'], 10, 1);
 		add_action('woocommerce_store_api_checkout_order_processed',  [__CLASS__, 'on_order_created_block'], 10, 1);
 		add_action('woocommerce_payment_complete',                    [__CLASS__, 'on_payment_complete'], 10, 1);
+		// Offline gateways (bank transfer, cheque, cash on delivery) never fire
+		// payment_complete; the order is marked paid by hand, and that is the payment.
+		add_action('woocommerce_order_status_processing',             [__CLASS__, 'on_order_marked_paid'], 10, 1);
+		add_action('woocommerce_order_status_completed',              [__CLASS__, 'on_order_marked_paid'], 10, 1);
 		add_action('woocommerce_thankyou',                            [__CLASS__, 'render_thankyou'], 10);
 		add_action('woocommerce_view_order',                          [__CLASS__, 'render_view_order'], 10);
 		add_action('wp_ajax_panelr_submit_payment',                   [__CLASS__, 'ajax_submit_payment']);
@@ -398,6 +402,14 @@ class Panelr_Checkout
 	}
 
 	// ── Payment complete (automatic) ──────────────────────────────────────
+
+	public static function on_order_marked_paid($order_id): void
+	{
+		$order = wc_get_order((int) $order_id);
+		if (!$order || $order->get_meta('_panelr_work_order_id')) return;
+		if (!$order->is_paid() && !$order->has_status('processing')) return;
+		self::on_payment_complete((int) $order_id);
+	}
 
 	public static function on_payment_complete($order_id): void
 	{
