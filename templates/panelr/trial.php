@@ -18,7 +18,7 @@ defined('ABSPATH') || exit;
 
 		<?php if (count($services) > 1): ?>
 			<div class="panelr-trial__field panelr-trial__services">
-				<span class="panelr-trial__label"><?php esc_html_e('Service', 'panelr-for-woocommerce'); ?></span>
+				<span class="panelr-trial__label"><?php echo esc_html(Panelr_Wording::term('service')); ?></span>
 				<?php $first = true; foreach ($services as $id => $svc): ?>
 					<label class="panelr-trial__service">
 						<input type="radio" name="panelr_trial_service" value="<?php echo (int) $id; ?>" <?php checked($first); ?>>

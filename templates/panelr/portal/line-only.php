@@ -54,12 +54,12 @@ $aid = (int) $line['activation_id'];
 		<h3 class="panelr-line__title"><code class="panelr-portal__code"><?php echo esc_html($line['username'] ?: $line['email']); ?></code><?php if ($multi && $line['service_name']): ?> · <?php echo esc_html($line['service_name']); ?><?php endif; ?></h3>
 		<table class="panelr-portal__table">
 			<tr><th><?php esc_html_e('Status', 'panelr-for-woocommerce'); ?></th><td><span class="panelr-portal__status panelr-portal__status--<?php echo esc_attr($line['status']); ?>"><?php echo esc_html(Panelr_Helpers::line_status_label($line['status'])); ?></span></td></tr>
-			<?php if ($line['product_name']): ?><tr><th><?php esc_html_e('Plan', 'panelr-for-woocommerce'); ?></th><td><?php echo esc_html($line['product_name']); ?></td></tr><?php endif; ?>
+			<?php if ($line['product_name']): ?><tr><th><?php echo esc_html(Panelr_Wording::term('plan')); ?></th><td><?php echo esc_html($line['product_name']); ?></td></tr><?php endif; ?>
 			<tr><th><?php esc_html_e('Ends', 'panelr-for-woocommerce'); ?></th><td><?php echo esc_html(Panelr_Helpers::format_date($line['expiration_date'])); ?></td></tr>
 		</table>
 		<p class="panelr-line__actions">
-			<button type="button" class="button panelr-line-details-btn"><?php esc_html_e('Connection details', 'panelr-for-woocommerce'); ?></button>
-			<?php if ($plans): ?><button type="button" class="button panelr-line-renew-btn"><?php echo !empty($line['is_trial']) ? esc_html__('Upgrade', 'panelr-for-woocommerce') : esc_html__('Renew', 'panelr-for-woocommerce'); ?></button><?php endif; ?>
+			<button type="button" class="button panelr-line-details-btn"><?php echo esc_html(Panelr_Wording::term('connection_details')); ?></button>
+			<?php if ($plans): ?><button type="button" class="button panelr-line-renew-btn"><?php echo esc_html(Panelr_Wording::term(!empty($line['is_trial']) ? 'upgrade' : 'renew')); ?></button><?php endif; ?>
 		</p>
 		<div class="panelr-line__panel panelr-line__details" hidden aria-live="polite"></div>
 		<?php if ($plans): ?>
@@ -72,7 +72,7 @@ $aid = (int) $line['activation_id'];
 							<td><?php echo esc_html(Panelr_Helpers::plan_summary($plan['connections'], $plan['duration_months'])); ?></td>
 							<td><button type="button" class="button panelr-renew-btn panelr-renew-choose" data-panelr-product-id="<?php echo (int) $plan['panelr_id']; ?>"><?php echo wp_kses_post(sprintf(
 								/* translators: %s: price */
-								!empty($line['is_trial']) ? __('Upgrade · %s', 'panelr-for-woocommerce') : __('Renew · %s', 'panelr-for-woocommerce'),
+								Panelr_Wording::term(!empty($line['is_trial']) ? 'upgrade' : 'renew') . ' · %s',
 								wc_price($plan['price'])
 							)); ?></button></td>
 						</tr>

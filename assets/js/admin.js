@@ -135,6 +135,19 @@ jQuery(function ($) {
 		if (e.key === 'Enter') { e.preventDefault(); $(this).trigger('blur'); }
 	});
 
+	// Wording: fill every box with the neutral set, or clear them all
+	$(document).on('click', '#panelr-wording-neutral', function () {
+		var words = $(this).data('words') || {};
+		$('.panelr-wording-input').each(function () {
+			var k = $(this).data('key');
+			if (words[k] !== undefined && words[k] !== $(this).attr('placeholder')) $(this).val(words[k]);
+			else $(this).val('');
+		});
+	});
+	$(document).on('click', '#panelr-wording-reset', function () {
+		$('.panelr-wording-input').val('');
+	});
+
 	// Copy a shortcode
 	$(document).on('click', '.panelr-copy-admin', function () {
 		var $btn = $(this), text = $btn.data('copy'), orig = $btn.text();

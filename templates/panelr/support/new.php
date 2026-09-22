@@ -29,7 +29,7 @@ defined('ABSPATH') || exit;
 			</p>
 			<?php if ($lines): ?>
 				<p class="panelr-portal__field">
-					<label for="panelr-ticket-line"><?php esc_html_e('Connection', 'panelr-for-woocommerce'); ?></label>
+					<label for="panelr-ticket-line"><?php echo esc_html(Panelr_Wording::term('connection')); ?></label>
 					<select id="panelr-ticket-line" name="activation_id" class="input-text">
 						<option value="0"><?php esc_html_e('Not about one connection', 'panelr-for-woocommerce'); ?></option>
 						<?php foreach ($lines as $id => $line): ?>

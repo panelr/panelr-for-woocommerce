@@ -4,7 +4,7 @@ Tags: iptv, woocommerce, panelr, subscription, streaming
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 2.0.5
+Stable tag: 2.0.6
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,11 @@ Account details are held in the WooCommerce session while a member is signed in.
 Everything keeps working. Members now sign in with their email and password (connection details still work as a door and offer account set-up); manual orders reach Panelr before the thank-you page; payment instructions come from Panelr. Full list in README.md.
 
 == Changelog ==
+
+= 2.0.6 =
+* New Wording tab: type your own word for connection, service, plan, host, M3U link, EPG link and the rest, and it is used everywhere the store shows it: the shop, the cart, order emails, receipts and the member area. A "Use neutral wording" button fills them all in one click. Leave a box empty to keep the plugin's word.
+* Switches to leave the order type, the connection name or the service off order lines, and the connection count off plans.
+* "Copy each plan's description from Panelr" can be switched off so plan descriptions stay the store's own.
 
 = 2.0.5 =
 * The Services and Products tables stay inside their box on narrower screens.

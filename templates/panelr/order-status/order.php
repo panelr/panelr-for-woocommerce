@@ -41,7 +41,7 @@ $price      = fn(float $v) => wc_price($v, ['currency' => $currency]);
 		<div class="panelr-os-summary panelr-portal__section">
 			<table class="panelr-portal__table">
 				<thead><tr>
-					<th><?php esc_html_e('Plan', 'panelr-for-woocommerce'); ?></th>
+					<th><?php echo esc_html(Panelr_Wording::term('plan')); ?></th>
 					<th><?php esc_html_e('Qty', 'panelr-for-woocommerce'); ?></th>
 					<th><?php esc_html_e('Price', 'panelr-for-woocommerce'); ?></th>
 				</tr></thead>
@@ -56,7 +56,7 @@ $price      = fn(float $v) => wc_price($v, ['currency' => $currency]);
 						<td>&times;<?php echo (int) ($item['qty'] ?? 1); ?></td>
 						<td><?php echo !empty($item['points_paid'])
 							/* translators: %d: credits */
-							? esc_html(sprintf(_n('%d credit', '%d credits', (int) $item['points_paid'], 'panelr-for-woocommerce'), (int) $item['points_paid']))
+							? esc_html(Panelr_Wording::credits((int) $item['points_paid']))
 							: wp_kses_post($price((float) ($item['price'] ?? 0) * (int) ($item['qty'] ?? 1))); ?></td>
 					</tr>
 				<?php endforeach; ?>
@@ -79,11 +79,7 @@ $price      = fn(float $v) => wc_price($v, ['currency' => $currency]);
 						</tr>
 					<?php endif; ?>
 					<?php if ($credits !== null): ?>
-						<tr><td colspan="2"><strong><?php esc_html_e('Paid with', 'panelr-for-woocommerce'); ?></strong></td><td><strong><?php echo esc_html(sprintf(
-							/* translators: %d: credits */
-							_n('%d credit', '%d credits', (int) $credits, 'panelr-for-woocommerce'),
-							(int) $credits
-						)); ?></strong></td></tr>
+						<tr><td colspan="2"><strong><?php esc_html_e('Paid with', 'panelr-for-woocommerce'); ?></strong></td><td><strong><?php echo esc_html(Panelr_Wording::credits((int) $credits)); ?></strong></td></tr>
 					<?php else: ?>
 						<tr><td colspan="2"><strong><?php esc_html_e('Total', 'panelr-for-woocommerce'); ?></strong></td><td><strong><?php echo wp_kses_post($price($total)); ?></strong></td></tr>
 					<?php endif; ?>
@@ -181,7 +177,7 @@ $price      = fn(float $v) => wc_price($v, ['currency' => $currency]);
 			<h3><?php esc_html_e('Ready', 'panelr-for-woocommerce'); ?></h3>
 			<p><?php echo esc_html(sprintf(
 				/* translators: %s: email */
-				__('Your service is set up. Your connection details went to %s.', 'panelr-for-woocommerce'),
+				Panelr_Wording::term('ready_sent'),
 				(string) ($order['customer_email'] ?? $email)
 			)); ?></p>
 		</div>

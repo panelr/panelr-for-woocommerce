@@ -35,6 +35,7 @@ class Panelr_Settings
 			'payments'   => __('Payments', 'panelr-for-woocommerce'),
 			'trials'     => __('Trials', 'panelr-for-woocommerce'),
 			'member'     => __('Members', 'panelr-for-woocommerce'),
+			'wording'    => __('Wording', 'panelr-for-woocommerce'),
 			'support'    => __('Support', 'panelr-for-woocommerce'),
 			'apps'       => __('Apps', 'panelr-for-woocommerce'),
 			'bots'       => __('Bots', 'panelr-for-woocommerce'),
@@ -97,6 +98,11 @@ class Panelr_Settings
 		register_setting('panelr_services', 'panelr_product_categories',   ['sanitize_callback' => [__CLASS__, 'sanitize_bool']]);
 		register_setting('panelr_services', 'panelr_service_names',        ['sanitize_callback' => [__CLASS__, 'sanitize_service_names']]);
 		register_setting('panelr_services', 'panelr_service_modes',        ['sanitize_callback' => [__CLASS__, 'sanitize_service_modes']]);
+		register_setting('panelr_services', 'panelr_sync_descriptions',    ['sanitize_callback' => [__CLASS__, 'sanitize_bool']]);
+
+		// Wording
+		register_setting('panelr_wording', Panelr_Wording::OPTION,      ['sanitize_callback' => [__CLASS__, 'sanitize_wording']]);
+		register_setting('panelr_wording', Panelr_Wording::SHOW_OPTION, ['sanitize_callback' => [__CLASS__, 'sanitize_wording_show']]);
 
 		// Pages
 		foreach (self::page_defs() as $def) {
@@ -191,6 +197,43 @@ class Panelr_Settings
 		foreach ((array) $v as $id => $mode) {
 			if ((int) $id && $mode === 'options') $clean[(int) $id] = 'options';
 		}
+		return wp_json_encode($clean);
+	}
+
+	/** term => text, only terms the plugin knows, only non-empty values, no HTML. */
+	public static function sanitize_wording($v): string
+	{
+		if ($v === null || $v === '') return (string) get_option(Panelr_Wording::OPTION, '{}');
+		if (is_string($v)) {
+			$decoded = json_decode($v, true);
+			$v = is_array($decoded) ? $decoded : [];
+		}
+		$known = Panelr_Wording::terms();
+		$clean = [];
+		foreach ((array) $v as $key => $text) {
+			if (!isset($known[$key])) continue;
+			$text = trim(sanitize_text_field((string) $text));
+			if ($text !== '' && $text !== $known[$key][2]) $clean[$key] = mb_substr($text, 0, 160);
+		}
+		Panelr_Wording::flush();
+		return wp_json_encode($clean);
+	}
+
+	public static function sanitize_wording_show($v): string
+	{
+		// WordPress runs the sanitizer a second time with the value it just
+		// stored (a JSON string) when the option is new; read it back as-is.
+		if (is_string($v)) {
+			$decoded = json_decode($v, true);
+			if (!is_array($decoded)) return (string) get_option(Panelr_Wording::SHOW_OPTION, '{}');
+			$v = $decoded;
+		}
+		$known = Panelr_Wording::switches();
+		$clean = [];
+		foreach ($known as $key => $def) {
+			$clean[$key] = !empty($v[$key]) ? '1' : '0';
+		}
+		Panelr_Wording::flush();
 		return wp_json_encode($clean);
 	}
 
@@ -688,6 +731,9 @@ class Panelr_Settings
 				<?php self::field_open(__('Sync', 'panelr-for-woocommerce')); ?>
 					<?php self::checkbox('panelr_sync_overwrite_edits', __('Replace my own edits with Panelr\'s values on every sync', 'panelr-for-woocommerce'), '0', __('Off: a plan you renamed, repriced or re-described in WooCommerce keeps your version; Panelr\'s value is only applied while you have not touched it. On: every sync copies Panelr\'s name, price and description over yours, the way version 1 did. A name typed in the Products table above is never replaced either way.', 'panelr-for-woocommerce')); ?>
 				<?php self::field_close(); ?>
+				<?php self::field_open(__('Descriptions', 'panelr-for-woocommerce')); ?>
+					<?php self::checkbox('panelr_sync_descriptions', __('Copy each plan\'s description from Panelr', 'panelr-for-woocommerce'), '1', __('Off: plan descriptions are yours; a sync never writes them, so wording from Panelr never appears on a product page. On: new plans get Panelr\'s description and the switch above decides what happens to your edits.', 'panelr-for-woocommerce')); ?>
+				<?php self::field_close(); ?>
 				<?php self::field_open(__('Categories', 'panelr-for-woocommerce')); ?>
 					<?php self::checkbox('panelr_product_categories', __('File each plan under a product category named after its service', 'panelr-for-woocommerce'), '1', __('Creates one WooCommerce product category per service (for example "Demo Service") and puts that service\'s plans in it, so your theme can list plans per service and shop links can point at one service. Switch off to manage categories yourself.', 'panelr-for-woocommerce')); ?>
 				<?php self::field_close(); ?>
@@ -992,6 +1038,52 @@ class Panelr_Settings
 	}
 
 	// ── Tab: Advanced ─────────────────────────────────────────────────────
+
+	// ── Tab: Wording ──────────────────────────────────────────────────────
+
+	public static function tab_wording(): void
+	{
+		$custom = Panelr_Wording::custom();
+		$groups = Panelr_Wording::groups();
+		?>
+		<form method="post" action="options.php" id="panelr-wording-form">
+			<?php settings_fields('panelr_wording'); ?>
+			<h2><?php esc_html_e('What customers read', 'panelr-for-woocommerce'); ?><?php self::help(__('Panelr talks about connections, playlists and M3U links. Type your own word for any of these and it is used everywhere this store shows it: the shop, the cart, order emails, receipts and the member area. Leave a box empty to keep the plugin\'s word. Nothing sent to Panelr changes.', 'panelr-for-woocommerce')); ?></h2>
+			<p class="panelr-input-row">
+				<button type="button" class="button" id="panelr-wording-neutral" data-words="<?php echo esc_attr(wp_json_encode(Panelr_Wording::neutral())); ?>"><?php esc_html_e('Use neutral wording', 'panelr-for-woocommerce'); ?></button>
+				<button type="button" class="button" id="panelr-wording-reset"><?php esc_html_e('Back to the plugin\'s wording', 'panelr-for-woocommerce'); ?></button>
+			</p>
+			<?php foreach ($groups as $gkey => $glabel): ?>
+				<h3><?php echo esc_html($glabel); ?></h3>
+				<div class="panelr-table-scroll"><table class="widefat striped panelr-products-table panelr-wording-table">
+					<thead><tr>
+						<th><?php esc_html_e('What it is', 'panelr-for-woocommerce'); ?></th>
+						<th><?php esc_html_e('Customers see', 'panelr-for-woocommerce'); ?></th>
+					</tr></thead>
+					<tbody>
+					<?php foreach (Panelr_Wording::terms() as $key => $def): if ($def[0] !== $gkey) continue; ?>
+						<tr>
+							<td><?php echo esc_html($def[1]); ?></td>
+							<td><input type="text" class="regular-text panelr-wording-input" name="<?php echo esc_attr(Panelr_Wording::OPTION); ?>[<?php echo esc_attr($key); ?>]" value="<?php echo esc_attr($custom[$key] ?? ''); ?>" placeholder="<?php echo esc_attr($def[2]); ?>" maxlength="160" data-key="<?php echo esc_attr($key); ?>"></td>
+						</tr>
+					<?php endforeach; ?>
+					</tbody>
+				</table></div>
+			<?php endforeach; ?>
+
+			<h3><?php esc_html_e('What is shown', 'panelr-for-woocommerce'); ?></h3>
+			<table class="form-table" role="presentation">
+				<?php foreach (Panelr_Wording::switches() as $key => $def): ?>
+					<tr><th scope="row"></th><td>
+						<label><input type="hidden" name="<?php echo esc_attr(Panelr_Wording::SHOW_OPTION); ?>[<?php echo esc_attr($key); ?>]" value="0">
+						<input type="checkbox" name="<?php echo esc_attr(Panelr_Wording::SHOW_OPTION); ?>[<?php echo esc_attr($key); ?>]" value="1" <?php checked(Panelr_Wording::show($key)); ?>> <?php echo esc_html($def[0]); ?></label>
+					</td></tr>
+				<?php endforeach; ?>
+			</table>
+			<?php submit_button(__('Save', 'panelr-for-woocommerce')); ?>
+		</form>
+		<?php
+	}
 
 	public static function tab_advanced(): void
 	{

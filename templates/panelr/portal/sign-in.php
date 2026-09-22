@@ -105,7 +105,7 @@ $view = in_array($view, ['register', 'forgot', 'line'], true) ? $view : 'signin'
 			<p id="panelr-line-error" class="panelr-portal__error woocommerce-error" hidden role="alert"></p>
 			<?php if (count($services) > 1): ?>
 				<p class="panelr-portal__field">
-					<label for="panelr-line-service"><?php esc_html_e('Service', 'panelr-for-woocommerce'); ?></label>
+					<label for="panelr-line-service"><?php echo esc_html(Panelr_Wording::term('service')); ?></label>
 					<select id="panelr-line-service" class="input-text">
 						<option value="0"><?php esc_html_e('Not sure', 'panelr-for-woocommerce'); ?></option>
 						<?php foreach ($services as $id => $svc): ?>

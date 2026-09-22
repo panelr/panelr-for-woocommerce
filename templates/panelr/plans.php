@@ -38,8 +38,8 @@ defined('ABSPATH') || exit;
 							<?php if ($signed_in && $plan['cost_points'] > 0 && $balance >= $plan['cost_points']): ?>
 								<button type="button" class="button panelr-credits-buy__button" data-product-id="<?php echo (int) $plan['wc_id']; ?>"><?php echo esc_html(sprintf(
 									/* translators: %d: credits */
-									_n('Pay with %d credit', 'Pay with %d credits', $plan['cost_points'], 'panelr-for-woocommerce'),
-									$plan['cost_points']
+									__('Pay with %s', 'panelr-for-woocommerce'),
+									Panelr_Wording::credits((int) $plan['cost_points'])
 								)); ?></button>
 							<?php endif; ?>
 						</p>

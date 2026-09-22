@@ -34,7 +34,7 @@ defined('ABSPATH') || exit;
 				<h3><?php esc_html_e('Your trial', 'panelr-for-woocommerce'); ?></h3>
 				<table class="panelr-upgrade__table">
 					<?php if ($multi && !empty($verified['plugin_name'])): ?>
-						<tr><th><?php esc_html_e('Service', 'panelr-for-woocommerce'); ?></th><td><?php echo esc_html($verified['plugin_name']); ?></td></tr>
+						<tr><th><?php echo esc_html(Panelr_Wording::term('service')); ?></th><td><?php echo esc_html($verified['plugin_name']); ?></td></tr>
 					<?php endif; ?>
 					<tr><th><?php esc_html_e('Name', 'panelr-for-woocommerce'); ?></th><td><?php echo esc_html($verified['customer_name'] ?: '—'); ?></td></tr>
 					<tr><th><?php esc_html_e('Email', 'panelr-for-woocommerce'); ?></th><td><?php echo esc_html($verified['customer_email'] ?: '—'); ?></td></tr>
@@ -56,7 +56,7 @@ defined('ABSPATH') || exit;
 								<td><?php echo esc_html(Panelr_Helpers::plan_summary($plan['connections'], $plan['duration_months'])); ?></td>
 								<td><button type="button" class="button panelr-upgrade-select" data-product-id="<?php echo (int) $plan['panelr_id']; ?>"><?php echo wp_kses_post(sprintf(
 									/* translators: %s: price */
-									__('Upgrade · %s', 'panelr-for-woocommerce'),
+									Panelr_Wording::term('upgrade') . ' · %s',
 									wc_price($plan['price'])
 								)); ?></button></td>
 							</tr>

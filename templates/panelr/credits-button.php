@@ -14,9 +14,9 @@ defined('ABSPATH') || exit;
 	<button type="button" class="button panelr-credits-buy__button" data-product-id="<?php echo (int) $product->get_id(); ?>">
 		<?php
 		printf(
-			/* translators: %d: credits */
-			esc_html(_n('Pay with %d credit', 'Pay with %d credits', $cost, 'panelr-for-woocommerce')),
-			(int) $cost
+			/* translators: %s: "3 credits" */
+			esc_html__('Pay with %s', 'panelr-for-woocommerce'),
+			esc_html(Panelr_Wording::credits((int) $cost))
 		);
 		?>
 	</button>

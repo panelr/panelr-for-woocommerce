@@ -23,7 +23,7 @@ $share_text = sprintf(
 
 <section class="panelr-portal__section panelr-credits">
 	<h3><?php esc_html_e('Your credits', 'panelr-for-woocommerce'); ?></h3>
-	<p class="panelr-credits__balance"><strong><?php echo (int) $balance; ?></strong> <?php echo esc_html(_n('credit', 'credits', $balance, 'panelr-for-woocommerce')); ?></p>
+	<p class="panelr-credits__balance"><?php echo esc_html(Panelr_Wording::credits((int) $balance)); ?></p>
 </section>
 
 <?php if ($code): ?>

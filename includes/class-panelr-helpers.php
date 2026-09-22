@@ -463,10 +463,10 @@ class Panelr_Helpers
 	public static function intent_label(string $intent): string
 	{
 		switch ($intent) {
-			case 'renewal':         return __('Renewal', 'panelr-for-woocommerce');
-			case 'trial_upgrade':   return __('Trial upgrade', 'panelr-for-woocommerce');
-			case 'balance_payment': return __('Balance payment', 'panelr-for-woocommerce');
-			default:                return __('New connection', 'panelr-for-woocommerce');
+			case 'renewal':         return Panelr_Wording::term('order_renewal');
+			case 'trial_upgrade':   return Panelr_Wording::term('order_upgrade');
+			case 'balance_payment': return Panelr_Wording::term('order_balance');
+			default:                return Panelr_Wording::term('order_new');
 		}
 	}
 
@@ -502,9 +502,8 @@ class Panelr_Helpers
 	public static function plan_summary(int $connections, int $months): string
 	{
 		$parts = [];
-		if ($connections) {
-			/* translators: %d: number of connections */
-			$parts[] = sprintf(_n('%d connection', '%d connections', $connections, 'panelr-for-woocommerce'), $connections);
+		if ($connections && Panelr_Wording::show('plan_connections')) {
+			$parts[] = Panelr_Wording::count('connection_count', $connections);
 		}
 		if ($months) {
 			/* translators: %d: number of months */

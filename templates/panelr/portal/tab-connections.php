@@ -12,7 +12,7 @@ defined('ABSPATH') || exit;
 ?>
 <?php if (!$groups): ?>
 	<section class="panelr-portal__section">
-		<p><?php esc_html_e('No connections on this account yet.', 'panelr-for-woocommerce'); ?></p>
+		<p><?php echo esc_html(Panelr_Wording::term('no_connections')); ?></p>
 		<?php if ($shop_url): ?><p><a class="button panelr-renew-btn" href="<?php echo esc_url($shop_url); ?>"><?php esc_html_e('See plans', 'panelr-for-woocommerce'); ?></a></p><?php endif; ?>
 	</section>
 <?php endif; ?>
@@ -47,7 +47,7 @@ defined('ABSPATH') || exit;
 					<tr><th><?php esc_html_e('Username', 'panelr-for-woocommerce'); ?></th><td><code class="panelr-portal__code"><?php echo esc_html($line['username']); ?></code></td></tr>
 				<?php endif; ?>
 				<?php if (!empty($line['product_name'])): ?>
-					<tr><th><?php esc_html_e('Plan', 'panelr-for-woocommerce'); ?></th><td><?php echo esc_html($line['product_name']); ?><?php if (!empty($line['connections'])): ?> · <?php echo esc_html(Panelr_Helpers::plan_summary((int) $line['connections'], 0)); ?><?php endif; ?></td></tr>
+					<tr><th><?php echo esc_html(Panelr_Wording::term('plan')); ?></th><td><?php echo esc_html($line['product_name']); ?><?php if (!empty($line['connections'])): ?> · <?php echo esc_html(Panelr_Helpers::plan_summary((int) $line['connections'], 0)); ?><?php endif; ?></td></tr>
 				<?php endif; ?>
 				<tr>
 					<th><?php esc_html_e('Ends', 'panelr-for-woocommerce'); ?></th>
@@ -61,7 +61,7 @@ defined('ABSPATH') || exit;
 
 			<p class="panelr-line__actions" role="tablist">
 				<?php if ($line['plans']): ?>
-					<button type="button" role="tab" aria-selected="false" class="button panelr-line__tab panelr-line-renew-btn" data-panel="renew"><?php echo !empty($line['is_trial']) ? esc_html__('Upgrade', 'panelr-for-woocommerce') : esc_html__('Renew', 'panelr-for-woocommerce'); ?></button>
+					<button type="button" role="tab" aria-selected="false" class="button panelr-line__tab panelr-line-renew-btn" data-panel="renew"><?php echo esc_html(Panelr_Wording::term(!empty($line['is_trial']) ? 'upgrade' : 'renew')); ?></button>
 				<?php endif; ?>
 				<?php if (!empty($line['bouquets_on'])): ?>
 					<button type="button" role="tab" aria-selected="false" class="button panelr-line__tab panelr-line-channels-btn" data-panel="channels"><?php esc_html_e('Channels', 'panelr-for-woocommerce'); ?></button>
@@ -82,14 +82,14 @@ defined('ABSPATH') || exit;
 								<td class="panelr-line__renew-buttons">
 									<button type="button" class="button panelr-renew-btn panelr-renew-choose" data-panelr-product-id="<?php echo (int) $plan['panelr_id']; ?>"><?php echo wp_kses_post(sprintf(
 										/* translators: %s: price */
-										!empty($line['is_trial']) ? __('Upgrade · %s', 'panelr-for-woocommerce') : __('Renew · %s', 'panelr-for-woocommerce'),
+										Panelr_Wording::term(!empty($line['is_trial']) ? 'upgrade' : 'renew') . ' · %s',
 										wc_price($plan['price'])
 									)); ?></button>
 									<?php if ($plan['cost_points'] > 0 && Panelr_Session::credits_balance() >= $plan['cost_points']): ?>
 										<button type="button" class="button panelr-renew-choose" data-panelr-product-id="<?php echo (int) $plan['panelr_id']; ?>" data-credits="1"><?php echo esc_html(sprintf(
 											/* translators: %d: credits */
-											_n('Pay with %d credit', 'Pay with %d credits', $plan['cost_points'], 'panelr-for-woocommerce'),
-											$plan['cost_points']
+											__('Pay with %s', 'panelr-for-woocommerce'),
+											Panelr_Wording::credits((int) $plan['cost_points'])
 										)); ?></button>
 									<?php endif; ?>
 								</td>

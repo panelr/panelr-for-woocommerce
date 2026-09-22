@@ -98,20 +98,20 @@ class Panelr_Portal
 				'saved'          => __('Saved', 'panelr-for-woocommerce'),
 				'loading'        => __('Loading…', 'panelr-for-woocommerce'),
 				'request_failed' => __('Something went wrong. Please try again.', 'panelr-for-woocommerce'),
-				'host'           => __('Host', 'panelr-for-woocommerce'),
-				'username'       => __('Username', 'panelr-for-woocommerce'),
-				'password'       => __('Password', 'panelr-for-woocommerce'),
-				'm3u'            => __('M3U link', 'panelr-for-woocommerce'),
-				'epg'            => __('EPG link', 'panelr-for-woocommerce'),
-				'mac'            => __('MAC address', 'panelr-for-woocommerce'),
+				'host'           => Panelr_Wording::term('host'),
+				'username'       => Panelr_Wording::term('username'),
+				'password'       => Panelr_Wording::term('password'),
+				'm3u'            => Panelr_Wording::term('m3u'),
+				'epg'            => Panelr_Wording::term('epg'),
+				'mac'            => Panelr_Wording::term('mac'),
 				'copy'           => __('Copy', 'panelr-for-woocommerce'),
 				'show'           => __('Show', 'panelr-for-woocommerce'),
 				'hide'           => __('Hide', 'panelr-for-woocommerce'),
-				'details_none'   => __('No connection details yet. Please try again shortly.', 'panelr-for-woocommerce'),
-				'links'          => __('Playlist links', 'panelr-for-woocommerce'),
-				'how_to'         => __('How to connect', 'panelr-for-woocommerce'),
-				'apps'           => __('Apps', 'panelr-for-woocommerce'),
-				'code_label'     => __('Downloader code', 'panelr-for-woocommerce'),
+				'details_none'   => Panelr_Wording::term('details_none'),
+				'links'          => Panelr_Wording::term('links'),
+				'how_to'         => Panelr_Wording::term('how_to'),
+				'apps'           => Panelr_Wording::term('apps'),
+				'code_label'     => Panelr_Wording::term('code_label'),
 				'reset_sent'     => __('If that address has an account, a link to choose a new password is on its way.', 'panelr-for-woocommerce'),
 				'chat_linked'    => __('Linked', 'panelr-for-woocommerce'),
 				'chat_not_linked' => __('Not linked', 'panelr-for-woocommerce'),
@@ -207,7 +207,7 @@ class Panelr_Portal
 			'customer_name'   => (string) ($d['customer_name'] ?? ''),
 			'status'          => 'trial_active',
 			'expiration_date' => $d['expiration_date'] ?? null,
-			'product'         => ['name' => __('Free trial', 'panelr-for-woocommerce'), 'connections' => (int) ($d['connections'] ?? 0)],
+			'product'         => ['name' => Panelr_Wording::term('free_trial'), 'connections' => (int) ($d['connections'] ?? 0)],
 			'referral'        => ['account_required' => true],
 		]);
 		return '';
@@ -362,7 +362,7 @@ class Panelr_Portal
 
 	private static function tabs(array $snapshot): array
 	{
-		$tabs = ['connections' => __('Connections', 'panelr-for-woocommerce'), 'orders' => __('Orders', 'panelr-for-woocommerce')];
+		$tabs = ['connections' => Panelr_Wording::term('connections'), 'orders' => __('Orders', 'panelr-for-woocommerce')];
 		if (!empty($snapshot['referral']['enabled'])) {
 			$tabs['credits'] = __('Credits', 'panelr-for-woocommerce');
 		}
@@ -825,7 +825,7 @@ class Panelr_Portal
 			$result = $api->get_lines_for_email((string) ($line_session['email'] ?? ''));
 		}
 		if (!$result['ok'] || !is_array($result['data'])) {
-			wp_send_json_error(['message' => $result['error'] ?: __('No connection details yet. Please try again shortly.', 'panelr-for-woocommerce')]);
+			wp_send_json_error(['message' => $result['error'] ?: Panelr_Wording::term('details_none')]);
 		}
 
 		foreach ($result['data'] as $line) {
@@ -844,7 +844,7 @@ class Panelr_Portal
 				'connection' => is_array($line['connection'] ?? null) ? $line['connection'] : null,
 			]);
 		}
-		wp_send_json_error(['message' => __('No connection details yet. Please try again shortly.', 'panelr-for-woocommerce')]);
+		wp_send_json_error(['message' => Panelr_Wording::term('details_none')]);
 	}
 
 	/** The channels panel for one line, rendered on request. */

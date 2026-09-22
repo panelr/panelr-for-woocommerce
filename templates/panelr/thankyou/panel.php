@@ -41,7 +41,7 @@ $done = in_array($panelr_status, ['completed'], true) || $state === 'completed';
 		<?php if ($panelr_status === 'completed'): ?>
 			<div class="panelr-payment-success">
 				<h2><?php esc_html_e('Ready', 'panelr-for-woocommerce'); ?></h2>
-				<p><?php esc_html_e('Your service is set up. Your connection details are in your inbox.', 'panelr-for-woocommerce'); ?></p>
+				<p><?php echo esc_html(Panelr_Wording::term('ready_inbox')); ?></p>
 			</div>
 		<?php elseif (in_array($panelr_status, ['canceled', 'payment_failed'], true)): ?>
 			<div class="panelr-portal__error">
@@ -110,7 +110,7 @@ $done = in_array($panelr_status, ['completed'], true) || $state === 'completed';
 		<div class="panelr-thankyou__status <?php echo $done ? 'panelr-payment-success' : 'panelr-thankyou__pending'; ?>" id="panelr-order-progress">
 			<h2 class="panelr-thankyou__status-label"><?php echo esc_html($done ? __('Ready', 'panelr-for-woocommerce') : Panelr_Helpers::order_status_label($panelr_status ?: 'queued')); ?></h2>
 			<p class="panelr-thankyou__status-text"><?php echo $done
-				? esc_html__('Your service is set up. Your connection details are in your inbox.', 'panelr-for-woocommerce')
+				? esc_html(Panelr_Wording::term('ready_inbox'))
 				: esc_html__('Your service is being set up. This usually takes a minute; you can wait here or check your inbox.', 'panelr-for-woocommerce'); ?></p>
 			<ul class="panelr-thankyou__lines" <?php echo $lines ? '' : 'hidden'; ?>>
 				<?php foreach ($lines as $line): ?>

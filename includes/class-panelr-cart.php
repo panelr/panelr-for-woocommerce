@@ -96,33 +96,35 @@ class Panelr_Cart
 		if (!$intent) return $item_data;
 
 		$plugin_id = (int) ($cart_item['_panelr_plugin_id'] ?? 0);
-		if ($plugin_id && Panelr_Helpers::multi_service()) {
-			$item_data[] = ['key' => __('Service', 'panelr-for-woocommerce'), 'value' => Panelr_Helpers::service_name($plugin_id)];
+		if ($plugin_id && Panelr_Helpers::multi_service() && Panelr_Wording::show('service_line')) {
+			$item_data[] = ['key' => Panelr_Wording::term('service'), 'value' => Panelr_Helpers::service_name($plugin_id)];
 		}
 
 		if (in_array($intent, ['renewal', 'trial_upgrade'], true)) {
-			$item_data[] = ['key' => __('Order type', 'panelr-for-woocommerce'), 'value' => Panelr_Helpers::intent_label($intent)];
+			if (Panelr_Wording::show('order_type')) {
+				$item_data[] = ['key' => __('Order type', 'panelr-for-woocommerce'), 'value' => Panelr_Helpers::intent_label($intent)];
+			}
 			$label = self::line_label_for_cart_item($cart_item);
-			if ($label) {
-				$item_data[] = ['key' => __('Connection', 'panelr-for-woocommerce'), 'value' => esc_html($label)];
+			if ($label && Panelr_Wording::show('line_name')) {
+				$item_data[] = ['key' => Panelr_Wording::term('connection'), 'value' => esc_html($label)];
 			}
 		}
 
 		if (!empty($cart_item['_panelr_credits_paid'])) {
 			$paid = (int) $cart_item['_panelr_credits_paid'];
 			$item_data[] = ['key' => __('Payment', 'panelr-for-woocommerce'), 'value' => sprintf(
-				/* translators: %d: number of credits */
-				_n('Paid with %d credit', 'Paid with %d credits', $paid, 'panelr-for-woocommerce'),
-				$paid
+				/* translators: %s: "3 credits" */
+				__('Paid with %s', 'panelr-for-woocommerce'),
+				Panelr_Wording::credits($paid)
 			)];
 		}
 
 		if (!empty($cart_item['_panelr_pay_with_points'])) {
 			$cost = (int) ($cart_item['data']->get_meta('_panelr_referral_cost_points') ?? 0);
 			$item_data[] = ['key' => __('Payment', 'panelr-for-woocommerce'), 'value' => sprintf(
-				/* translators: %d: number of credits */
-				_n('Paid with %d credit', 'Paid with %d credits', $cost, 'panelr-for-woocommerce'),
-				$cost
+				/* translators: %s: "3 credits" */
+				__('Paid with %s', 'panelr-for-woocommerce'),
+				Panelr_Wording::credits($cost)
 			)];
 		}
 
@@ -196,41 +198,43 @@ class Panelr_Cart
 
 		if ($intent && $intent !== 'new_activation') {
 			$text = Panelr_Helpers::intent_label((string) $intent);
-			$formatted_meta[] = (object) [
-				'key'           => 'panelr_order_type',
-				'value'         => $text,
-				'display_key'   => __('Order type', 'panelr-for-woocommerce'),
-				'display_value' => esc_html($text),
-			];
+			if (Panelr_Wording::show('order_type')) {
+				$formatted_meta[] = (object) [
+					'key'           => 'panelr_order_type',
+					'value'         => $text,
+					'display_key'   => __('Order type', 'panelr-for-woocommerce'),
+					'display_value' => esc_html($text),
+				];
+			}
 			if (!$label) {
 				$order = $order_item->get_order();
 				$label = $order ? ($order->get_meta('_panelr_editor_username') ?: $order->get_meta('_panelr_xtream_username')) : '';
 			}
-			if ($label) {
+			if ($label && Panelr_Wording::show('line_name')) {
 				$formatted_meta[] = (object) [
 					'key'           => 'panelr_account',
 					'value'         => $label,
-					'display_key'   => __('Connection', 'panelr-for-woocommerce'),
+					'display_key'   => Panelr_Wording::term('connection'),
 					'display_value' => esc_html($label),
 				];
 			}
 		}
-		if ($plugin_id && Panelr_Helpers::multi_service()) {
+		if ($plugin_id && Panelr_Helpers::multi_service() && Panelr_Wording::show('service_line')) {
 			$name = Panelr_Helpers::service_name($plugin_id);
 			if ($name) {
 				$formatted_meta[] = (object) [
 					'key'           => 'panelr_service',
 					'value'         => $name,
-					'display_key'   => __('Service', 'panelr-for-woocommerce'),
+					'display_key'   => Panelr_Wording::term('service'),
 					'display_value' => esc_html($name),
 				];
 			}
 		}
 		if ($credits) {
 			$text = sprintf(
-				/* translators: %d: number of credits */
-				_n('Paid with %d credit', 'Paid with %d credits', $credits, 'panelr-for-woocommerce'),
-				$credits
+				/* translators: %s: "3 credits" */
+				__('Paid with %s', 'panelr-for-woocommerce'),
+				Panelr_Wording::credits($credits)
 			);
 			$formatted_meta[] = (object) [
 				'key'           => 'panelr_credits',
@@ -254,12 +258,14 @@ class Panelr_Cart
 			$order = $item->get_order();
 			$label = $order ? ($order->get_meta('_panelr_editor_username') ?: $order->get_meta('_panelr_xtream_username')) : '';
 		}
+		$show_type = Panelr_Wording::show('order_type');
+		$show_line = $label && Panelr_Wording::show('line_name');
+		if (!$show_type && !$show_line) return $name;
 
-		$context  = '<br><small class="panelr-order-context">';
-		$context .= esc_html__('Order type', 'panelr-for-woocommerce') . ': <strong>' . esc_html(Panelr_Helpers::intent_label((string) $intent)) . '</strong>';
-		if ($label) {
-			$context .= ' &mdash; ' . esc_html__('Connection', 'panelr-for-woocommerce') . ': <strong>' . esc_html($label) . '</strong>';
-		}
+		$parts = [];
+		if ($show_type) $parts[] = esc_html__('Order type', 'panelr-for-woocommerce') . ': <strong>' . esc_html(Panelr_Helpers::intent_label((string) $intent)) . '</strong>';
+		if ($show_line) $parts[] = esc_html(Panelr_Wording::term('connection')) . ': <strong>' . esc_html($label) . '</strong>';
+		$context  = '<br><small class="panelr-order-context">' . implode(' &mdash; ', $parts);
 		$context .= '</small>';
 		return $name . $context;
 	}

@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.6
+
+No database change. Two new options (`panelr_wording`, `panelr_wording_show`) and one switch (`panelr_sync_descriptions`); with none of them set the output is identical to 2.0.5.
+
+- **Wording.** `Panelr_Wording` holds every customer-facing term (32 terms in four groups) with the plugin's own wording and a neutral alternative; `term()`, `count()`, `credits()` and `show()` are what the cart, order-line filters, portal i18n, templates and helpers now call. Panelr → Wording edits them; the sanitizer keeps only known keys, strips HTML and drops values equal to the default. Filter `panelr_wording_term` for code. Nothing sent to Panelr changes.
+- **Switches:** order type on order lines, connection name on order lines, service on order lines, service under the product, connection count in plan summaries. Off means the row or phrase is omitted, on every surface that uses the same filter (`woocommerce_order_item_name`, `woocommerce_order_item_get_formatted_meta_data`, `woocommerce_get_item_data`).
+- **Descriptions:** `panelr_sync_descriptions` off means a sync never writes a plan's description, new plans included.
+
 ## 2.0.5
 
 - Admin: the Services and Products tables are fluid (inputs and selects fill their cells) and scroll inside their box instead of running past the card.

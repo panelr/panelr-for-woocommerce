@@ -117,7 +117,7 @@ class Panelr_Trial
 		if ($status === 'approved') {
 			wp_send_json_success([
 				'status'  => 'approved',
-				'message' => __('Your trial is ready. Check your email for your connection details.', 'panelr-for-woocommerce'),
+				'message' => Panelr_Wording::term('trial_ready'),
 			]);
 		}
 		$ref = (string) ($result['data']['reference_code'] ?? '');

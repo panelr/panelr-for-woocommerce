@@ -24,11 +24,11 @@ defined('ABSPATH') || exit;
 		<h3><?php echo esc_html(Panelr_Helpers::intent_label($intent)); ?></h3>
 		<table class="panelr-portal__table">
 			<tr>
-				<th><?php esc_html_e('Plan', 'panelr-for-woocommerce'); ?></th>
+				<th><?php echo esc_html(Panelr_Wording::term('plan')); ?></th>
 				<td><?php echo esc_html($product['name']); ?><?php if ($multi && $service_name): ?> · <?php echo esc_html($service_name); ?><?php endif; ?><br><small><?php echo esc_html(Panelr_Helpers::plan_summary($product['connections'], $product['duration_months'])); ?></small></td>
 			</tr>
 			<?php if ($username): ?>
-				<tr><th><?php esc_html_e('Connection', 'panelr-for-woocommerce'); ?></th><td><code class="panelr-portal__code"><?php echo esc_html($username); ?></code></td></tr>
+				<tr><th><?php echo esc_html(Panelr_Wording::term('connection')); ?></th><td><code class="panelr-portal__code"><?php echo esc_html($username); ?></code></td></tr>
 			<?php endif; ?>
 			<?php if ($first_name || $last_name): ?>
 				<tr><th><?php esc_html_e('Name', 'panelr-for-woocommerce'); ?></th><td><?php echo esc_html(trim($first_name . ' ' . $last_name)); ?></td></tr>

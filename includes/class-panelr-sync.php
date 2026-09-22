@@ -312,7 +312,7 @@ class Panelr_Sync
 				$product->set_status('publish');
 				$product->set_attributes(['plan' => self::clean_label((string) $p['name'])]);
 				$product->set_regular_price((string) $p['price_decimal']);
-				if (!empty($p['description'])) $product->set_description((string) $p['description']);
+				if (!empty($p['description']) && self::sync_descriptions()) $product->set_description((string) $p['description']);
 				return $product;
 			}
 		}
@@ -321,7 +321,7 @@ class Panelr_Sync
 		$product->set_sold_individually(true);
 		$product->set_name((string) $p['name']);
 		$product->set_regular_price((string) $p['price_decimal']);
-		if (!empty($p['description'])) $product->set_description((string) $p['description']);
+		if (!empty($p['description']) && self::sync_descriptions()) $product->set_description((string) $p['description']);
 		$product->set_status('publish');
 		return $product;
 	}
@@ -641,9 +641,15 @@ class Panelr_Sync
 		if ($overwrite || $last_price === '' || (string) $product->get_regular_price() === $last_price) {
 			$product->set_regular_price($new_price);
 		}
-		if ($new_desc !== '' && ($overwrite || $last_desc === '' || $product->get_description() === $last_desc)) {
+		if ($new_desc !== '' && self::sync_descriptions() && ($overwrite || $last_desc === '' || $product->get_description() === $last_desc)) {
 			$product->set_description($new_desc);
 		}
+	}
+
+	/** Off: plan descriptions are the store's own and a sync never writes them. */
+	private static function sync_descriptions(): bool
+	{
+		return Panelr_Helpers::bool_option('panelr_sync_descriptions', '1');
 	}
 
 	/** The v2 meta, written on every sync and by the upgrade backfill. */
@@ -744,10 +750,10 @@ class Panelr_Sync
 		global $product;
 		if (!$product instanceof WC_Product) return;
 		$plugin_id = (int) $product->get_meta('_panelr_plugin_id');
-		if (!$plugin_id || !Panelr_Helpers::multi_service()) return;
+		if (!$plugin_id || !Panelr_Helpers::multi_service() || !Panelr_Wording::show('product_service')) return;
 		$name = Panelr_Helpers::service_name($plugin_id);
 		if (!$name) return;
-		echo '<span class="panelr-product-service"><span class="panelr-product-service__label">' . esc_html__('Service:', 'panelr-for-woocommerce') . '</span> ' . esc_html($name) . '</span>';
+		echo '<span class="panelr-product-service"><span class="panelr-product-service__label">' . esc_html(Panelr_Wording::term('service')) . ':</span> ' . esc_html($name) . '</span>';
 	}
 
 	/** "Add another service" — the other services' plans, each its own cart line. */

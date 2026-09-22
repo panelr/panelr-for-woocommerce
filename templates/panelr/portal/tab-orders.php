@@ -37,7 +37,7 @@ defined('ABSPATH') || exit;
 					<td>&times;<?php echo (int) ($item['qty'] ?? 1); ?></td>
 					<td><?php echo !empty($item['credits_paid'])
 						/* translators: %d: credits */
-						? esc_html(sprintf(_n('%d credit', '%d credits', (int) $item['credits_paid'], 'panelr-for-woocommerce'), (int) $item['credits_paid']))
+						? esc_html(Panelr_Wording::credits((int) $item['credits_paid']))
 						: wp_kses_post(wc_price((float) ($item['price'] ?? 0) * (int) ($item['qty'] ?? 1), ['currency' => $currency])); ?></td>
 				</tr>
 			<?php endforeach; ?>
@@ -55,7 +55,7 @@ defined('ABSPATH') || exit;
 				<td colspan="2"><strong><?php echo isset($o['credits_paid']) && $o['credits_paid'] !== null ? esc_html__('Paid with', 'panelr-for-woocommerce') : esc_html__('Total', 'panelr-for-woocommerce'); ?></strong></td>
 				<td><strong><?php echo isset($o['credits_paid']) && $o['credits_paid'] !== null
 					/* translators: %d: credits */
-					? esc_html(sprintf(_n('%d credit', '%d credits', (int) $o['credits_paid'], 'panelr-for-woocommerce'), (int) $o['credits_paid']))
+					? esc_html(Panelr_Wording::credits((int) $o['credits_paid']))
 					: wp_kses_post(wc_price((float) ($o['order_total'] ?? 0), ['currency' => $currency])); ?></strong></td>
 			</tr>
 			<?php if ((float) ($o['balance_due'] ?? 0) > 0 && $status === 'pending_payment'): ?>
