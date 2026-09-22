@@ -32,10 +32,42 @@ class Panelr_Wording
 			'service'            => ['names', __('Service', 'panelr-for-woocommerce'),                                     __('Service', 'panelr-for-woocommerce'), __('Service', 'panelr-for-woocommerce')],
 			'plan'               => ['names', __('Plan', 'panelr-for-woocommerce'),                                        __('Plan', 'panelr-for-woocommerce'), __('Plan', 'panelr-for-woocommerce')],
 			'free_trial'         => ['names', __('Free trial', 'panelr-for-woocommerce'),                                  __('Free trial', 'panelr-for-woocommerce'), __('Free trial', 'panelr-for-woocommerce')],
-			'credit_1'           => ['names', __('One credit (keep %d)', 'panelr-for-woocommerce'),                        __('%d credit', 'panelr-for-woocommerce'), __('%d credit', 'panelr-for-woocommerce')],
-			'credit_n'           => ['names', __('Several credits (keep %d)', 'panelr-for-woocommerce'),                   __('%d credits', 'panelr-for-woocommerce'), __('%d credits', 'panelr-for-woocommerce')],
-			'connection_count_1' => ['names', __('One connection on a plan (keep %d)', 'panelr-for-woocommerce'),          __('%d connection', 'panelr-for-woocommerce'), __('%d device', 'panelr-for-woocommerce')],
-			'connection_count_n' => ['names', __('Several connections on a plan (keep %d)', 'panelr-for-woocommerce'),     __('%d connections', 'panelr-for-woocommerce'), __('%d devices', 'panelr-for-woocommerce')],
+			'credit_1'           => [
+				'names',
+				/* translators: %d is left as-is; it is where the number goes */
+				__('One credit (keep %d)', 'panelr-for-woocommerce'),
+				/* translators: %d: number of credits */
+				__('%d credit', 'panelr-for-woocommerce'),
+				/* translators: %d: number of credits */
+				__('%d credit', 'panelr-for-woocommerce'),
+			],
+			'credit_n'           => [
+				'names',
+				/* translators: %d is left as-is; it is where the number goes */
+				__('Several credits (keep %d)', 'panelr-for-woocommerce'),
+				/* translators: %d: number of credits */
+				__('%d credits', 'panelr-for-woocommerce'),
+				/* translators: %d: number of credits */
+				__('%d credits', 'panelr-for-woocommerce'),
+			],
+			'connection_count_1' => [
+				'names',
+				/* translators: %d is left as-is; it is where the number goes */
+				__('One connection on a plan (keep %d)', 'panelr-for-woocommerce'),
+				/* translators: %d: number of connections */
+				__('%d connection', 'panelr-for-woocommerce'),
+				/* translators: %d: number of devices */
+				__('%d device', 'panelr-for-woocommerce'),
+			],
+			'connection_count_n' => [
+				'names',
+				/* translators: %d is left as-is; it is where the number goes */
+				__('Several connections on a plan (keep %d)', 'panelr-for-woocommerce'),
+				/* translators: %d: number of connections */
+				__('%d connections', 'panelr-for-woocommerce'),
+				/* translators: %d: number of devices */
+				__('%d devices', 'panelr-for-woocommerce'),
+			],
 			// Order types
 			'order_new'          => ['orders', __('Order type: a new purchase', 'panelr-for-woocommerce'),  __('New connection', 'panelr-for-woocommerce'), __('New subscription', 'panelr-for-woocommerce')],
 			'order_renewal'      => ['orders', __('Order type: a renewal', 'panelr-for-woocommerce'),       __('Renewal', 'panelr-for-woocommerce'), __('Renewal', 'panelr-for-woocommerce')],
@@ -56,7 +88,15 @@ class Panelr_Wording
 			'code_label'         => ['details', __('Downloader code', 'panelr-for-woocommerce'), __('Downloader code', 'panelr-for-woocommerce'), __('Setup code', 'panelr-for-woocommerce')],
 			// Sentences
 			'ready_inbox'        => ['sentences', __('Order is set up (thank-you page)', 'panelr-for-woocommerce'),     __('Your service is set up. Your connection details are in your inbox.', 'panelr-for-woocommerce'), __('You are all set. Your access details are in your inbox.', 'panelr-for-woocommerce')],
-			'ready_sent'         => ['sentences', __('Order is set up (order status page, keep %s)', 'panelr-for-woocommerce'), __('Your service is set up. Your connection details went to %s.', 'panelr-for-woocommerce'), __('You are all set. Your access details went to %s.', 'panelr-for-woocommerce')],
+			'ready_sent'         => [
+				'sentences',
+				/* translators: %s is left as-is; it is where the email address goes */
+				__('Order is set up (order status page, keep %s)', 'panelr-for-woocommerce'),
+				/* translators: %s: the customer's email address */
+				__('Your service is set up. Your connection details went to %s.', 'panelr-for-woocommerce'),
+				/* translators: %s: the customer's email address */
+				__('You are all set. Your access details went to %s.', 'panelr-for-woocommerce'),
+			],
 			'trial_ready'        => ['sentences', __('Trial is ready', 'panelr-for-woocommerce'),                       __('Your trial is ready. Check your email for your connection details.', 'panelr-for-woocommerce'), __('Your trial is ready. Check your email for your access details.', 'panelr-for-woocommerce')],
 			'no_connections'     => ['sentences', __('Member area with nothing on it', 'panelr-for-woocommerce'),       __('No connections on this account yet.', 'panelr-for-woocommerce'), __('Nothing on this account yet.', 'panelr-for-woocommerce')],
 			'details_none'       => ['sentences', __('Details not ready yet', 'panelr-for-woocommerce'),                __('No connection details yet. Please try again shortly.', 'panelr-for-woocommerce'), __('No access details yet. Please try again shortly.', 'panelr-for-woocommerce')],
