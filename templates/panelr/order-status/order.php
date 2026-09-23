@@ -62,9 +62,13 @@ $price      = fn(float $v) => wc_price($v, ['currency' => $currency]);
 				<?php endforeach; ?>
 				</tbody>
 				<tfoot>
-					<?php if ($coupon || $adj): ?>
+					<?php $bundles = array_filter((array) ($order['bundles'] ?? []), fn($b) => (float) ($b['discount'] ?? 0) > 0); ?>
+					<?php if ($coupon || $adj || $bundles): ?>
 						<tr><td colspan="2"><?php esc_html_e('Subtotal', 'panelr-for-woocommerce'); ?></td><td><?php echo wp_kses_post($price((float) ($order['snap_total'] ?? $total))); ?></td></tr>
 					<?php endif; ?>
+					<?php foreach ($bundles as $b): ?>
+						<tr><td colspan="2"><?php echo esc_html((string) ($b['label'] ?? $b['name'] ?? '')); ?></td><td>&minus;<?php echo wp_kses_post($price((float) $b['discount'])); ?></td></tr>
+					<?php endforeach; ?>
 					<?php if ($coupon): ?>
 						<tr><td colspan="2"><?php echo esc_html(sprintf(
 							/* translators: %s: coupon code */

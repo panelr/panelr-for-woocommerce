@@ -7,6 +7,7 @@
  * @var array|null $coupon      {code,label,discount}
  * @var bool       $invited
  * @var int        $credits
+ * @var array      $bundles     Panelr's bundle discounts on this cart: {name, label, discount}
  */
 defined('ABSPATH') || exit;
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- this file is included inside wc_get_template(); its variables are local, not global
@@ -28,6 +29,12 @@ defined('ABSPATH') || exit;
 		</td>
 	</tr>
 <?php endif; ?>
+<?php foreach ((array) ($bundles ?? []) as $b): if ((float) ($b['discount'] ?? 0) <= 0) continue; ?>
+	<tr class="panelr-bundle-row">
+		<th><?php echo esc_html((string) ($b['name'] ?? __('Bundle', 'panelr-for-woocommerce'))); ?></th>
+		<td>&minus;<?php echo wp_kses_post(wc_price((float) $b['discount'])); ?><?php if (!empty($b['label'])): ?> · <?php echo esc_html((string) $b['label']); ?><?php endif; ?></td>
+	</tr>
+<?php endforeach; ?>
 <?php if ($invited): ?>
 	<tr class="panelr-invited-row">
 		<th><?php esc_html_e('Invite', 'panelr-for-woocommerce'); ?></th>

@@ -4,7 +4,7 @@ Tags: iptv, woocommerce, panelr, subscription, streaming
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 2.0.6
+Stable tag: 2.0.7
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,13 @@ Account details are held in the WooCommerce session while a member is signed in.
 Everything keeps working. Members now sign in with their email and password (connection details still work as a door and offer account set-up); manual orders reach Panelr before the thank-you page; payment instructions come from Panelr. Full list in README.md.
 
 == Changelog ==
+
+= 2.0.7 =
+* Bundle discounts and service-limited codes from Panelr 2.0.9 show and charge correctly: the store asks Panelr what the cart costs and adds one line per bundle, then the code, then the payment method's fee, so the customer pays exactly what Panelr records.
+* The store's own product prices are what Panelr's rules apply to, so a price you edited in WooCommerce stays the price.
+* Orders handed over from Panelr show their bundle lines too. Bundle rows appear on the order status page and in the member area's orders.
+* If Panelr cannot be reached to price the cart, checkout waits with a notice instead of charging the wrong amount. On a Panelr older than 2.0.9 the store prices carts the old way and says so under Panelr settings.
+* Channel groups from Panelr show in the member area's Channels panel as one choice each, with the group's icon, name and package count, under a Groups heading. Packages in a group are not listed on their own; the rest sit under Individual. Ticking a group gives the customer everything in it. Both headings can be renamed under Wording.
 
 = 2.0.6 =
 * New Wording tab: type your own word for connection, service, plan, host, M3U link, EPG link and the rest, and it is used everywhere the store shows it: the shop, the cart, order emails, receipts and the member area. A "Use neutral wording" button fills them all in one click. Leave a box empty to keep the plugin's word.

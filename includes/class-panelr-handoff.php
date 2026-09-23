@@ -183,6 +183,7 @@ class Panelr_Handoff
 			'manual'      => $pm && empty($pm['is_automated']) && (($pm['mode'] ?? '') === 'manual'),
 			'order_total' => $total,
 			'coupon'      => $o['coupon'] ?? null,
+			'bundles'     => (array) ($o['bundles'] ?? []),
 			'adjustment'  => $o['adjustment'] ?? null,
 			'email'       => (string) ($o['customer_email'] ?? ''),
 			'name'        => (string) ($o['customer_name'] ?? ''),
@@ -335,6 +336,11 @@ class Panelr_Handoff
 	/** The order's own coupon and fee, as WooCommerce fees, so the total equals Panelr's. */
 	public static function add_fees(WC_Cart $cart, array $h): void
 	{
+		foreach ((array) ($h['bundles'] ?? []) as $b) {
+			if ((float) ($b['discount'] ?? 0) > 0) {
+				$cart->add_fee((string) ($b['label'] ?? $b['name'] ?? __('Bundle', 'panelr-for-woocommerce')), -(float) $b['discount'], false);
+			}
+		}
 		$coupon = $h['coupon'] ?? null;
 		if ($coupon && (float) ($coupon['discount'] ?? 0) > 0) {
 			$cart->add_fee(sprintf(

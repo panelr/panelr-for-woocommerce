@@ -278,9 +278,11 @@ jQuery(function ($) {
 		var data = { action: 'panelr_portal_update_bouquets', activation_id: $box.data('activation-id') };
 		panelr.hideError($err);
 		if ($box.data('mode') === 'editor') {
+			// Groups go as group_ids; the section lists carry only the bouquets ticked on their own.
 			$.each(['live', 'vod', 'series'], function (i, cat) {
-				data[cat] = $box.find('.panelr-bouquet-cb[data-category="' + cat + '"]:checked').map(function () { return this.value; }).get();
+				data[cat] = $box.find('.panelr-bouquet-cb[data-category="' + cat + '"]:not(.panelr-bouquet-cb--group):checked').map(function () { return this.value; }).get();
 			});
+			data.group_ids = $box.find('.panelr-bouquet-cb--group:checked').map(function () { return this.value; }).get();
 		} else {
 			data.bouquet_ids = $box.find('.panelr-bouquet-cb:checked').map(function () { return this.value; }).get();
 		}

@@ -86,6 +86,8 @@ class Panelr_Wording
 			'how_to'             => ['details', __('How to connect (the heading)', 'panelr-for-woocommerce'), __('How to connect', 'panelr-for-woocommerce'), __('Getting started', 'panelr-for-woocommerce')],
 			'apps'               => ['details', __('Apps', 'panelr-for-woocommerce'),            __('Apps', 'panelr-for-woocommerce'), __('Apps', 'panelr-for-woocommerce')],
 			'code_label'         => ['details', __('Downloader code', 'panelr-for-woocommerce'), __('Downloader code', 'panelr-for-woocommerce'), __('Setup code', 'panelr-for-woocommerce')],
+			'groups'             => ['details', __('Groups (heading over channel groups)', 'panelr-for-woocommerce'), __('Groups', 'panelr-for-woocommerce'), __('Groups', 'panelr-for-woocommerce')],
+			'individual'         => ['details', __('Individual (heading over single channel packages)', 'panelr-for-woocommerce'), __('Individual', 'panelr-for-woocommerce'), __('Individual', 'panelr-for-woocommerce')],
 			// Sentences
 			'ready_inbox'        => ['sentences', __('Order is set up (thank-you page)', 'panelr-for-woocommerce'),     __('Your service is set up. Your connection details are in your inbox.', 'panelr-for-woocommerce'), __('You are all set. Your access details are in your inbox.', 'panelr-for-woocommerce')],
 			'ready_sent'         => [

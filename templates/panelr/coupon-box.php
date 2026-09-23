@@ -5,6 +5,7 @@
  *
  * @var array|null $coupon {code,label,discount}
  * @var bool       $invited
+ * @var array      $bundles Panelr's bundle discounts on this cart: {name, label, discount}
  */
 defined('ABSPATH') || exit;
 ?>
@@ -20,6 +21,9 @@ defined('ABSPATH') || exit;
 		</span>
 	<?php endif; ?>
 	<span class="panelr-coupon-row__result" aria-live="polite"></span>
+	<?php foreach ((array) ($bundles ?? []) as $b): if ((float) ($b['discount'] ?? 0) <= 0) continue; ?>
+		<span class="panelr-coupon-box__bundle"><?php echo esc_html((string) ($b['name'] ?? '')); ?> &minus;<?php echo wp_kses_post(wc_price((float) $b['discount'])); ?></span>
+	<?php endforeach; ?>
 	<?php if ($invited): ?>
 		<span class="panelr-coupon-box__invited"><?php esc_html_e('Invited by a member — your invite code is on this order.', 'panelr-for-woocommerce'); ?></span>
 	<?php endif; ?>

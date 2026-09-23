@@ -806,6 +806,10 @@ class Panelr_Sync
 	public static function notices(): void
 	{
 		if (!current_user_can('manage_options')) return;
+		if (Panelr_API::unsupported('quote_cart')) {
+			echo '<div class="notice notice-warning panelr-upgrade-notice"><p><strong>' . esc_html__('Panelr for WooCommerce', 'panelr-for-woocommerce') . '</strong> '
+				. esc_html__('Bundle discounts and service-limited codes need Panelr 2.0.9 or later. Until Panelr is updated the store prices carts the old way.', 'panelr-for-woocommerce') . '</p></div>';
+		}
 		$notes = get_option('panelr_sync_notes', []);
 		if (!is_array($notes) || !$notes) return;
 		echo '<div class="notice notice-warning is-dismissible panelr-upgrade-notice" data-panelr-notice="sync"><p><strong>' . esc_html__('Panelr products', 'panelr-for-woocommerce') . '</strong></p>';

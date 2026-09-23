@@ -204,6 +204,9 @@ class Panelr_API
 			if ($error === '') {
 				$error = __('Panelr could not complete that request.', 'panelr-for-woocommerce');
 			}
+			if ($status === 404 && stripos($error, 'Unknown action') === 0) {
+				set_transient('panelr_unsupported_' . $action, 1, DAY_IN_SECONDS);
+			}
 			return $this->fail($status ?: 500, $error, $action, $data);
 		}
 
@@ -271,6 +274,22 @@ class Panelr_API
 	public static function flush_cache(): void
 	{
 		update_option('panelr_cache_version', (int) get_option('panelr_cache_version', 1) + 1, false);
+		delete_transient('panelr_unsupported_quote_cart');
+	}
+
+	/**
+	 * True when Panelr answered "Unknown action" for this action in the last
+	 * day: an older Panelr that does not have it yet. Cleared by Refresh.
+	 */
+	public static function unsupported(string $action): bool
+	{
+		return (bool) get_transient('panelr_unsupported_' . $action);
+	}
+
+	/** Price a cart the way Panelr will: bundles, the code, the method's fee. */
+	public function quote_cart(array $body): array
+	{
+		return $this->post('quote_cart', $body);
 	}
 
 	// ── Convenience wrappers (names follow Panelr's actions) ──────────────

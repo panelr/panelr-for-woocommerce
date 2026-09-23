@@ -41,6 +41,9 @@ defined('ABSPATH') || exit;
 						: wp_kses_post(wc_price((float) ($item['price'] ?? 0) * (int) ($item['qty'] ?? 1), ['currency' => $currency])); ?></td>
 				</tr>
 			<?php endforeach; ?>
+			<?php foreach ((array) ($o['bundles'] ?? []) as $b): if ((float) ($b['discount'] ?? 0) <= 0) continue; ?>
+				<tr><td colspan="2"><?php echo esc_html((string) ($b['label'] ?? $b['name'] ?? '')); ?></td><td>&minus;<?php echo wp_kses_post(wc_price((float) $b['discount'], ['currency' => $currency])); ?></td></tr>
+			<?php endforeach; ?>
 			<?php if (!empty($o['coupon'])): ?>
 				<tr><td colspan="2"><?php echo esc_html(sprintf(
 					/* translators: %s: coupon code */

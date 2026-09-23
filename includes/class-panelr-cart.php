@@ -11,6 +11,11 @@ defined('ABSPATH') || exit;
 class Panelr_Cart
 {
 	const COUPON_KEY = 'panelr_coupon';
+	const QUOTE_KEY  = 'panelr_quote';
+
+	/** The quote for the cart as it is now; null when Panelr could not be asked. Set by quote(). */
+	private static ?array $quote_now = null;
+	private static bool $quote_failed = false;
 
 	public static function init(): void
 	{
@@ -324,6 +329,20 @@ class Panelr_Cart
 			}
 		}
 
+		// Panelr's quote: lines it cannot price come out; no quote at all stops the checkout.
+		if (self::has_panelr_items() && !Panelr_Handoff::current()) {
+			$quote = self::quote();
+			if ($quote === null) {
+				wc_add_notice(__('Panelr could not be reached to price this order. Please try again in a moment.', 'panelr-for-woocommerce'), 'error');
+			} elseif (empty($quote['unsupported']) && !empty($quote['dropped_which'])) {
+				foreach ((array) $quote['dropped_which'] as $idx) {
+					$key = $quote['keys'][(int) $idx] ?? '';
+					if ($key && isset(WC()->cart->cart_contents[$key])) WC()->cart->remove_cart_item($key);
+				}
+				wc_add_notice(__('A plan that is no longer offered was taken out of your cart.', 'panelr-for-woocommerce'), 'notice');
+			}
+		}
+
 		// Credits: the balance must cover every credit-paid line.
 		$credits_needed = self::credits_in_cart();
 		if ($credits_needed > 0) {
@@ -340,6 +359,93 @@ class Panelr_Cart
 	}
 
 	// ── Credits ───────────────────────────────────────────────────────────
+
+	// ── The quote: Panelr prices the cart ──────────────────────────────
+
+	/**
+	 * The cart's lines in Panelr's item shape, each with the price this store
+	 * charges for it, keyed by cart item key.
+	 * @return array<string, array>
+	 */
+	public static function cart_items(WC_Cart $cart): array
+	{
+		$items = [];
+		foreach ($cart->get_cart() as $key => $item) {
+			$product = $item['data'] ?? null;
+			if (!$product instanceof WC_Product) continue;
+			$panelr_id = Panelr_Helpers::panelr_product_id($product->get_id());
+			if (!$panelr_id) continue;
+			$intent = (string) ($item['_panelr_intent'] ?? 'new_activation');
+			if ($intent === 'balance_payment') continue;
+			$row = [
+				'product_id' => $panelr_id,
+				'intent'     => $intent,
+				'qty'        => max(1, (int) $item['quantity']),
+				'unit_price' => round((float) $product->get_price(), 2),
+			];
+			if (!empty($item['_panelr_activation_id'])) $row['activation_id'] = (int) $item['_panelr_activation_id'];
+			if (!empty($item['_panelr_pay_with_points'])) $row['pay_with_points'] = true;
+			$items[$key] = $row;
+		}
+		return $items;
+	}
+
+	/**
+	 * Ask Panelr what this cart costs: bundles, the applied code, the chosen
+	 * method's fee. Cached in the session per cart state, so a page render
+	 * asks once. Null when Panelr could not be reached (the last good answer
+	 * for the same cart is kept for ten minutes). ['unsupported' => true]
+	 * when Panelr is too old to quote.
+	 */
+	public static function quote(bool $fresh = false): ?array
+	{
+		if (!WC()->cart || Panelr_Api::unsupported('quote_cart')) return ['unsupported' => true];
+		$items = self::cart_items(WC()->cart);
+		if (!$items) return null;
+
+		$code   = self::coupon_mode() === 'panelr' ? (string) (self::applied_coupon()['code'] ?? '') : '';
+		$email  = Panelr_Session::email() ?: (WC()->customer ? (string) WC()->customer->get_billing_email() : '');
+		$gw     = WC()->session ? (string) WC()->session->get('chosen_payment_method') : '';
+		$method = ($gw && $gw !== Panelr_Credits_Gateway::ID) ? (int) Panelr_Helpers::mapped_method_id($gw) : 0;
+		$hash   = md5(wp_json_encode([array_values($items), $code, strtolower($email), $method]));
+
+		$cached = Panelr_Session::get(self::QUOTE_KEY);
+		if (!$fresh && is_array($cached) && ($cached['hash'] ?? '') === $hash && (int) ($cached['at'] ?? 0) > time() - 10 * MINUTE_IN_SECONDS) {
+			self::$quote_now = $cached['data'];
+			return $cached['data'];
+		}
+
+		$body = ['items' => array_values($items)];
+		if ($code)   $body['coupon_code']       = $code;
+		if ($email)  $body['customer_email']    = $email;
+		if ($method) $body['payment_method_id'] = $method;
+		$result = Panelr_API::instance()->quote_cart($body);
+
+		if (!$result['ok']) {
+			if (Panelr_Api::unsupported('quote_cart')) return ['unsupported' => true];
+			// Panelr is down: the last good quote for this exact cart still stands.
+			if (is_array($cached) && ($cached['hash'] ?? '') === $hash) {
+				self::$quote_now = $cached['data'];
+				return $cached['data'];
+			}
+			self::$quote_failed = true;
+			self::$quote_now = null;
+			return null;
+		}
+		$data = is_array($result['data']) ? $result['data'] : [];
+		// The cart keys, in the order the items were sent, so a dropped index maps back.
+		$data['keys'] = array_keys($items);
+		Panelr_Session::set(self::QUOTE_KEY, ['hash' => $hash, 'data' => $data, 'at' => time()]);
+		self::$quote_now = $data;
+		self::$quote_failed = false;
+		return $data;
+	}
+
+	/** True when Panelr could not price the cart on this request. */
+	public static function quote_failed(): bool
+	{
+		return self::$quote_failed;
+	}
 
 	/** Credits every credit-paid line in the cart needs. */
 	public static function credits_in_cart(): int
@@ -437,6 +543,33 @@ class Panelr_Cart
 			return;
 		}
 
+		// Panelr prices the cart: bundles, then the code on what is left, then
+		// the method's fee, each as its own line. The store shows and charges
+		// exactly what Panelr will record.
+		$quote = self::quote();
+		if ($quote === null) return;   // unreachable: no discount rows; validate_cart stops the checkout
+		if (empty($quote['unsupported'])) {
+			foreach ((array) ($quote['bundles'] ?? []) as $b) {
+				if ((float) ($b['discount'] ?? 0) > 0) {
+					$cart->add_fee((string) $b['name'], -(float) $b['discount'], false);
+				}
+			}
+			$c = $quote['coupon'] ?? null;
+			if (is_array($c) && !empty($c['valid']) && (float) ($c['discount'] ?? 0) > 0) {
+				$cart->add_fee(sprintf(
+					/* translators: %s: coupon code */
+					__('Coupon %s', 'panelr-for-woocommerce'),
+					strtoupper((string) $c['code'])
+				), -(float) $c['discount'], false);
+			}
+			$adj = $quote['adjustment'] ?? null;
+			if (is_array($adj) && (float) ($adj['amount'] ?? 0) > 0) {
+				$cart->add_fee((string) ($adj['label'] ?: ucfirst((string) $adj['direction'])), $adj['direction'] === 'fee' ? (float) $adj['amount'] : -(float) $adj['amount'], false);
+			}
+			return;
+		}
+
+		// An older Panelr without quote_cart: the store's own maths, as before.
 		$money = 0.0;
 		foreach ($cart->get_cart() as $item) {
 			if (empty($item['_panelr_pay_with_points'])) {
@@ -531,11 +664,30 @@ class Panelr_Cart
 			'label'    => (string) ($result['data']['label'] ?? ''),
 			'discount' => (float) ($result['data']['discount'] ?? 0),
 		]);
+		$label = (string) ($result['data']['label'] ?? '');
+
+		// The quote says what the code is worth on this cart (a scoped code,
+		// or a bundle that does not allow one on top).
+		$quote = self::quote(true);
+		if ($quote === null) {
+			Panelr_Session::forget(self::COUPON_KEY);
+			wp_send_json_error(['message' => __('Panelr could not be reached to price this order. Please try again in a moment.', 'panelr-for-woocommerce')]);
+		}
+		if (empty($quote['unsupported'])) {
+			$c = $quote['coupon'] ?? null;
+			if (!is_array($c) || empty($c['valid'])) {
+				Panelr_Session::forget(self::COUPON_KEY);
+				self::quote(true);
+				wp_send_json_error(['message' => (string) (($c['reason'] ?? '') ?: __('That code does not apply to this order.', 'panelr-for-woocommerce'))]);
+			}
+			$label = (string) ($c['label'] ?: $label);
+			Panelr_Session::set(self::COUPON_KEY, ['code' => (string) $c['code'], 'label' => $label, 'discount' => (float) $c['discount']]);
+		}
 		wp_send_json_success(['message' => sprintf(
 			/* translators: 1: coupon code, 2: discount label */
 			__('%1$s applied: %2$s', 'panelr-for-woocommerce'),
 			$code,
-			(string) ($result['data']['label'] ?? '')
+			$label
 		)]);
 	}
 
@@ -552,9 +704,11 @@ class Panelr_Cart
 		if (is_admin() || self::coupon_mode() !== 'panelr') return $content;
 		if (!WC()->cart || !self::has_panelr_items() || Panelr_Handoff::current()) return $content;
 		// cart.js is already enqueued on the cart and checkout pages (enqueue()).
+		$quote = self::quote();
 		return Panelr_Template::render('coupon-box', [
 			'coupon'  => self::applied_coupon(),
 			'invited' => Panelr_Session::referral_code() !== '',
+			'bundles' => is_array($quote) ? (array) ($quote['bundles'] ?? []) : [],
 		]) . $content;
 	}
 
@@ -562,11 +716,13 @@ class Panelr_Cart
 	public static function render_cart_extras(): void
 	{
 		if (!self::has_panelr_items() || Panelr_Handoff::current()) return;
+		$quote = self::quote();
 		Panelr_Template::output('cart-extras', [
 			'coupon_mode' => self::coupon_mode(),
 			'coupon'      => self::applied_coupon(),
 			'invited'     => Panelr_Session::referral_code() !== '',
 			'credits'     => self::credits_in_cart(),
+			'bundles'     => is_array($quote) ? (array) ($quote['bundles'] ?? []) : [],
 		]);
 	}
 
@@ -583,10 +739,13 @@ class Panelr_Cart
 			$intent = $item->get_meta('_panelr_intent') ?: 'new_activation';
 			if ($intent === 'balance_payment') continue;
 
+			$qty = max(1, (int) $item->get_quantity());
 			$row = [
 				'product_id' => $panelr_id,
 				'intent'     => $intent,
-				'qty'        => max(1, (int) $item->get_quantity()),
+				'qty'        => $qty,
+				// What this store charged per unit, before any discount line.
+				'unit_price' => round((float) $item->get_subtotal() / $qty, 2),
 			];
 			$activation_id = (int) $item->get_meta('_panelr_activation_id');
 			if ($activation_id) $row['activation_id'] = $activation_id;

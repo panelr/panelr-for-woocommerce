@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.0.7
+
+No database change. Pairs with Panelr 2.0.9 (`quote_cart`, bundle discounts, scoped coupons, bouquet groups). Works unchanged against older Panelr.
+
+- **Panelr prices the cart.** `Panelr_Cart::quote()` calls `quote_cart` with the cart's lines (each with the store's own `unit_price`), the applied Panelr code, the signed-in email and the mapped method id; the answer is cached in the WC session per cart hash for ten minutes. `add_fees()` adds one negative fee per bundle, then the coupon when `coupon.valid`, then the method adjustment from the quote. `validate_cart()` removes lines Panelr reports as `dropped_which` and, when Panelr cannot be reached and no cached quote exists for this cart, adds an error notice so checkout waits. `ajax_apply_coupon()` still uses `validate_coupon` for the quick rejection, then the quote decides the amount and refuses a code that does not apply to this cart.
+- **Older Panelr.** A 404 "Unknown action" for `quote_cart` sets a day-long transient (`Panelr_API::unsupported()`); the store then prices carts as 2.0.6 did and an admin notice says so. Refresh on the Connection tab clears it.
+- **Hand-off orders** carry `bundles` from `get_work_order` and add them as fees before the coupon.
+- **Order sends** carry `unit_price` per item; `create_work_order` / `complete_order` answers stamp `_panelr_bundle_discount`, `_panelr_coupon_discount`, `_panelr_order_total`, and an order note records any difference from what the store charged (WooCommerce's own coupon discount is sent as `store_discount` and excluded from the comparison).
+- Bundle rows on the order status page, the member area's orders, the cart totals box and the block cart/checkout box.
+- **Channel groups in the portal.** `ajax_bouquets()` reads `groups` (top level or the service's `plugins[]` entry) and the line's `group_ids` from `get_lines`; the template lists, per section, a Groups heading, one card per group (`.panelr-bouquet-cb--group` with `data-members`; icon image, `icon_text` badge or a generic glyph; member count pill), then an Individual heading and the bouquets not covered by any group. A group is on when nothing is stored, when its id is in `group_ids`, or when every member is on. Tab counts treat a group as one item. Save sends `group_ids[]` and only the individually ticked bouquets per section; `ajax_update_bouquets()` keeps only this service's group ids. Panel-mode services are untouched.
+- Wording terms `groups` and `individual`.
+
 ## 2.0.6
 
 No database change. Two new options (`panelr_wording`, `panelr_wording_show`) and one switch (`panelr_sync_descriptions`); with none of them set the output is identical to 2.0.5.

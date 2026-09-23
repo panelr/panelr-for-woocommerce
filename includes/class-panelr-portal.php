@@ -867,17 +867,22 @@ class Panelr_Portal
 		$data = $b['data'];
 		$mode = (string) ($data['mode'] ?? 'none');
 		$bouquets = $data['bouquets'] ?? [];
+		// Groups: one choice standing for several bouquets (editor mode only).
+		// An older Panelr sends no groups key; that is simply no groups.
+		$groups = (array) ($data['groups'] ?? []);
 		if ($mode === 'per_plugin' && !empty($data['plugins'])) {
 			foreach ($data['plugins'] as $svc) {
 				if ((int) $svc['plugin_id'] === $plugin_id) {
 					$mode = (string) $svc['mode'];
 					$bouquets = $svc['bouquets'];
+					$groups = (array) ($svc['groups'] ?? []);
 				}
 			}
 		}
 
 		// The line's current choice.
 		$current = [];
+		$current_groups = [];
 		$lines = Panelr_Session::is_signed_in()
 			? $api->get_lines_for_customer(Panelr_Session::customer_id())
 			: $api->get_lines_for_email((string) ($line['email'] ?? ''));
@@ -889,14 +894,17 @@ class Panelr_Portal
 				} elseif (!empty($l['bouquet_ids'])) {
 					$current = array_map('intval', (array) $l['bouquet_ids']);
 				}
+				if (!empty($l['group_ids'])) $current_groups = array_map('intval', (array) $l['group_ids']);
 			}
 		}
 
 		wp_send_json_success(['html' => Panelr_Template::render('portal/bouquets', [
-			'activation_id' => $activation_id,
-			'mode'          => $mode,
-			'bouquets'      => $bouquets,
-			'current'       => $current,
+			'activation_id'  => $activation_id,
+			'mode'           => $mode,
+			'bouquets'       => $bouquets,
+			'groups'         => $mode === 'editor' ? $groups : [],
+			'current'        => $current,
+			'current_groups' => $current_groups,
 		])]);
 	}
 
@@ -915,17 +923,20 @@ class Panelr_Portal
 
 		// Only this service's bouquets may be sent.
 		$allowed = [];
+		$allowed_groups = [];
 		$b = Panelr_API::instance()->get_bouquets($plugin_id);
 		$mode = 'panel';
 		if ($b['ok']) {
 			$data = $b['data'];
 			$mode = (string) ($data['mode'] ?? 'panel');
 			$list = $data['bouquets'] ?? [];
+			$groups = (array) ($data['groups'] ?? []);
 			if ($mode === 'per_plugin' && !empty($data['plugins'])) {
 				foreach ($data['plugins'] as $svc) {
-					if ((int) $svc['plugin_id'] === $plugin_id) { $mode = (string) $svc['mode']; $list = $svc['bouquets']; }
+					if ((int) $svc['plugin_id'] === $plugin_id) { $mode = (string) $svc['mode']; $list = $svc['bouquets']; $groups = (array) ($svc['groups'] ?? []); }
 				}
 			}
+			foreach ($groups as $g) $allowed_groups[] = (int) ($g['id'] ?? 0);
 			if ($mode === 'editor') {
 				foreach ((array) $list as $cat => $items) foreach ((array) $items as $bq) $allowed[] = (int) $bq['id'];
 			} else {
@@ -942,6 +953,9 @@ class Panelr_Portal
 				'vod'    => $keep(array_map('absint', (array) wp_unslash($_POST['vod'] ?? []))),
 				'series' => $keep(array_map('absint', (array) wp_unslash($_POST['series'] ?? []))),
 			]];
+			// Groups the customer ticked; only this service's. Panelr expands them.
+			$group_ids = array_map('absint', (array) wp_unslash($_POST['group_ids'] ?? []));
+			$payload['group_ids'] = array_values(array_filter($group_ids, fn($id) => $id && in_array($id, $allowed_groups, true)));
 		} else {
 			$ids = $keep(array_map('absint', (array) wp_unslash($_POST['bouquet_ids'] ?? [])));
 		}

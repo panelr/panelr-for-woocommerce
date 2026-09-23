@@ -640,6 +640,16 @@
 .panelr-portal .panelr-bouquets__tab.is-active { background: var(--panelr-accent) !important; border-color: var(--panelr-accent) !important; color: var(--panelr-text-inverse) !important; }
 .panelr-bouquets__count { margin-left: 6px; font-size: 12px; opacity: .8; }
 
+/* Channel groups: one choice standing for several packages */
+.panelr-bouquets__heading { margin: 10px 0 6px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--panelr-text-muted); }
+.panelr-portal__bouquet-list--groups { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 6px; }
+.panelr-portal__bouquet-list--groups li label { border: 1px solid var(--panelr-border); border-radius: var(--panelr-radius-sm); padding: 9px 11px; }
+.panelr-bouquet-group__icon { width: 22px; height: 22px; border-radius: 5px; object-fit: cover; flex-shrink: 0; }
+.panelr-bouquet-group__badge { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 5px; background: var(--panelr-bg-secondary); font-size: 11px; font-weight: 700; flex-shrink: 0; }
+.panelr-bouquet-group__badge--none { font-size: 14px; }
+.panelr-bouquet-group__name { flex: 1 1 auto; }
+.panelr-bouquet-group__count { font-size: 12px; padding: 1px 8px; border-radius: 10px; background: var(--panelr-bg-secondary); color: var(--panelr-text-muted); }
+
 /* Working buttons */
 .panelr-spinner { display: inline-block; width: 14px; height: 14px; margin-right: 8px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: panelr-spin .7s linear infinite; vertical-align: -2px; }
 .button.is-busy, .button[disabled] { opacity: .7; cursor: progress; }

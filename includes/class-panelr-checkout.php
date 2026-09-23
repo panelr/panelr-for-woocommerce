@@ -394,6 +394,7 @@ class Panelr_Checkout
 			__('Panelr order %s created, waiting for payment.', 'panelr-for-woocommerce'),
 			$d['reference_code']
 		));
+		self::stamp_panelr_totals($order, $d);
 		$order->save();
 
 		Panelr_API::instance()->send_payment_instructions((int) $d['work_order_id'], $order->get_checkout_order_received_url());
@@ -452,6 +453,10 @@ class Panelr_Checkout
 		$body['payment_method_id']      = (int) $pm['id'];
 		$body['payment_transaction_id'] = (string) ($order->get_transaction_id() ?: 'WC-' . $order->get_id());
 		$body['payment_amount']         = (float) $order->get_total();
+		// WooCommerce's own coupon, so Panelr's total check compares like with like.
+		if (self::uses_wc_coupons() && (float) $order->get_discount_total() > 0) {
+			$body['store_discount'] = (float) $order->get_discount_total();
+		}
 
 		$result = Panelr_API::instance()->complete_order($body);
 		if (!$result['ok']) {
@@ -523,8 +528,39 @@ class Panelr_Checkout
 			__('Panelr order %s is being set up.', 'panelr-for-woocommerce'),
 			$d['reference_code']
 		));
+		self::stamp_panelr_totals($order, $d);
 		$order->save();
 		Panelr_Orders::schedule_polling($order->get_id());
+	}
+
+	/**
+	 * Panelr's own figures for the order, and a note when they differ from
+	 * what the store charged: a stale price, a bundle edited between the
+	 * quote and the payment, or a store that could not quote. The order is
+	 * not saved here.
+	 */
+	private static function stamp_panelr_totals(WC_Order $order, array $d): void
+	{
+		if (!array_key_exists('order_total', $d)) return;
+		$order->update_meta_data('_panelr_bundle_discount', (float) ($d['bundle_discount'] ?? 0));
+		$order->update_meta_data('_panelr_coupon_discount', (float) ($d['coupon_discount'] ?? 0));
+		$order->update_meta_data('_panelr_order_total',     (float) $d['order_total']);
+		if ($order->get_meta('_panelr_confirmation_token') && (string) $order->get_meta('_panelr_state') === 'handoff') return;
+		// WooCommerce's own coupons are the store's business; compare before them.
+		$charged = (float) $order->get_total() + (self::uses_wc_coupons() ? (float) $order->get_discount_total() : 0.0);
+		if (abs($charged - (float) $d['order_total']) > 0.01) {
+			$order->add_order_note(sprintf(
+				/* translators: 1: Panelr's total, 2: the store's total */
+				__('Panelr priced this order at %1$s; the store charged %2$s.', 'panelr-for-woocommerce'),
+				wp_strip_all_tags(wc_price((float) $d['order_total'], ['currency' => $order->get_currency()])),
+				wp_strip_all_tags(wc_price($charged, ['currency' => $order->get_currency()]))
+			));
+		}
+	}
+
+	private static function uses_wc_coupons(): bool
+	{
+		return Panelr_Cart::coupon_mode() !== 'panelr';
 	}
 
 	// ── Shared body ───────────────────────────────────────────────────────
